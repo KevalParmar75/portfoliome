@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Project, ProjectExplanation, ContactMessage, Skill, Experience, About, SocialLink
+from .models import Project, ProjectExplanation, ContactMessage, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics
 
 admin.site.register(Skill)
 admin.site.register(Experience)
@@ -21,3 +21,17 @@ class ProjectExplanationAdmin(admin.ModelAdmin):
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'category', 'created_at')
+
+@admin.register(ChatCache)
+class ChatCacheAdmin(admin.ModelAdmin):
+    list_display = ('user_query', 'created_at')
+    search_fields = ('user_query', 'ai_response')
+    ordering = ('-created_at',)
+
+@admin.register(SectionAnalytics)
+class SectionAnalyticsAdmin(admin.ModelAdmin):
+    list_display = ("section", "date", "total_views", "total_time")
+    list_filter = ("date", "section")
+    search_fields = ("section",)
+    ordering = ("-date",)
+    readonly_fields = ("section", "date", "total_views", "total_time")

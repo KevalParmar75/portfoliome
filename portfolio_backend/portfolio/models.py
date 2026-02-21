@@ -10,7 +10,7 @@ class Project(models.Model):
     github_url = models.URLField(blank=True, null=True)
     live_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    views = models.IntegerField(default=0)
     def __str__(self):
         return self.title
 class ProjectExplanation(models.Model):
@@ -94,3 +94,22 @@ class SocialLink(models.Model):
     def __str__(self):
         return self.name
 
+class ChatCache(models.Model):
+    user_query = models.CharField(max_length=500, unique=True)
+    ai_response = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user_query
+
+class SectionAnalytics(models.Model):
+    section = models.CharField(max_length=50)
+    date = models.DateField()
+    total_time = models.FloatField(default=0)
+    total_views = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('section', 'date')
+
+    def __str__(self):
+        return f"{self.section} - {self.date}"

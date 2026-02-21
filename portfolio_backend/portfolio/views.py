@@ -1,6 +1,8 @@
-from rest_framework.decorators import api_view
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, action
 from rest_framework.views import APIView
-from .models import Project, ProjectExplanation, Skill, Experience, About, SocialLink
+from .models import Project, ProjectExplanation, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics
 from .serializers import (
     ProjectSerializer,
     SkillSerializer,
@@ -8,9 +10,11 @@ from .serializers import (
     AboutSerializer,
     SocialLinkSerializer
 )
-from ai_services.hf_service import generate_explanation
+from ai_services.hf_service import generate_explanation, generate_chat_response
 from rest_framework.response import Response
-
+from django.utils.timezone import now
+from datetime import timedelta
+from django.db.models import Sum
 
 class ProjectListView(APIView):
     def get(self, request):
@@ -128,3 +132,114 @@ class SocialLinksView(APIView):
         links = SocialLink.objects.all()
         serializer = SocialLinkSerializer(links, many=True)
         return Response(serializer.data)
+
+
+@api_view(["POST"])
+def portfolio_chat(request):
+    user_message = request.data.get("message", "").strip()
+
+    if not user_message:
+        return Response({"error": "Message is required"}, status=400)
+
+    # 1. Check Cache (Exact match for simplicity, lowercase it)
+    cache_key = user_message.lower()
+    existing_cache = ChatCache.objects.filter(user_query=cache_key).first()
+
+    if existing_cache:
+        return Response({
+            "content": existing_cache.ai_response,
+            "cached": True
+        })
+
+    # 2. Gather Context from DB
+    about = About.objects.first()
+    skills = ", ".join([s.name for s in Skill.objects.all()])
+    experience = "\n".join([
+                               f"{e.role} at {e.company} ({e.start_date} to {'Present' if e.currently_working else e.end_date}): {e.description}"
+                               for e in Experience.objects.all()])
+    projects = "\n".join([f"{p.title} ({p.tech_stack}): {p.short_description}" for p in Project.objects.all()])
+
+    context_str = f"""
+    About: {about.bio if about else 'N/A'}
+    Skills: {skills}
+    Experience: {experience}
+    Projects: {projects}
+    """
+
+    # 3. Call Qwen 2.5
+    try:
+        generated_text = generate_chat_response(context_str, user_message)
+
+        # 4. Save to Cache
+        ChatCache.objects.create(
+            user_query=cache_key,
+            ai_response=generated_text
+        )
+
+        return Response({
+            "content": generated_text,
+            "cached": False
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+@api_view(['POST'])
+def track_section(request):
+    section = request.data.get("section")
+    time_spent = float(request.data.get("time_spent", 0))
+
+    today = now().date()
+
+    obj, created = SectionAnalytics.objects.get_or_create(
+        section=section,
+        date=today
+    )
+
+    obj.total_time += time_spent
+    obj.total_views += 1
+    obj.save()
+
+    return Response({"status": "updated"})
+
+@api_view(['GET'])
+def weekly_ranking(request):
+    today = now().date()
+    week_ago = today - timedelta(days=7)
+
+    weekly_data = (
+        SectionAnalytics.objects
+        .filter(date__gte=week_ago)
+        .values('section')
+        .annotate(total_time=Sum('total_time'))
+        .order_by('-total_time')
+    )
+
+    if weekly_data.exists():
+        return Response({
+            "type": "weekly",
+            "data": weekly_data
+        })
+
+    # fallback to all-time totals
+    historical = (
+        SectionAnalytics.objects
+        .values('section')
+        .annotate(total_time=Sum('total_time'))
+        .order_by('-total_time')
+    )
+
+    return Response({
+        "type": "historical",
+        "data": historical
+    })
+
+# 🔥 Replaces the unused ViewSet entirely
+@api_view(['POST'])
+def increment_project_view(request, slug):
+    try:
+        project = Project.objects.get(slug=slug)
+        project.views += 1
+        project.save()
+        return Response({'status': 'view counted', 'new_total': project.views})
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=404)
