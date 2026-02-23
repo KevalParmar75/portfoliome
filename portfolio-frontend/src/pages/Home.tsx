@@ -467,7 +467,7 @@ export default function Home() {
       <Particles init={particlesInit} options={PARTICLES_OPTIONS} className="absolute inset-0 -z-10" />
 
       {/* ── Main Glass Tile ─────────────────────────────────────────────── */}
-      <main className="relative z-10 m-3 sm:m-6 md:m-8 rounded-[2.5rem] bg-black/40 backdrop-blur-[30px] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.03)] pb-10">
+      <main className="relative z-10 m-3 sm:m-6 md:m-8 rounded-[2.5rem] bg-black/50 backdrop-blur-[60px] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.03)] pb-10">
 
         {/* ── HERO ─────────────────────────────────────────────────────── */}
         <section id="hero" className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center text-center px-6 pt-20">
