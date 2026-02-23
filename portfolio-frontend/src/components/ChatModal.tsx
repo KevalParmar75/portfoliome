@@ -72,7 +72,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
           >
             {/* Main Seamless Glass Container */}
             {/* RESPONSIVE UPDATE: Dynamic height on mobile (70vh) to avoid keyboard overlap */}
-            <div className="flex flex-col h-[70vh] sm:h-[550px] bg-black/20 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.03)] relative">
+            <div className="flex flex-col h-[70vh] sm:h-[550px] bg-black/40 backdrop-blur-3xl rounded-3xl overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.03)] relative">
 
               {/* Header - Transparent */}
               <div className="px-5 sm:px-6 py-4 sm:py-5 flex justify-between items-center relative z-10 border-b border-white/5 sm:border-none">
