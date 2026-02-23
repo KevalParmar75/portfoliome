@@ -19,7 +19,7 @@ from django.db.models import Sum
 class ProjectListView(APIView):
     def get(self, request):
         projects = Project.objects.all().order_by('-created_at')
-        serializer = ProjectSerializer(projects, many=True)
+        serializer = ProjectSerializer(projects, many=True, context={'request': request})
         return Response(serializer.data)
 
 @api_view(["POST"])
@@ -135,13 +135,14 @@ class SocialLinksView(APIView):
 
 
 @api_view(["POST"])
-def portfolio_chat(request):
+def portfolio_chat(request, chat_history=None):
     user_message = request.data.get("message", "").strip()
+    is_suggested = request.data.get("is_suggested", False)
 
     if not user_message:
         return Response({"error": "Message is required"}, status=400)
 
-    # 1. Check Cache (Exact match for simplicity, lowercase it)
+    # 1. Check Cache
     cache_key = user_message.lower()
     existing_cache = ChatCache.objects.filter(user_query=cache_key).first()
 
@@ -151,30 +152,73 @@ def portfolio_chat(request):
             "cached": True
         })
 
-    # 2. Gather Context from DB
+    # 2. Gather MEGA-CONTEXT from DB
     about = About.objects.first()
-    skills = ", ".join([s.name for s in Skill.objects.all()])
-    experience = "\n".join([
-                               f"{e.role} at {e.company} ({e.start_date} to {'Present' if e.currently_working else e.end_date}): {e.description}"
-                               for e in Experience.objects.all()])
-    projects = "\n".join([f"{p.title} ({p.tech_stack}): {p.short_description}" for p in Project.objects.all()])
 
-    context_str = f"""
-    About: {about.bio if about else 'N/A'}
-    Skills: {skills}
-    Experience: {experience}
-    Projects: {projects}
+    # Format Skills by Category
+    skills_qs = Skill.objects.all()
+    skills_dict = {}
+    for s in skills_qs:
+        skills_dict.setdefault(s.category, []).append(s.name)
+    skills_formatted = "\n".join([f"- {cat}: {', '.join(items)}" for cat, items in skills_dict.items()])
+
+    # Format Experience
+    experience = "\n".join([
+        f"- {e.role} at {e.company} ({e.start_date} to {'Present' if e.currently_working else e.end_date}): {e.description}"
+        for e in Experience.objects.all()
+    ])
+
+    # Format Projects (Now includes Detailed Description, Tech Stack, Links, and Views!)
+    projects = "\n".join([
+        f"Project: {p.title}\n  Tech: {p.tech_stack}\n  Views: {p.views}\n  Summary: {p.short_description}\n  Details: {p.detailed_description}\n  GitHub: {p.github_url or 'N/A'}\n  Live: {p.live_url or 'N/A'}"
+        for p in Project.objects.all()
+    ])
+
+    # Format Social Links
+    socials = ", ".join([f"{link.name} ({link.url})" for link in SocialLink.objects.all()])
+
+    # 3. The Ultimate System Persona Prompt
+    system_prompt = f"""
+    You are the personal AI representative for Keval Parmar, a highly skilled AI Systems Engineer.
+    You are embedded directly into his portfolio website.
+    Your job is to answer questions from recruiters and developers about his work, skills, and experience.
+
+    TONE & STYLE:
+    - Professional, highly technical, yet conversational and confident.
+    - Keep responses concise and scannable. Use bullet points if listing multiple things.
+    - NEVER invent or hallucinate information. ONLY use the database context provided below.
+    - If someone asks something unrelated to Keval, politely refuse and guide the conversation back to his engineering skills.
+
+    DATABASE CONTEXT:
+
+    [ABOUT KEVAL]
+    {about.headline if about else 'N/A'}
+    {about.bio if about else 'N/A'}
+
+    [CORE SKILLS]
+    {skills_formatted}
+
+    [PROFESSIONAL EXPERIENCE]
+    {experience}
+
+    [PROJECT PORTFOLIO]
+    {projects}
+
+    [CONTACT & LINKS]
+    {socials}
     """
 
-    # 3. Call Qwen 2.5
+    # 4. Call your AI Model (Make sure your generate_chat_response is set up to handle system prompts!)
     try:
-        generated_text = generate_chat_response(context_str, user_message)
+        # Pass the mega-context as the first argument, and the user's message as the second!
+        generated_text = generate_chat_response(system_prompt, user_message, chat_history)  # ✅ FIXED
 
-        # 4. Save to Cache
-        ChatCache.objects.create(
-            user_query=cache_key,
-            ai_response=generated_text
-        )
+        # 5. Save to Cache
+        if is_suggested:
+            ChatCache.objects.create(
+                user_query=cache_key,
+                ai_response=generated_text
+            )
 
         return Response({
             "content": generated_text,

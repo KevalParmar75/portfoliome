@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from .models import Project, Skill, Experience, About, SocialLink, SectionAnalytics
+from .models import Project, Skill, Experience, About, SocialLink, SectionAnalytics, ProjectImage
 
 
+class ProjectImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectImage
+        fields = ['id', 'image', 'caption']
 class ProjectSerializer(serializers.ModelSerializer):
+    images = ProjectImageSerializer(many=True, read_only=True)
     class Meta:
         model = Project
         fields = "__all__"

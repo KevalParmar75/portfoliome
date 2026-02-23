@@ -1,16 +1,21 @@
 from django.contrib import admin
-from .models import Project, ProjectExplanation, ContactMessage, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics
+from .models import Project, ProjectExplanation, ContactMessage, Skill, Experience, About, SocialLink, ChatCache, \
+    SectionAnalytics, ProjectImage
 
 admin.site.register(Skill)
 admin.site.register(Experience)
 admin.site.register(About)
 admin.site.register(SocialLink)
 
+class ProjectImageInline(admin.TabularInline):
+    model = ProjectImage
+    extra = 1 # Shows 1 empty row for uploading a new image by default
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'created_at')
     prepopulated_fields = {"slug": ("title",)}
+    inlines = [ProjectImageInline]
 
 
 @admin.register(ProjectExplanation)
