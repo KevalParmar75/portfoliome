@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "../api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -10,7 +10,7 @@ interface Message {
 }
 
 // ─── Animated message bubble ──────────────────────────────────────────────────
-const MessageBubble = ({ msg, idx }: { msg: Message; idx: number }) => {
+const MessageBubble = ({ msg }: { msg: Message }) => {
   const isUser = msg.role === "user";
 
   return (
@@ -256,7 +256,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     className="relative z-10 flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-4 chat-scroll"
                   >
                     {messages.map((msg, idx) => (
-                      <MessageBubble key={idx} msg={msg} idx={idx} />
+                      <MessageBubble key={idx} msg={msg} />
                     ))}
 
                     <AnimatePresence>
