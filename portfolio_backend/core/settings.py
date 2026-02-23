@@ -150,12 +150,10 @@ REST_FRAMEWORK = {
 }
 HUGGINGFACE_API_KEY = os.getenv("HF_API_KEY")
 
-if 'CLOUDINARY_URL' in os.environ:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    cloudinary.config(secure=True)
-else:
-    # Fallback to local storage if the .env variable is missing
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# 2. Force Cloudinary to return secure https:// URLs for Vercel
+cloudinary.config(secure=True)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
