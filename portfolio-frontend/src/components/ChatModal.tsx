@@ -19,7 +19,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
   const quickChips = [
     "What's your tech stack?",
-    "Tell me about Museum Ticket Booking",
+    "Tell me about His Projects...",
     "Do you have LLM experience?"
   ];
 
@@ -30,16 +30,28 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
     }
   }, [messages, loading]);
 
-  const handleSend = async (text: string) => {
+ const handleSend = async (text: string, isSuggested: boolean = false) => {
     if (!text.trim()) return;
 
     const userMsg = text.trim();
+
+    // 🔥 1. Grab the last 4 messages for context BEFORE adding the new one
+    const chatHistory = messages.slice(-4).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setInput("");
     setLoading(true);
 
     try {
-      const res = await api.post("chat/", { message: userMsg });
+      // 🔥 2. Send the message, the flag, and the history to Django
+      const res = await api.post("chat/", {
+        message: userMsg,
+        is_suggested: isSuggested,
+        history: chatHistory
+      });
       setMessages(prev => [...prev, { role: "ai", content: res.data.content }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: "ai", content: "Sorry, I'm having trouble connecting to my brain right now. Try again later!" }]);
@@ -47,7 +59,6 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
       setLoading(false);
     }
   };
-
   return (
     <>
       <AnimatePresence>
@@ -61,7 +72,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
           >
             {/* Main Seamless Glass Container */}
             {/* RESPONSIVE UPDATE: Dynamic height on mobile (70vh) to avoid keyboard overlap */}
-            <div className="flex flex-col h-[70vh] sm:h-[550px] bg-black/10 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.03)] relative">
+            <div className="flex flex-col h-[70vh] sm:h-[550px] bg-black/20 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.03)] relative">
 
               {/* Header - Transparent */}
               <div className="px-5 sm:px-6 py-4 sm:py-5 flex justify-between items-center relative z-10 border-b border-white/5 sm:border-none">
@@ -111,7 +122,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                       {quickChips.map((chip, idx) => (
                         <button
                           key={idx}
-                          onClick={() => handleSend(chip)}
+                          onClick={() => handleSend(chip, true)}
                           className="text-xs bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/40 transition-all px-3 py-1.5 rounded-full text-gray-300 shadow-[inset_0_0_10px_rgba(255,255,255,0.02)] whitespace-nowrap"
                         >
                           {chip}
