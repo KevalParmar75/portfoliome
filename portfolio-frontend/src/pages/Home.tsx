@@ -217,30 +217,41 @@ const SocialIcon = ({ link, idx }: { link: any; idx: number }) => {
   );
 };
 
-// ─── Hero name char-by-char ────────────────────────────────────────────────────
-const HeroName = ({ name }: { name: string }) => (
-  <motion.h1
-    className="font-lobster italic font-bold text-6xl md:text-8xl lg:text-9xl bg-gradient-to-r from-orange-400 via-red-400 to-yellow-500 bg-clip-text text-transparent animate-gradient leading-tight pb-2 pr-4 tracking-wide"
-    aria-label={name}
-  >
-    {name.split("").map((char, i) => (
-      <motion.span
-        key={i}
-        className="inline-block"
-        style={char === " " ? { minWidth: "0.4em" } : {}}
-        initial={{ opacity: 0, y: 80, rotate: -8 }}
-        animate={{ opacity: 1, y: 0, rotate: 0 }}
-        transition={{
-          duration: 0.6,
-          ease: [0.22, 1, 0.36, 1],
-          delay: 0.05 + i * 0.04,
-        }}
-      >
-        {char}
-      </motion.span>
-    ))}
-  </motion.h1>
-);
+// ─── Hero name char-by-char (Mobile Optimized) ─────────────────────────────────
+const HeroName = ({ name }: { name: string }) => {
+  const words = name.split(" ");
+  let globalCharIdx = 0; // Keeps the animation delay perfectly staggered across all words
+
+  return (
+    <motion.h1
+      className="font-lobster italic font-bold text-5xl sm:text-6xl md:text-8xl lg:text-9xl bg-gradient-to-r from-orange-400 via-red-400 to-yellow-500 bg-clip-text text-transparent animate-gradient leading-tight pb-2 flex flex-wrap justify-center gap-x-[0.3em] gap-y-2"
+      aria-label={name}
+    >
+      {words.map((word, wordIdx) => (
+        <span key={wordIdx} className="inline-flex whitespace-nowrap">
+          {word.split("").map((char) => {
+            const idx = globalCharIdx++;
+            return (
+              <motion.span
+                key={idx}
+                className="inline-block"
+                initial={{ opacity: 0, y: 80, rotate: -8 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
+                transition={{
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: 0.05 + idx * 0.04,
+                }}
+              >
+                {char}
+              </motion.span>
+            );
+          })}
+        </span>
+      ))}
+    </motion.h1>
+  );
+};
 
 // ─── Particles config (memoized outside component to avoid re-init) ────────────
 const PARTICLES_OPTIONS = {
