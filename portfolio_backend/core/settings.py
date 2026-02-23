@@ -152,6 +152,7 @@ HUGGINGFACE_API_KEY = os.getenv("HF_API_KEY")
 
 if 'CLOUDINARY_URL' in os.environ:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    cloudinary.config(secure=True)
 else:
     # Fallback to local storage if the .env variable is missing
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
