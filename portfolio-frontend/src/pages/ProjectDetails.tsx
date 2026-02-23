@@ -346,7 +346,7 @@ export default function ProjectDetails() {
         {BLOBS.map((blob, i) => <PlasmaBlob key={i} blob={blob} />)}
       </div>
 
-      <main className="relative z-10 m-3 sm:m-6 md:m-8 rounded-[2.5rem] bg-black/40 backdrop-blur-[20px] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.03)] pb-10 min-h-[calc(100vh-4rem)]">
+      <main className="relative z-10 m-3 sm:m-6 md:m-8 rounded-[2.5rem] bg-black/50 backdrop-blur-[60px] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.03)] pb-10 min-h-[calc(100vh-4rem)]">
         <div className="pt-32 md:pt-44 pb-20 md:pb-32 px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
 
