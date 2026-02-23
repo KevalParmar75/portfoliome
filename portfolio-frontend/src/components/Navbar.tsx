@@ -29,7 +29,7 @@ export default function Navbar() {
 
   // The Typewriter Engine
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (isNameExpanded) {
       interval = setInterval(() => {
