@@ -95,7 +95,7 @@ export default function Navbar() {
     <div className="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] sm:w-max">
 
       {/* Main Navbar Pill */}
-      <div className="flex items-center justify-between sm:justify-center gap-6 md:gap-8 px-6 py-3 md:px-8 rounded-full bg-black/20 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(255,106,0,0.15)] transition-all duration-500">
+      <div className="flex items-center justify-between sm:justify-center gap-6 md:gap-8 px-6 py-3 md:px-8 rounded-full bg-black/30 backdrop-blur-3xl border border-white/10 shadow-[0_8px_32px_rgba(255,106,0,0.15)] transition-all duration-500">
 
         {/* BRANDING: Signature Typewriter */}
         <div
