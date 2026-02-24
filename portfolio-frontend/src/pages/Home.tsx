@@ -37,12 +37,6 @@ const PlasmaBlob = ({ blob }: { blob: any }) => (
   />
 );
 
-// ─── Animated counter for hero stats ────────────────────────────────────────────
-const AnimatedCounter = ({ value, suffix = "" }: { value: number; suffix?: string }) => {
-  const [display, setDisplay] = useState(0);
-  const inViewRef = useRef(null);
-  const inView = useInView(inViewRef, { once: true });
-
   useEffect(() => {
     if (!inView) return;
     let start = 0;
@@ -389,7 +383,7 @@ export default function Home() {
   const [about, setAbout]           = useState<any>(null);
   const [socials, setSocials]       = useState<any[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [ranking, setRanking]       = useState<any>(null);
+  const [, setRanking]       = useState<any>(null);
   const [backendRecommendation, setBackendRecommendation] = useState<string | null>(null);
   const [dismissSuggestion, setDismissSuggestion]         = useState(false);
   const [timeSpent, setTimeSpent] = useState<Record<string, number>>({
