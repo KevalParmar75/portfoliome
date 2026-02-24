@@ -3,191 +3,364 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { FiSend, FiX, FiZap } from "react-icons/fi";
+import { FaBrain } from "react-icons/fa";
 
 interface Message {
   role: "user" | "ai";
   content: string;
 }
 
+const quickChips = [
+  "What's your tech stack?",
+  "Tell me about his projects",
+  "Do you have LLM experience?",
+];
+
+// ─── Typing dots ──────────────────────────────────────────────────────────────
+const TypingDots = () => (
+  <div className="flex items-center gap-1.5 px-4 py-3">
+    {[0, 1, 2].map(i => (
+      <motion.span
+        key={i}
+        className="w-1.5 h-1.5 rounded-full bg-cyan-400"
+        animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
+        transition={{ duration: 1, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+      />
+    ))}
+  </div>
+);
+
 export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>([
     { role: "ai", content: "Hi! I'm Keval's AI assistant. Ask me anything about his experience, projects, or tech stack!" }
   ]);
-  const [input, setInput] = useState("");
+  const [input, setInput]   = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef  = useRef<HTMLInputElement>(null);
 
-  const quickChips = [
-    "What's your tech stack?",
-    "Tell me about His Projects...",
-    "Do you have LLM experience?"
-  ];
-
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading]);
 
- const handleSend = async (text: string, isSuggested: boolean = false) => {
-    if (!text.trim()) return;
+  // Focus input when opened
+  useEffect(() => {
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
+  }, [isOpen]);
 
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
+  const handleSend = async (text: string, isSuggested = false) => {
+    if (!text.trim() || loading) return;
     const userMsg = text.trim();
-
-    // 🔥 1. Grab the last 4 messages for context BEFORE adding the new one
-    const chatHistory = messages.slice(-4).map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
+    const chatHistory = messages.slice(-4).map(m => ({ role: m.role, content: m.content }));
 
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setInput("");
     setLoading(true);
 
     try {
-      // 🔥 2. Send the message, the flag, and the history to Django
-      const res = await api.post("chat/", {
-        message: userMsg,
-        is_suggested: isSuggested,
-        history: chatHistory
-      });
+      const res = await api.post("chat/", { message: userMsg, is_suggested: isSuggested, history: chatHistory });
       setMessages(prev => [...prev, { role: "ai", content: res.data.content }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: "ai", content: "Sorry, I'm having trouble connecting to my brain right now. Try again later!" }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "ai", content: "Sorry, I'm having trouble connecting right now. Try again later!" }]);
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            // RESPONSIVE UPDATE: w-[calc(100%-2rem)] centers it perfectly on mobile.
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100%-2rem)] sm:w-full sm:max-w-md rounded-3xl p-[1px] bg-gradient-to-br from-orange-400/40 via-white/10 to-red-600/40 shadow-[0_10px_40px_rgba(255,106,0,0.25)]"
-          >
-            {/* Main Seamless Glass Container */}
-            {/* RESPONSIVE UPDATE: Dynamic height on mobile (70vh) to avoid keyboard overlap */}
-            <div className="flex flex-col h-[70vh] sm:h-[550px] bg-black/20 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-[inset_0_0_30px_rgba(255,255,255,0.03)] relative">
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              onClick={onClose}
+            />
 
-              {/* Header - Transparent */}
-              <div className="px-5 sm:px-6 py-4 sm:py-5 flex justify-between items-center relative z-10 border-b border-white/5 sm:border-none">
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="chat-modal fixed bottom-0 left-0 right-0 sm:bottom-6 sm:right-6 sm:left-auto z-50 w-full sm:w-[420px] flex flex-col"
+              style={{ maxHeight: "85svh" }}
+            >
+              {/* ── Header ──────────────────────────────────────────── */}
+              <div className="chat-header flex items-center justify-between px-5 py-4 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-orange-400 to-red-500 animate-pulse shadow-[0_0_10px_rgba(255,106,0,0.8)]" />
-                  <h3 className="font-semibold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-orange-200 to-red-300">
-                    Portfolio AI
-                  </h3>
+                  <div className="chat-icon-wrap">
+                    <FaBrain className="text-cyan-400 text-sm" />
+                    <span className="chat-icon-ping" />
+                  </div>
+                  <div>
+                    <p className="font-mono text-[9px] text-cyan-400/60 tracking-[0.2em] uppercase">portfolio.ai</p>
+                    <p className="text-sm font-semibold text-white leading-tight">Ask me anything</p>
+                  </div>
                 </div>
-                <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-lg sm:text-xl p-1">✕</button>
-              </div>
 
-              {/* Chat Area */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-5 pb-2 pt-2 sm:pt-0 space-y-4 sm:space-y-6 chat-scroll relative z-10">
-                {messages.map((msg, idx) => (
-                  <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[90%] sm:max-w-[85%] rounded-2xl px-4 sm:px-5 py-3 text-sm leading-relaxed chat-markdown ${
-                      msg.role === "user"
-                        ? "bg-white/10 text-white border border-white/10 shadow-[inset_0_0_15px_rgba(255,255,255,0.05)] rounded-tr-sm"
-                        : "bg-gradient-to-br from-orange-500/10 to-red-500/10 text-gray-200 border border-orange-500/20 shadow-[inset_0_0_20px_rgba(255,106,0,0.05)] rounded-tl-sm"
-                    }`}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
+                <div className="flex items-center gap-2">
+                  {/* Online status */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="font-mono text-[9px] text-emerald-400 tracking-widest">ONLINE</span>
                   </div>
-                ))}
-
-                {/* Typing Indicator */}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 rounded-2xl rounded-tl-sm px-5 py-4 shadow-[inset_0_0_20px_rgba(255,106,0,0.05)]">
-                      <div className="flex gap-1.5">
-                        <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" />
-                        <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-                        <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Chips & Input Area */}
-              <div className="p-3 sm:p-4 pt-0 relative z-10 flex flex-col gap-3">
-                 {messages.length === 1 && (
-                    <div className="flex flex-wrap gap-2 px-1">
-                      {quickChips.map((chip, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleSend(chip, true)}
-                          className="text-xs bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/40 transition-all px-3 py-1.5 rounded-full text-gray-300 shadow-[inset_0_0_10px_rgba(255,255,255,0.02)] whitespace-nowrap"
-                        >
-                          {chip}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                <div className="relative flex items-center">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
-                    placeholder="Ask about my experience..."
-                    className="w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl pl-4 sm:pl-5 pr-12 py-3 sm:py-3.5 text-sm text-white focus:outline-none focus:border-orange-500/50 focus:bg-white/10 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)]"
-                  />
                   <button
-                    onClick={() => handleSend(input)}
-                    className="absolute right-1.5 sm:right-2 text-orange-400 hover:text-orange-300 p-2 sm:p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+                    onClick={onClose}
+                    className="text-gray-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5"
                   >
-                    ➤
+                    <FiX size={16} />
                   </button>
                 </div>
               </div>
 
-            </div>
-          </motion.div>
+              {/* ── Messages ────────────────────────────────────────── */}
+              <div
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto px-4 py-3 space-y-3 chat-scroll min-h-0"
+              >
+                {messages.map((msg, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {msg.role === "ai" && (
+                      <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1">
+                        <FaBrain className="text-cyan-400 text-[9px]" />
+                      </div>
+                    )}
+                    <div className={`max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed chat-markdown ${
+                      msg.role === "user" ? "user-bubble" : "ai-bubble"
+                    }`}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {loading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1">
+                      <FaBrain className="text-cyan-400 text-[9px]" />
+                    </div>
+                    <div className="ai-bubble rounded-2xl">
+                      <TypingDots />
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* ── Quick chips ─────────────────────────────────────── */}
+              <AnimatePresence>
+                {messages.length === 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="px-4 pb-2 flex flex-wrap gap-2"
+                  >
+                    {quickChips.map((chip, i) => (
+                      <motion.button
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.07 }}
+                        onClick={() => handleSend(chip, true)}
+                        className="chip"
+                      >
+                        <FiZap className="text-[10px] text-cyan-400" />
+                        {chip}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* ── Input ───────────────────────────────────────────── */}
+              <div className="chat-input-area px-4 py-3 shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && handleSend(input)}
+                      placeholder="Ask about experience, projects..."
+                      className="chat-input w-full"
+                      disabled={loading}
+                    />
+                  </div>
+                  <motion.button
+                    onClick={() => handleSend(input)}
+                    disabled={loading || !input.trim()}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="send-btn shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <FiSend size={15} />
+                  </motion.button>
+                </div>
+                <p className="font-mono text-[9px] text-gray-600 tracking-widest text-center mt-2">
+                  POWERED BY KEVAL'S AI
+                </p>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
-      {/* Component-Specific Styles to Override Globals */}
       <style>{`
-        /* Custom Orange Scrollbar restricted ONLY to this modal */
-        .chat-scroll::-webkit-scrollbar {
-          width: 4px;
+        /* ── Modal shell ─────────────────────────────────────────── */
+        .chat-modal {
+          border-radius: 1.5rem 1.5rem 0 0;
+          background: rgba(9, 13, 20, 0.97);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          border: 1px solid rgba(34,211,238,0.12);
+          border-bottom: none;
+          box-shadow: 0 -8px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,211,238,0.06);
+          display: flex;
+          flex-direction: column;
         }
         @media (min-width: 640px) {
-          .chat-scroll::-webkit-scrollbar {
-            width: 5px;
+          .chat-modal {
+            border-radius: 1.5rem;
+            border-bottom: 1px solid rgba(34,211,238,0.12);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,211,238,0.08);
           }
         }
-        .chat-scroll::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #ff6a00, #ff3c3c);
-          border-radius: 10px;
+
+        /* ── Header ──────────────────────────────────────────────── */
+        .chat-header {
+          border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .chat-scroll::-webkit-scrollbar-track {
-          background: transparent;
+        .chat-icon-wrap {
+          position: relative;
+          width: 32px; height: 32px;
+          border-radius: 10px;
+          background: rgba(34,211,238,0.08);
+          border: 1px solid rgba(34,211,238,0.2);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .chat-icon-ping {
+          position: absolute;
+          inset: -2px;
+          border-radius: 12px;
+          border: 1px solid rgba(34,211,238,0.3);
+          animation: ping 2s cubic-bezier(0,0,0.2,1) infinite;
+        }
+        @keyframes ping {
+          75%, 100% { transform: scale(1.3); opacity: 0; }
         }
 
-        /* Markdown styling for the chat bubbles */
-        .chat-markdown p {
-          margin-bottom: 0.5rem;
+        /* ── Bubbles ─────────────────────────────────────────────── */
+        .user-bubble {
+          background: rgba(34,211,238,0.08);
+          border: 1px solid rgba(34,211,238,0.18);
+          color: #e2e8f0;
+          border-top-right-radius: 4px !important;
         }
-        .chat-markdown p:last-child {
-          margin-bottom: 0;
+        .ai-bubble {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          color: #cbd5e1;
+          border-top-left-radius: 4px !important;
         }
-        .chat-markdown strong {
-          color: #ffb347;
-          font-weight: 600;
+
+        /* ── Quick chips ─────────────────────────────────────────── */
+        .chip {
+          display: inline-flex; align-items: center; gap: 0.375rem;
+          font-family: 'Space Mono', monospace;
+          font-size: 0.65rem;
+          padding: 0.375rem 0.75rem;
+          border-radius: 9999px;
+          background: rgba(34,211,238,0.05);
+          border: 1px solid rgba(34,211,238,0.15);
+          color: rgba(148,163,184,0.9);
+          transition: all 0.2s ease;
+          white-space: nowrap;
         }
-        .chat-markdown ul {
-          list-style: disc;
-          padding-left: 1.25rem;
-          margin-bottom: 0.5rem;
+        .chip:hover {
+          background: rgba(34,211,238,0.12);
+          border-color: rgba(34,211,238,0.35);
+          color: #22d3ee;
+        }
+
+        /* ── Input area ──────────────────────────────────────────── */
+        .chat-input-area {
+          border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .chat-input {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 0.875rem;
+          padding: 0.625rem 1rem;
+          font-size: 0.875rem;
+          color: white;
+          outline: none;
+          transition: border-color 0.2s ease, background 0.2s ease;
+          font-family: inherit;
+        }
+        .chat-input::placeholder { color: rgba(100,116,139,0.8); }
+        .chat-input:focus {
+          border-color: rgba(34,211,238,0.35);
+          background: rgba(34,211,238,0.04);
+        }
+        .chat-input:disabled { opacity: 0.5; }
+
+        .send-btn {
+          width: 38px; height: 38px;
+          border-radius: 0.75rem;
+          background: linear-gradient(135deg, rgba(34,211,238,0.9), rgba(99,102,241,0.9));
+          color: white;
+          display: flex; align-items: center; justify-content: center;
+          transition: box-shadow 0.2s ease;
+          border: none;
+        }
+        .send-btn:not(:disabled):hover {
+          box-shadow: 0 0 20px rgba(34,211,238,0.4);
+        }
+
+        /* ── Scrollbar ───────────────────────────────────────────── */
+        .chat-scroll::-webkit-scrollbar { width: 3px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.25); border-radius: 10px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+
+        /* ── Markdown ────────────────────────────────────────────── */
+        .chat-markdown p { margin-bottom: 0.4rem; }
+        .chat-markdown p:last-child { margin-bottom: 0; }
+        .chat-markdown strong { color: #e2e8f0; font-weight: 600; }
+        .chat-markdown ul { list-style: none; padding-left: 0.75rem; margin-bottom: 0.4rem; }
+        .chat-markdown ul li::before { content: "▸ "; color: #22d3ee; font-size: 0.75em; }
+        .chat-markdown li { margin-bottom: 0.25rem; }
+        .chat-markdown code {
+          font-family: 'Space Mono', monospace;
+          font-size: 0.8em;
+          background: rgba(34,211,238,0.08);
+          border: 1px solid rgba(34,211,238,0.15);
+          padding: 0.1em 0.35em;
+          border-radius: 0.3rem;
+          color: #22d3ee;
         }
       `}</style>
     </>

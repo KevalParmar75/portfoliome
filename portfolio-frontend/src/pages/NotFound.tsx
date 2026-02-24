@@ -1,22 +1,96 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import Navbar from "../components/Navbar";
 
-// GPU-Accelerated Blob
-const PlasmaBlob = ({ blob, springX, springY }: { blob: any, springX: any, springY: any }) => {
-  const x = useTransform(springX, (val: number) => val * blob.factor);
-  const y = useTransform(springY, (val: number) => val * blob.factor);
+const BLOBS = [
+  { size: 380, top: "0%",   left: "60%",  color: "plasma-cyan",   factor: 0.05,  delay: 0 },
+  { size: 420, top: "50%",  left: "-10%", color: "plasma-violet", factor: -0.04, delay: 3 },
+  { size: 300, top: "80%",  left: "75%",  color: "plasma-cyan",   factor: 0.07,  delay: 7 },
+  { size: 350, top: "-5%",  left: "-5%",  color: "plasma-violet", factor: -0.03, delay: 5 },
+  { size: 280, top: "35%",  left: "50%",  color: "plasma-indigo", factor: 0.06,  delay: 2 },
+];
+
+const PlasmaBlob = ({ blob, springX, springY }: { blob: any; springX: any; springY: any }) => {
+  const x = useTransform(springX, (v: number) => v * blob.factor);
+  const y = useTransform(springY, (v: number) => v * blob.factor);
   return (
     <motion.div
       className={`plasma ${blob.color}`}
-      style={{
-        width: blob.size, height: blob.size,
-        top: blob.top, left: blob.left,
-        animationDelay: `${blob.delay}s`, x, y
-      }}
+      style={{ width: blob.size, height: blob.size, top: blob.top, left: blob.left, animationDelay: `${blob.delay}s`, x, y }}
     />
+  );
+};
+
+// Grid lines
+const GridLines = () => (
+  <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
+    style={{
+      backgroundImage: `linear-gradient(rgba(34,211,238,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.6) 1px, transparent 1px)`,
+      backgroundSize: "60px 60px"
+    }}
+  />
+);
+
+// Glitchy 404 digits
+const GlitchDigit = ({ char, delay }: { char: string; delay: number }) => (
+  <motion.span
+    className="glitch-digit"
+    initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
+    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
+    data-text={char}
+  >
+    {char}
+  </motion.span>
+);
+
+// Terminal log lines
+const LOGS = [
+  { text: "GET /unknown-route → 404",       color: "text-red-400"   },
+  { text: "resolving path... failed",        color: "text-yellow-400/70" },
+  { text: "neural link severed",             color: "text-red-400/70"   },
+  { text: "suggest: return to /home",        color: "text-cyan-400"  },
+];
+
+const TerminalLog = () => {
+  const [visible, setVisible] = useState(0);
+
+  useEffect(() => {
+    if (visible >= LOGS.length) return;
+    const t = setTimeout(() => setVisible(v => v + 1), 600);
+    return () => clearTimeout(t);
+  }, [visible]);
+
+  return (
+    <div className="terminal-log">
+      <div className="terminal-log-header">
+        <div className="flex gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-red-500/70" />
+          <div className="w-2 h-2 rounded-full bg-yellow-500/70" />
+          <div className="w-2 h-2 rounded-full bg-green-500/70" />
+        </div>
+        <span className="font-mono text-[10px] text-gray-600">system.log</span>
+      </div>
+      <div className="p-4 space-y-1.5 min-h-[100px]">
+        {LOGS.slice(0, visible).map((log, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`font-mono text-xs ${log.color} flex items-center gap-2`}
+          >
+            <span className="text-gray-600">$</span>
+            {log.text}
+            {i === visible - 1 && visible < LOGS.length && (
+              <span className="w-[6px] h-[0.9em] bg-cyan-400 inline-block animate-[blink_1s_step-end_infinite]" />
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
 
@@ -28,84 +102,208 @@ export default function NotFound() {
   const springY = useSpring(mouseY, { stiffness: 40, damping: 30 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const fn = (e: MouseEvent) => {
       mouseX.set(e.clientX - window.innerWidth / 2);
       mouseY.set(e.clientY - window.innerHeight / 2);
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    window.addEventListener("mousemove", fn);
+    return () => window.removeEventListener("mousemove", fn);
+  }, []);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative min-h-screen bg-[#0f0f12] text-white overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center"
+      transition={{ duration: 0.3 }}
+      className="relative min-h-screen bg-[#080b10] text-white overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
     >
       <LiquidGlassCursor />
       <Navbar />
+      <GridLines />
 
-      {/* Plasma Background */}
-       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {[
-          { size: 250, top: "5%", left: "10%", color: "plasma-1", factor: 0.06, delay: 0 },
-          { size: 300, top: "60%", left: "70%", color: "plasma-2", factor: -0.04, delay: 2 },
-          { size: 200, top: "35%", left: "40%", color: "plasma-3", factor: 0.09, delay: 5 },
-          { size: 220, top: "80%", left: "15%", color: "plasma-4", factor: -0.07, delay: 1 },
-          { size: 350, top: "-10%", left: "-10%", color: "plasma-2", factor: 0.05, delay: 4 },
-          { size: 380, top: "-5%", left: "95%", color: "plasma-3", factor: -0.03, delay: 7 },
-          { size: 420, top: "90%", left: "90%", color: "plasma-1", factor: 0.08, delay: 3 },
-          { size: 350, top: "105%", left: "-5%", color: "plasma-4", factor: -0.05, delay: 6 },
-          { size: 300, top: "45%", left: "-15%", color: "plasma-1", factor: 0.07, delay: 8 },
-          { size: 350, top: "50%", left: "105%", color: "plasma-3", factor: -0.06, delay: 2 },
-          { size: 400, top: "-15%", left: "50%", color: "plasma-2", factor: 0.04, delay: 5 },
-          { size: 380, top: "110%", left: "45%", color: "plasma-4", factor: -0.04, delay: 9 },
-        ].map((blob, idx) => (
-          <PlasmaBlob key={idx} blob={blob} springX={springX} springY={springY} />
+      {/* Plasma */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {BLOBS.map((blob, i) => (
+          <PlasmaBlob key={i} blob={blob} springX={springX} springY={springY} />
         ))}
       </div>
 
-      {/* 404 Glass Card */}
-      <main className="relative z-10 m-6 rounded-3xl bg-black/40 backdrop-blur-3xl border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.03)] p-12 md:p-20 text-center max-w-2xl">
-        <h1 className="text-7xl md:text-9xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-6">
-          404
-        </h1>
-        <h2 className="text-2xl md:text-3xl font-semibold text-gray-200 mb-4">
-          Neural Link Severed
-        </h2>
-        <p className="text-gray-400 mb-10 leading-relaxed">
-          The node you are trying to access does not exist in this architecture. The connection may have been dropped or the directory relocated.
-        </p>
-        <button
-          onClick={() => navigate("/")}
-          className="px-8 py-3 rounded-2xl bg-gradient-to-r from-orange-600 to-red-600 hover:scale-105 transition duration-300 shadow-[0_0_20px_rgba(255,106,0,0.4)] text-white font-medium"
+      {/* Content */}
+      <main className="relative z-10 flex flex-col items-center text-center max-w-lg w-full">
+
+        {/* Status badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/25 bg-red-500/8 backdrop-blur-sm mb-10"
         >
-          Initialize Reroute (Go Home)
-        </button>
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.9)] animate-pulse" />
+          <span className="font-mono text-[10px] text-red-400/80 tracking-[0.2em]">ERROR_NODE_NOT_FOUND</span>
+        </motion.div>
+
+        {/* 404 */}
+        <div className="flex items-center justify-center gap-2 md:gap-3 mb-6">
+          {["4", "0", "4"].map((c, i) => (
+            <GlitchDigit key={i} char={c} delay={0.15 + i * 0.12} />
+          ))}
+        </div>
+
+        {/* Sub-heading */}
+        <motion.h2
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
+          className="text-lg md:text-xl font-semibold text-gray-300 mb-3 tracking-tight"
+        >
+          Neural Link Severed
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="font-mono text-xs text-gray-500 leading-relaxed mb-8 max-w-sm"
+        >
+          The node you requested does not exist in this architecture. The connection may have been dropped or the directory relocated.
+        </motion.p>
+
+        {/* Terminal log */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.85, duration: 0.5 }}
+          className="w-full mb-8"
+        >
+          <TerminalLog />
+        </motion.div>
+
+        {/* CTA */}
+        <motion.button
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1, duration: 0.5 }}
+          onClick={() => navigate("/")}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="reroute-btn"
+        >
+          <span className="font-mono text-[10px] tracking-[0.15em] opacity-60 mr-2">~/</span>
+          Initialize Reroute
+        </motion.button>
+
+        {/* Decorative scan line */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 1.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mt-10 origin-left"
+        />
       </main>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
         .custom-cursor-wrapper * { cursor: none !important; }
-        .plasma {
+
+        /* ── 404 glitch digits ─────────────────────────────────── */
+        .glitch-digit {
+          font-family: 'Space Mono', monospace;
+          font-size: clamp(5rem, 20vw, 9rem);
+          font-weight: 700;
+          line-height: 1;
+          color: #ffffff;
+          text-shadow: 0 0 60px rgba(34,211,238,0.4), 0 0 120px rgba(129,140,248,0.2);
+          position: relative;
+          display: inline-block;
+        }
+        /* Glitch layers */
+        .glitch-digit::before,
+        .glitch-digit::after {
+          content: attr(data-text);
           position: absolute;
-          filter: blur(2px);
-          opacity: 0.8;
-          animation: plasma-morph 20s linear infinite;
-          will-change: border-radius, rotate, transform;
+          inset: 0;
+          opacity: 0;
+        }
+        .glitch-digit:hover::before {
+          opacity: 0.7;
+          color: #22d3ee;
+          clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+          transform: translateX(-3px);
+          animation: glitch-a 0.4s steps(2) forwards;
+        }
+        .glitch-digit:hover::after {
+          opacity: 0.7;
+          color: #818cf8;
+          clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+          transform: translateX(3px);
+          animation: glitch-b 0.4s steps(2) forwards;
+        }
+        @keyframes glitch-a {
+          0%  { transform: translateX(-3px); }
+          50% { transform: translateX(3px);  }
+          100%{ transform: translateX(0);    }
+        }
+        @keyframes glitch-b {
+          0%  { transform: translateX(3px);  }
+          50% { transform: translateX(-3px); }
+          100%{ transform: translateX(0);    }
         }
 
-        .plasma-1 { background: radial-gradient(circle, #ff512f, #dd2476); animation-duration: 18s; }
-        .plasma-2 { background: radial-gradient(circle, #ff9966, #ff5e62); animation-duration: 24s; animation-direction: reverse; }
-        .plasma-3 { background: radial-gradient(circle, #ff8c00, #ff2e63); animation-duration: 28s; }
-        .plasma-4 { background: radial-gradient(circle, #f12711, #f5af19); animation-duration: 22s; animation-direction: reverse; }
+        /* ── Terminal log ──────────────────────────────────────── */
+        .terminal-log {
+          border-radius: 0.875rem;
+          background: rgba(8, 12, 18, 0.9);
+          border: 1px solid rgba(34,211,238,0.1);
+          overflow: hidden;
+          text-align: left;
+        }
+        .terminal-log-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.5rem 0.875rem;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          background: rgba(0,0,0,0.3);
+        }
 
-        @keyframes plasma-morph {
-          0% { rotate: 0deg; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-          25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-          50% { rotate: 180deg; border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
-          75% { border-radius: 70% 40% 50% 30% / 60% 40% 60% 50%; }
-          100% { rotate: 360deg; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        /* ── Reroute button ────────────────────────────────────── */
+        .reroute-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.75rem 2rem;
+          border-radius: 0.875rem;
+          background: linear-gradient(135deg, rgba(34,211,238,0.9), rgba(99,102,241,0.9));
+          color: white;
+          font-size: 0.875rem;
+          font-weight: 600;
+          border: none;
+          transition: box-shadow 0.25s ease;
+        }
+        .reroute-btn:hover {
+          box-shadow: 0 0 30px rgba(34,211,238,0.4), 0 0 60px rgba(34,211,238,0.15);
+        }
+
+        /* ── Plasma blobs ──────────────────────────────────────── */
+        .plasma {
+          position: absolute;
+          filter: blur(80px);
+          opacity: 0.12;
+          border-radius: 50%;
+          animation: plasma-drift 25s ease-in-out infinite;
+          will-change: transform;
+        }
+        .plasma-cyan   { background: radial-gradient(circle, #22d3ee, #0ea5e9); animation-duration: 22s; }
+        .plasma-violet { background: radial-gradient(circle, #818cf8, #6366f1); animation-duration: 28s; animation-direction: reverse; }
+        .plasma-indigo { background: radial-gradient(circle, #6366f1, #4f46e5); animation-duration: 32s; }
+
+        @keyframes plasma-drift {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33%       { transform: translate(30px, -20px) scale(1.05); }
+          66%       { transform: translate(-20px, 30px) scale(0.95); }
         }
       `}</style>
     </motion.div>
