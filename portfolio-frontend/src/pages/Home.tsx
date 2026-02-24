@@ -37,20 +37,6 @@ const PlasmaBlob = ({ blob }: { blob: any }) => (
   />
 );
 
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const step = value / 40;
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= value) { setDisplay(value); clearInterval(timer); }
-      else setDisplay(Math.floor(start));
-    }, 30);
-    return () => clearInterval(timer);
-  }, [inView, value]);
-
-  return <span ref={inViewRef}>{display}{suffix}</span>;
-};
 
 // ─── Terminal Typewriter ────────────────────────────────────────────────────────
 const Typewriter = ({ lines, className = "" }: { lines: string[]; className?: string }) => {
