@@ -11,11 +11,29 @@ interface Message {
   content: string;
 }
 
-const quickChips = [
-  "What's your tech stack?",
-  "Tell me about his projects",
-  "Do you have LLM experience?",
-];
+interface ChatModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mode?: "normal" | "sales";
+}
+
+// ─── Mode Configurations ──────────────────────────────────────────────────────
+const MODES = {
+  normal: {
+    tag: "portfolio.ai",
+    title: "Ask me anything",
+    greeting: "Hi! I'm Keval's AI assistant. Ask me anything about his experience, projects, or tech stack!",
+    placeholder: "Ask about experience, projects...",
+    chips: ["What's your tech stack?", "Tell me about his projects", "Do you have LLM experience?"]
+  },
+  sales: {
+    tag: "scoping.ai",
+    title: "Architecture Scoping AI",
+    greeting: "Hello. I am Keval's technical scoping assistant. Tell me a bit about the system you are trying to build, and I will explain how we can architect it.",
+    placeholder: "Describe your architecture needs...",
+    chips: ["I need LLM integration", "Looking for a custom RAG pipeline", "Are you available for freelance?"]
+  }
+};
 
 // ─── Typing dots ──────────────────────────────────────────────────────────────
 const TypingDots = () => (
@@ -31,14 +49,22 @@ const TypingDots = () => (
   </div>
 );
 
-export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModalProps) {
+  const config = MODES[mode];
+
   const [messages, setMessages] = useState<Message[]>([
-    { role: "ai", content: "Hi! I'm Keval's AI assistant. Ask me anything about his experience, projects, or tech stack!" }
+    { role: "ai", content: config.greeting }
   ]);
   const [input, setInput]   = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
+
+  // Reset chat if the mode changes (e.g. navigating between Home and Collaborate)
+  useEffect(() => {
+    setMessages([{ role: "ai", content: config.greeting }]);
+    setInput("");
+  }, [mode, config.greeting]);
 
   // Auto-scroll
   useEffect(() => {
@@ -66,10 +92,16 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
     setLoading(true);
 
     try {
-      const res = await api.post("chat/", { message: userMsg, is_suggested: isSuggested, history: chatHistory });
+      // Notice we are now passing the 'mode' to Django!
+      const res = await api.post("chat/", {
+        message: userMsg,
+        is_suggested: isSuggested,
+        history: chatHistory,
+        mode: mode
+      });
       setMessages(prev => [...prev, { role: "ai", content: res.data.content }]);
     } catch {
-      setMessages(prev => [...prev, { role: "ai", content: "Sorry, I'm having trouble connecting right now. Try again later!" }]);
+      setMessages(prev => [...prev, { role: "ai", content: "Sorry, I'm having trouble connecting to the neural stack right now. Try again later!" }]);
     } finally {
       setLoading(false);
     }
@@ -103,17 +135,18 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
               <div className="chat-header flex items-center justify-between px-5 py-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="chat-icon-wrap">
-                    <FaBrain className="text-cyan-400 text-sm" />
+                    <FaBrain className={`text-sm ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                     <span className="chat-icon-ping" />
                   </div>
                   <div>
-                    <p className="font-mono text-[9px] text-cyan-400/60 tracking-[0.2em] uppercase">portfolio.ai</p>
-                    <p className="text-sm font-semibold text-white leading-tight">Ask me anything</p>
+                    <p className={`font-mono text-[9px] tracking-[0.2em] uppercase ${mode === 'sales' ? 'text-violet-400/60' : 'text-cyan-400/60'}`}>
+                      {config.tag}
+                    </p>
+                    <p className="text-sm font-semibold text-white leading-tight">{config.title}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Online status */}
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="font-mono text-[9px] text-emerald-400 tracking-widest">ONLINE</span>
@@ -141,8 +174,8 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {msg.role === "ai" && (
-                      <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1">
-                        <FaBrain className="text-cyan-400 text-[9px]" />
+                      <div className={`w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-violet-500/20 bg-violet-500/10' : ''}`}>
+                        <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                       </div>
                     )}
                     <div className={`max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed chat-markdown ${
@@ -159,8 +192,8 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     animate={{ opacity: 1, y: 0 }}
                     className="flex justify-start"
                   >
-                    <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1">
-                      <FaBrain className="text-cyan-400 text-[9px]" />
+                    <div className={`w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-violet-500/20 bg-violet-500/10' : ''}`}>
+                      <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                     </div>
                     <div className="ai-bubble rounded-2xl">
                       <TypingDots />
@@ -178,7 +211,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     exit={{ opacity: 0 }}
                     className="px-4 pb-2 flex flex-wrap gap-2"
                   >
-                    {quickChips.map((chip, i) => (
+                    {config.chips.map((chip, i) => (
                       <motion.button
                         key={i}
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -187,7 +220,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                         onClick={() => handleSend(chip, true)}
                         className="chip"
                       >
-                        <FiZap className="text-[10px] text-cyan-400" />
+                        <FiZap className={`text-[10px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                         {chip}
                       </motion.button>
                     ))}
@@ -205,7 +238,7 @@ export default function ChatModal({ isOpen, onClose }: { isOpen: boolean; onClos
                       value={input}
                       onChange={e => setInput(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && handleSend(input)}
-                      placeholder="Ask about experience, projects..."
+                      placeholder={config.placeholder}
                       className="chat-input w-full"
                       disabled={loading}
                     />

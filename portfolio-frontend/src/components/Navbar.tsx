@@ -142,6 +142,16 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* ── Desktop "Work With Me" CTA ──────────────────────────────── */}
+        <div className="hidden sm:flex items-center pl-4 border-l border-white/10">
+          <button
+            onClick={() => navigate("/collaborate")}
+            className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-400/10 to-violet-400/10 border border-cyan-400/30 text-cyan-300 font-mono text-xs uppercase tracking-wider hover:bg-cyan-400/20 hover:text-white transition-all shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+          >
+            Collaborate
+          </button>
+        </div>
+
         {/* ── Mobile Toggle ───────────────────────────────────────────── */}
         <button
           className="sm:hidden text-gray-400 hover:text-cyan-400 transition-colors duration-200 ml-2"
@@ -188,6 +198,25 @@ export default function Navbar() {
                 </motion.button>
               );
             })}
+
+            {/* ── Mobile "Work With Me" CTA ──────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navItems.length * 0.04, duration: 0.2 }}
+              className="pt-2 mt-1 border-t border-white/10"
+            >
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  navigate("/collaborate");
+                }}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-400/30 text-cyan-300 font-mono text-xs uppercase tracking-widest hover:bg-cyan-400/20 transition-all shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+              >
+                Collaborate
+              </button>
+            </motion.div>
+
           </motion.div>
         )}
       </AnimatePresence>

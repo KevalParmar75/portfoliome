@@ -3,6 +3,10 @@ import { AnimatePresence } from "framer-motion";
 import Home from "./pages/Home";
 import ProjectDetails from "./pages/ProjectDetails";
 import NotFound from "./pages/NotFound"; // Import your new 404 page
+// 1. Add this to your imports at the top
+import Collaborate from "./pages/Collaborate";
+
+// 2. Inside your <Routes>, add the new route right below your <Home /> route:
 
 // We need an inner component so we can use the `useLocation` hook
 function AnimatedRoutes() {
@@ -14,7 +18,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/projects/:slug" element={<ProjectDetails />} />
-
+        <Route path="/collaborate" element={<Collaborate />} />
         {/* The Catch-All 404 Route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
