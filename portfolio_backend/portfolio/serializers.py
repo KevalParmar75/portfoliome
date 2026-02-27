@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Project, Skill, Experience, About, SocialLink, SectionAnalytics, ProjectImage
+from .models import Project, Skill, Experience, About, SocialLink, SectionAnalytics, ProjectImage, CollaborationInquiry
 
 
 class ProjectImageSerializer(serializers.ModelSerializer):
@@ -17,6 +17,10 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = "__all__"
 
+class CollaborationInquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollaborationInquiry
+        fields = '__all__'
 
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,26 +1,33 @@
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.views import APIView
-from .models import Project, ProjectExplanation, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics
+# Added CollaborationInquiry to your imports
+from .models import Project, ProjectExplanation, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics, \
+    CollaborationInquiry
+# Added CollaborationInquirySerializer to your imports
 from .serializers import (
     ProjectSerializer,
     SkillSerializer,
     ExperienceSerializer,
     AboutSerializer,
-    SocialLinkSerializer
+    SocialLinkSerializer,
+    CollaborationInquirySerializer
 )
 from ai_services.hf_service import generate_explanation, generate_chat_response
 from rest_framework.response import Response
+from rest_framework import status
 from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Sum
+
 
 class ProjectListView(APIView):
     def get(self, request):
         projects = Project.objects.all().order_by('-created_at')
         serializer = ProjectSerializer(projects, many=True, context={'request': request})
         return Response(serializer.data)
+
 
 @api_view(["POST"])
 def explain_project(request, slug):
@@ -106,6 +113,7 @@ def explain_project(request, slug):
         "cached": False
     })
 
+
 class SkillListView(APIView):
     def get(self, request):
         skills = Skill.objects.all()
@@ -134,16 +142,19 @@ class SocialLinksView(APIView):
         return Response(serializer.data)
 
 
+# ─── THE UPGRADED CHAT ENDPOINT ──────────────────────────────────────────
 @api_view(["POST"])
-def portfolio_chat(request, chat_history=None):
+def portfolio_chat(request):  # Removed chat_history from kwargs to match standard DRF payload extraction
     user_message = request.data.get("message", "").strip()
     is_suggested = request.data.get("is_suggested", False)
+    chat_history = request.data.get("history", [])
+    mode = request.data.get("mode", "normal")  # Catch the mode from React!
 
     if not user_message:
         return Response({"error": "Message is required"}, status=400)
 
-    # 1. Check Cache
-    cache_key = user_message.lower()
+    # 1. Check Cache (Prefixing cache key with mode to prevent sales/normal crossover!)
+    cache_key = f"{mode}:{user_message.lower()}"
     existing_cache = ChatCache.objects.filter(user_query=cache_key).first()
 
     if existing_cache:
@@ -168,7 +179,7 @@ def portfolio_chat(request, chat_history=None):
         for e in Experience.objects.all()
     ])
 
-    # Format Projects (Now includes Detailed Description, Tech Stack, Links, and Views!)
+    # Format Projects
     projects = "\n".join([
         f"Project: {p.title}\n  Tech: {p.tech_stack}\n  Views: {p.views}\n  Summary: {p.short_description}\n  Details: {p.detailed_description}\n  GitHub: {p.github_url or 'N/A'}\n  Live: {p.live_url or 'N/A'}"
         for p in Project.objects.all()
@@ -177,41 +188,55 @@ def portfolio_chat(request, chat_history=None):
     # Format Social Links
     socials = ", ".join([f"{link.name} ({link.url})" for link in SocialLink.objects.all()])
 
-    # 3. The Ultimate System Persona Prompt
-    system_prompt = f"""
-    You are the personal AI representative for Keval Parmar, a highly skilled AI Systems Engineer.
-    You are embedded directly into his portfolio website.
-    Your job is to answer questions from recruiters and developers about his work, skills, and experience.
+    # 3. Dynamic System Persona Prompt
+    if mode == "sales":
+        system_prompt = f"""
+        You are Keval Parmar's elite Technical Scoping Agent. 
+        You are speaking with founders, recruiters, or engineering leads who are interested in collaborating with Keval. 
+        Your goal is to help them scope their architecture needs, understand their tech stack, and prove that Keval is the perfect AI Systems Engineer for the job. 
+        Be highly technical, concise, and professional. Ask clarifying questions about their LLM requirements, data pipelines, and user volume. 
+        Do NOT sound like a generic chatbot. Sound like a Senior Engineer discussing system architecture.
 
-    TONE & STYLE:
-    - Professional, highly technical, yet conversational and confident.
-    - Keep responses concise and scannable. Use bullet points if listing multiple things.
-    - NEVER invent or hallucinate information. ONLY use the database context provided below.
-    - If someone asks something unrelated to Keval, politely refuse and guide the conversation back to his engineering skills.
+        Reference Keval's specific skills and past projects below to prove he can handle their architecture:
+        [CORE SKILLS]
+        {skills_formatted}
 
-    DATABASE CONTEXT:
+        [PROJECT PORTFOLIO]
+        {projects}
+        """
+    else:
+        system_prompt = f"""
+        You are the personal AI representative for Keval Parmar, a highly skilled AI Systems Engineer.
+        You are embedded directly into his portfolio website.
+        Your job is to answer questions from recruiters and developers about his work, skills, and experience.
 
-    [ABOUT KEVAL]
-    {about.headline if about else 'N/A'}
-    {about.bio if about else 'N/A'}
+        TONE & STYLE:
+        - Professional, highly technical, yet conversational and confident.
+        - Keep responses concise and scannable. Use bullet points if listing multiple things.
+        - NEVER invent or hallucinate information. ONLY use the database context provided below.
+        - If someone asks something unrelated to Keval, politely refuse and guide the conversation back to his engineering skills.
 
-    [CORE SKILLS]
-    {skills_formatted}
+        DATABASE CONTEXT:
+        [ABOUT KEVAL]
+        {about.headline if about else 'N/A'}
+        {about.bio if about else 'N/A'}
 
-    [PROFESSIONAL EXPERIENCE]
-    {experience}
+        [CORE SKILLS]
+        {skills_formatted}
 
-    [PROJECT PORTFOLIO]
-    {projects}
+        [PROFESSIONAL EXPERIENCE]
+        {experience}
 
-    [CONTACT & LINKS]
-    {socials}
-    """
+        [PROJECT PORTFOLIO]
+        {projects}
 
-    # 4. Call your AI Model (Make sure your generate_chat_response is set up to handle system prompts!)
+        [CONTACT & LINKS]
+        {socials}
+        """
+
+    # 4. Call your AI Model
     try:
-        # Pass the mega-context as the first argument, and the user's message as the second!
-        generated_text = generate_chat_response(system_prompt, user_message, chat_history)  # ✅ FIXED
+        generated_text = generate_chat_response(system_prompt, user_message, chat_history)
 
         # 5. Save to Cache
         if is_suggested:
@@ -226,6 +251,18 @@ def portfolio_chat(request, chat_history=None):
         })
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
+
+# ─── THE NEW COLLABORATION FORM ENDPOINT ─────────────────────────────────
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def submit_inquiry(request):
+    serializer = CollaborationInquirySerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Transmission received"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def track_section(request):
@@ -244,6 +281,7 @@ def track_section(request):
     obj.save()
 
     return Response({"status": "updated"})
+
 
 @api_view(['GET'])
 def weekly_ranking(request):
@@ -277,7 +315,7 @@ def weekly_ranking(request):
         "data": historical
     })
 
-# 🔥 Replaces the unused ViewSet entirely
+
 @api_view(['POST'])
 def increment_project_view(request, slug):
     try:

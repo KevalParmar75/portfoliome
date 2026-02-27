@@ -6,7 +6,7 @@ from .views import (
     ExperienceListView,
     AboutView,
     SocialLinksView,
-    portfolio_chat, track_section, weekly_ranking, increment_project_view  # <-- Import the new chat view
+    portfolio_chat, track_section, weekly_ranking, increment_project_view, submit_inquiry  # <-- Import the new chat view
 )
 
 urlpatterns = [
@@ -20,4 +20,5 @@ urlpatterns = [
     path("track/", track_section),
     path("ranking/", weekly_ranking),
     path("projects/<slug:slug>/increment-view/", increment_project_view),
+    path("inquire/", submit_inquiry),
 ]

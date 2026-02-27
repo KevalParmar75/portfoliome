@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Project, ProjectExplanation, ContactMessage, Skill, Experience, About, SocialLink, ChatCache, \
-    SectionAnalytics, ProjectImage
+    SectionAnalytics, ProjectImage, CollaborationInquiry
 
 admin.site.register(Skill)
 admin.site.register(Experience)
@@ -40,3 +40,18 @@ class SectionAnalyticsAdmin(admin.ModelAdmin):
     search_fields = ("section",)
     ordering = ("-date",)
     readonly_fields = ("section", "date", "total_views", "total_time")
+
+
+@admin.register(CollaborationInquiry)
+class CollaborationInquiryAdmin(admin.ModelAdmin):
+    # This controls exactly what columns show up in the Django Admin dashboard
+    list_display = ('name', 'company', 'email', 'engagement_type', 'created_at')
+
+    # Adds a filter box on the right side to quickly sort by Freelance vs Full-Time
+    list_filter = ('engagement_type', 'created_at')
+
+    # Adds a search bar at the top!
+    search_fields = ('name', 'company', 'email', 'scope')
+
+    # Makes the newest inquiries show up at the top
+    ordering = ('-created_at',)

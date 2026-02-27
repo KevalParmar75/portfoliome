@@ -124,3 +124,16 @@ class SectionAnalytics(models.Model):
 
     def __str__(self):
         return f"{self.section} - {self.date}"
+
+
+class CollaborationInquiry(models.Model):
+    name = models.CharField(max_length=255)
+    company = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField()
+    engagement_type = models.CharField(max_length=100)
+    scope = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # This helps us easily read the Django Admin panel later
+    def __str__(self):
+        return f"[{self.engagement_type}] {self.name} from {self.company or 'Independent'}"

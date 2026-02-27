@@ -30,7 +30,6 @@ SECRET_KEY = 'django-insecure-0%!9vqjakdw2k#k@s(fo5nx70+1$(a=ed3h^_gtg6t20*wzt_z
 # SECURITY WARNING: don't run with debug turned on in production!
 # Turns DEBUG off if we are on the live server!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-
 # Allow all hosts for now so Render and Vercel can connect easily
 ALLOWED_HOSTS = ['*']
 
