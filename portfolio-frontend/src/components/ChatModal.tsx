@@ -17,7 +17,6 @@ interface ChatModalProps {
   mode?: "normal" | "sales";
 }
 
-// ─── Mode Configurations ──────────────────────────────────────────────────────
 const MODES = {
   normal: {
     tag: "portfolio.ai",
@@ -35,7 +34,6 @@ const MODES = {
   }
 };
 
-// ─── Typing dots ──────────────────────────────────────────────────────────────
 const TypingDots = () => (
   <div className="flex items-center gap-1.5 px-4 py-3">
     {[0, 1, 2].map(i => (
@@ -51,36 +49,44 @@ const TypingDots = () => (
 
 export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModalProps) {
   const config = MODES[mode];
-
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "ai", content: config.greeting }
-  ]);
-  const [input, setInput]   = useState("");
+  const [messages, setMessages] = useState<Message[]>([{ role: "ai", content: config.greeting }]);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef  = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset chat if the mode changes (e.g. navigating between Home and Collaborate)
   useEffect(() => {
     setMessages([{ role: "ai", content: config.greeting }]);
     setInput("");
   }, [mode, config.greeting]);
 
-  // Auto-scroll
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [messages, loading]);
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
+
+  // NEW: Handle mobile keyboard push
+  const handleInputFocus = () => {
+    // Small timeout to allow the mobile keyboard animation to finish/resize the viewport
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }, 300);
+  };
 
   const handleSend = async (text: string, isSuggested = false) => {
     if (!text.trim() || loading) return;
@@ -92,7 +98,6 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
     setLoading(true);
 
     try {
-      // Notice we are now passing the 'mode' to Django!
       const res = await api.post("chat/", {
         message: userMsg,
         is_suggested: isSuggested,
@@ -112,26 +117,21 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
               onClick={onClose}
             />
 
-            {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              initial={{ opacity: 0, y: "100%", scale: 1 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.96 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: "100%", scale: 1 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="chat-modal fixed bottom-0 left-0 right-0 sm:bottom-6 sm:right-6 sm:left-auto z-50 w-full sm:w-[420px] flex flex-col"
-              style={{ maxHeight: "85svh" }}
             >
-              {/* ── Header ──────────────────────────────────────────── */}
               <div className="chat-header flex items-center justify-between px-5 py-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="chat-icon-wrap">
@@ -151,26 +151,18 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="font-mono text-[9px] text-emerald-400 tracking-widest">ONLINE</span>
                   </div>
-                  <button
-                    onClick={onClose}
-                    className="text-gray-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5"
-                  >
+                  <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
                     <FiX size={16} />
                   </button>
                 </div>
               </div>
 
-              {/* ── Messages ────────────────────────────────────────── */}
-              <div
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto px-4 py-3 space-y-3 chat-scroll min-h-0"
-              >
+              <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 chat-scroll min-h-0">
                 {messages.map((msg, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {msg.role === "ai" && (
@@ -178,57 +170,34 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                         <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                       </div>
                     )}
-                    <div className={`max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed chat-markdown ${
-                      msg.role === "user" ? "user-bubble" : "ai-bubble"
-                    }`}>
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed chat-markdown ${msg.role === "user" ? "user-bubble" : "ai-bubble"}`}>
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </div>
                   </motion.div>
                 ))}
-
                 {loading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-start"
-                  >
+                   <div className="flex justify-start">
                     <div className={`w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-violet-500/20 bg-violet-500/10' : ''}`}>
                       <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                     </div>
-                    <div className="ai-bubble rounded-2xl">
-                      <TypingDots />
-                    </div>
-                  </motion.div>
+                    <div className="ai-bubble rounded-2xl"><TypingDots /></div>
+                  </div>
                 )}
               </div>
 
-              {/* ── Quick chips ─────────────────────────────────────── */}
               <AnimatePresence>
                 {messages.length === 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="px-4 pb-2 flex flex-wrap gap-2"
-                  >
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 pb-2 flex flex-wrap gap-2">
                     {config.chips.map((chip, i) => (
-                      <motion.button
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.07 }}
-                        onClick={() => handleSend(chip, true)}
-                        className="chip"
-                      >
+                      <button key={i} onClick={() => handleSend(chip, true)} className="chip">
                         <FiZap className={`text-[10px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
                         {chip}
-                      </motion.button>
+                      </button>
                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* ── Input ───────────────────────────────────────────── */}
               <div className="chat-input-area px-4 py-3 shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
@@ -236,6 +205,7 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                       ref={inputRef}
                       type="text"
                       value={input}
+                      onFocus={handleInputFocus}
                       onChange={e => setInput(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && handleSend(input)}
                       placeholder={config.placeholder}
@@ -246,14 +216,12 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                   <motion.button
                     onClick={() => handleSend(input)}
                     disabled={loading || !input.trim()}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="send-btn shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="send-btn shrink-0 disabled:opacity-40"
                   >
                     <FiSend size={15} />
                   </motion.button>
                 </div>
-                <p className="font-mono text-[9px] text-gray-600 tracking-widest text-center mt-2">
+                <p className="font-mono text-[8px] text-gray-600 tracking-widest text-center mt-2">
                   POWERED BY KEVAL'S AI
                 </p>
               </div>
@@ -263,30 +231,38 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
       </AnimatePresence>
 
       <style>{`
-        /* ── Modal shell ─────────────────────────────────────────── */
         .chat-modal {
-          border-radius: 1.5rem 1.5rem 0 0;
-          background: rgba(9, 13, 20, 0.97);
+          /* 1. Use svh (small viewport height) to respect mobile toolbars/keyboard */
+          max-height: 92svh;
+          background: rgba(9, 13, 20, 0.98);
           backdrop-filter: blur(40px);
           -webkit-backdrop-filter: blur(40px);
           border: 1px solid rgba(34,211,238,0.12);
-          border-bottom: none;
-          box-shadow: 0 -8px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,211,238,0.06);
-          display: flex;
-          flex-direction: column;
+          box-shadow: 0 -8px 48px rgba(0,0,0,0.6);
         }
-        @media (min-width: 640px) {
+
+        @media (max-width: 640px) {
           .chat-modal {
-            border-radius: 1.5rem;
-            border-bottom: 1px solid rgba(34,211,238,0.12);
-            box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,211,238,0.08);
+            border-radius: 1.5rem 1.5rem 0 0;
+            /* 2. Important: Stay at the bottom of the visual viewport when keyboard is up */
+            bottom: 0;
+            width: 100%;
+          }
+          /* Ensure font size is 16px to prevent iOS auto-zoom on focus */
+          .chat-input {
+            font-size: 16px !important;
           }
         }
 
-        /* ── Header ──────────────────────────────────────────────── */
-        .chat-header {
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+        @media (min-width: 641px) {
+          .chat-modal {
+            border-radius: 1.5rem;
+            max-height: 700px;
+            border-bottom: 1px solid rgba(34,211,238,0.12);
+          }
         }
+
+        .chat-header { border-bottom: 1px solid rgba(255,255,255,0.05); }
         .chat-icon-wrap {
           position: relative;
           width: 32px; height: 32px;
@@ -302,25 +278,21 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           border: 1px solid rgba(34,211,238,0.3);
           animation: ping 2s cubic-bezier(0,0,0.2,1) infinite;
         }
-        @keyframes ping {
-          75%, 100% { transform: scale(1.3); opacity: 0; }
-        }
+        @keyframes ping { 75%, 100% { transform: scale(1.3); opacity: 0; } }
 
-        /* ── Bubbles ─────────────────────────────────────────────── */
         .user-bubble {
-          background: rgba(34,211,238,0.08);
-          border: 1px solid rgba(34,211,238,0.18);
+          background: rgba(34,211,238,0.1);
+          border: 1px solid rgba(34,211,238,0.2);
           color: #e2e8f0;
           border-top-right-radius: 4px !important;
         }
         .ai-bubble {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
           color: #cbd5e1;
           border-top-left-radius: 4px !important;
         }
 
-        /* ── Quick chips ─────────────────────────────────────────── */
         .chip {
           display: inline-flex; align-items: center; gap: 0.375rem;
           font-family: 'Space Mono', monospace;
@@ -331,70 +303,36 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           border: 1px solid rgba(34,211,238,0.15);
           color: rgba(148,163,184,0.9);
           transition: all 0.2s ease;
-          white-space: nowrap;
         }
-        .chip:hover {
-          background: rgba(34,211,238,0.12);
-          border-color: rgba(34,211,238,0.35);
-          color: #22d3ee;
-        }
+        .chip:hover { background: rgba(34,211,238,0.12); color: #22d3ee; }
 
-        /* ── Input area ──────────────────────────────────────────── */
-        .chat-input-area {
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
+        .chat-input-area { border-top: 1px solid rgba(255,255,255,0.05); }
         .chat-input {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
           border-radius: 0.875rem;
-          padding: 0.625rem 1rem;
-          font-size: 0.875rem;
+          padding: 0.75rem 1rem;
           color: white;
           outline: none;
-          transition: border-color 0.2s ease, background 0.2s ease;
-          font-family: inherit;
         }
-        .chat-input::placeholder { color: rgba(100,116,139,0.8); }
-        .chat-input:focus {
-          border-color: rgba(34,211,238,0.35);
-          background: rgba(34,211,238,0.04);
-        }
-        .chat-input:disabled { opacity: 0.5; }
+        .chat-input:focus { border-color: rgba(34,211,238,0.4); }
 
         .send-btn {
-          width: 38px; height: 38px;
+          width: 40px; height: 40px;
           border-radius: 0.75rem;
-          background: linear-gradient(135deg, rgba(34,211,238,0.9), rgba(99,102,241,0.9));
+          background: linear-gradient(135deg, #22d3ee, #6366f1);
           color: white;
           display: flex; align-items: center; justify-content: center;
-          transition: box-shadow 0.2s ease;
           border: none;
         }
-        .send-btn:not(:disabled):hover {
-          box-shadow: 0 0 20px rgba(34,211,238,0.4);
-        }
 
-        /* ── Scrollbar ───────────────────────────────────────────── */
         .chat-scroll::-webkit-scrollbar { width: 3px; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.25); border-radius: 10px; }
-        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 10px; }
 
-        /* ── Markdown ────────────────────────────────────────────── */
         .chat-markdown p { margin-bottom: 0.4rem; }
         .chat-markdown p:last-child { margin-bottom: 0; }
-        .chat-markdown strong { color: #e2e8f0; font-weight: 600; }
-        .chat-markdown ul { list-style: none; padding-left: 0.75rem; margin-bottom: 0.4rem; }
+        .chat-markdown ul { list-style: none; padding-left: 0.75rem; }
         .chat-markdown ul li::before { content: "▸ "; color: #22d3ee; font-size: 0.75em; }
-        .chat-markdown li { margin-bottom: 0.25rem; }
-        .chat-markdown code {
-          font-family: 'Space Mono', monospace;
-          font-size: 0.8em;
-          background: rgba(34,211,238,0.08);
-          border: 1px solid rgba(34,211,238,0.15);
-          padding: 0.1em 0.35em;
-          border-radius: 0.3rem;
-          color: #22d3ee;
-        }
       `}</style>
     </>
   );

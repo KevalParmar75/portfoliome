@@ -425,7 +425,7 @@ export default function ProjectDetails() {
                   options={[
                     { label: "Technical",    value: "technical" },
                     { label: "Non-Tech",     value: "simple" },
-                    { label: "HR Interview", value: "hr" },
+                    { label: "HR Recruiter", value: "hr" },
                   ]}
                 />
                 <SelectorTabs
