@@ -10,23 +10,25 @@ import api from "../api/axios";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import {
   SiPython, SiDjango, SiMongodb, SiReact, SiTailwindcss, SiDocker,
-  SiOpenai, SiFastapi, SiHtml5, SiCss3, SiJavascript, SiTypescript,
-  SiGithub, SiLinkedin, SiInstagram, SiGmail, SiFlask, SiHuggingface, SiStreamlit
+  SiOpenai, SiFastapi, SiHtml5, SiCss3, SiJavascript, SiTypescript,SiOllama,
+  SiGithub, SiLinkedin, SiInstagram, SiGmail, SiFlask, SiHuggingface, SiStreamlit, SiX
 } from "react-icons/si";
-import { FaServer, FaGlobe, FaLink, FaProjectDiagram, FaBrain, FaTimes, FaTerminal, FaCode } from "react-icons/fa";
+import { FaServer, FaGlobe, FaLink, FaProjectDiagram, FaBrain, FaTimes, FaTerminal, FaCode, FaHandshake} from "react-icons/fa";
 
 const skillIconMap: Record<string, any> = {
   python: SiPython, django: SiDjango, mongodb: SiMongodb, html: SiHtml5,
   css: SiCss3, javascript: SiJavascript, typescript: SiTypescript, react: SiReact,
-  tailwindcss: SiTailwindcss, "git / github": SiGithub, docker: SiDocker,
-  openai: SiOpenai, fastapi: SiFastapi, flask: SiFlask, streamlit: SiStreamlit,
-  "hugging face": SiHuggingface, langchain: FaLink, langgraph: FaProjectDiagram,
+  tailwindcss: SiTailwindcss, "git / github": SiGithub, docker: SiDocker,"ollama": SiOllama,
+  openai: SiOpenai, fastapi: SiFastapi, flask: SiFlask, streamlit: SiStreamlit,"transformers": SiHuggingface,
+  "hugging face": SiHuggingface, langchain: FaLink, langgraph: FaProjectDiagram,collaborate: FaHandshake,
   "rag (retrieval-augmented generation)": FaBrain
 };
 
 const socialIconMap: Record<string, any> = {
   github: SiGithub, linkedin: SiLinkedin, instagram: SiInstagram,
-  gmail: SiGmail, email: SiGmail, website: FaGlobe,
+  gmail: SiGmail, email: SiGmail, website: FaGlobe, twitter: SiX,"twitter/x": SiX,collaborate: FaHandshake,
+  collaboration: FaHandshake,
+  x: SiX,
 };
 
 // ─── Plasma Blob ────────────────────────────────────────────────────────────────
