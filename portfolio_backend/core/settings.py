@@ -100,11 +100,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
+        conn_max_age=0, # Changed from 600 to 0 to save CU-hours
         conn_health_checks=True,
+    ),
+    'fallback': dj_database_url.config(
+        default=os.environ.get('FALLBACK_DATABASE_URL'),
+        conn_max_age=0 # Fallback should also sleep when not in use
     )
 }
-
+DATABASE_ROUTERS = ['core.routers.FallbackRouter']
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
