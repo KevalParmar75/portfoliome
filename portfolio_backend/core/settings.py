@@ -102,10 +102,6 @@ DATABASES = {
         default=os.environ.get('DATABASE_URL'),
         conn_max_age=0, # Changed from 600 to 0 to save CU-hours
         conn_health_checks=True,
-    ),
-    'fallback': dj_database_url.config(
-        default=os.environ.get('FALLBACK_DATABASE_URL'),
-        conn_max_age=0 # Fallback should also sleep when not in use
     )
 }
 # DATABASE_ROUTERS = ['core.routers.FallbackRouter']
