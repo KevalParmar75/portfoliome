@@ -108,7 +108,7 @@ DATABASES = {
         conn_max_age=0 # Fallback should also sleep when not in use
     )
 }
-DATABASE_ROUTERS = ['core.routers.FallbackRouter']
+# DATABASE_ROUTERS = ['core.routers.FallbackRouter']
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
