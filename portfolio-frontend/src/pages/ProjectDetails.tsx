@@ -754,7 +754,7 @@ export default function ProjectDetails() {
 }
         /* ── Plasma blobs ─────────────────────────────────────────── */
         .plasma {
-          position: absolute; filter: blur(80px); opacity: 0.12;
+          position: absolute; filter: blur(10px); opacity: 0.12;
           border-radius: 50%;
           animation: plasma-drift 25s ease-in-out infinite;
           will-change: transform;

@@ -878,7 +878,7 @@ export default function Home() {
         /* ── Plasma blobs ──────────────────────────────────────────── */
         .plasma {
           position: absolute;
-          filter: blur(80px);
+          filter: blur(10px);
           opacity: 0.12;
           border-radius: 50%;
           animation: plasma-drift 25s ease-in-out infinite;
