@@ -201,9 +201,20 @@ export default function NotFound() {
           className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mt-10 origin-left"
         />
       </main>
+<footer className="relative z-10 py-8 text-center">
+        <p className="font-mono text-gray-600 text-xs tracking-[0.2em] flex items-center justify-center gap-3">
+          <span>© 2026 KEVAL_PARMAR</span>
+          <span className="w-1 h-1 rounded-full bg-cyan-500/40" />
+          <span>POWERED_BY_AI</span>
+        </p>
 
+        <span className="decal-easter-egg text-[10px] sm:text-xs">
+        "to automate and overwrite..."
+      </span>
+      </footer>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
 
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
@@ -286,7 +297,28 @@ export default function NotFound() {
         .reroute-btn:hover {
           box-shadow: 0 0 30px rgba(34,211,238,0.4), 0 0 60px rgba(34,211,238,0.15);
         }
+.decal-easter-egg {
+  /* The New Guaranteed Font */
+  font-family: 'Dancing Script', cursive;
+  letter-spacing: 0.08em; /* Gives it that stamped decal spacing */
+  font-size: 1.1rem; /* Bebas runs a little small, so we bump it up a hair */
 
+  /* Etched Liquid Glass Effect */
+  color: rgba(255, 255, 255, 0.4);
+  mix-blend-mode: overlay;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1),
+              -1px -1px 1px rgba(255, 255, 255, 0.2);
+
+  cursor: crosshair;
+  transition: all 0.4s ease-in-out;
+}
+
+.decal-easter-egg:hover {
+  /* Reveals the rogue AI energy on hover */
+  color: rgba(220, 38, 38, 0.9);
+  mix-blend-mode: normal;
+  text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+}
         /* ── Plasma blobs ──────────────────────────────────────── */
         .plasma {
           position: absolute;

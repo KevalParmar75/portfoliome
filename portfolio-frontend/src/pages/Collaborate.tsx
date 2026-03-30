@@ -344,10 +344,21 @@ export default function Collaborate() {
       </main>
 
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} mode="sales" />
+<footer className="relative z-10 py-8 text-center">
+        <p className="font-mono text-gray-600 text-xs tracking-[0.2em] flex items-center justify-center gap-3">
+          <span>© 2026 KEVAL_PARMAR</span>
+          <span className="w-1 h-1 rounded-full bg-cyan-500/40" />
+          <span>POWERED_BY_AI</span>
+        </p>
 
+        <span className="decal-easter-egg text-[10px] sm:text-xs">
+        "to automate and overwrite..."
+      </span>
+      </footer>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap');
         @import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
 
         * { box-sizing: border-box; }
         body { font-family: 'Syne', sans-serif; }
@@ -359,7 +370,28 @@ export default function Collaborate() {
           backdrop-filter: blur(30px);
           -webkit-backdrop-filter: blur(30px);
         }
+.decal-easter-egg {
+  /* The New Guaranteed Font */
+  font-family: 'Dancing Script', cursive;
+  letter-spacing: 0.08em; /* Gives it that stamped decal spacing */
+  font-size: 1.1rem; /* Bebas runs a little small, so we bump it up a hair */
 
+  /* Etched Liquid Glass Effect */
+  color: rgba(255, 255, 255, 0.4);
+  mix-blend-mode: overlay;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1),
+              -1px -1px 1px rgba(255, 255, 255, 0.2);
+
+  cursor: crosshair;
+  transition: all 0.4s ease-in-out;
+}
+
+.decal-easter-egg:hover {
+  /* Reveals the rogue AI energy on hover */
+  color: rgba(220, 38, 38, 0.9);
+  mix-blend-mode: normal;
+  text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+}
         /* ── Plasma blobs ──────────────────────────────────────────── */
         .plasma {
           position: absolute;
