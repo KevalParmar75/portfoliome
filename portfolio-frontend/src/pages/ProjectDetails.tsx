@@ -7,7 +7,7 @@ import api from "../api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt} from "react-icons/fa";
-import { FiRefreshCw, FiX, FiChevronLeft, FiChevronRight, FiCode, FiCpu, FiZap, FiMaximize2 } from "react-icons/fi";
+import { FiRefreshCw, FiX, FiChevronLeft, FiChevronRight, FiZap, FiMaximize2 } from "react-icons/fi";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 
 interface Project {

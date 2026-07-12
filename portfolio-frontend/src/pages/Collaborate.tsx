@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBrain, FaServer, FaProjectDiagram, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
 import ChatModal from "../components/ChatModal";
