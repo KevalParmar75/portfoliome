@@ -147,7 +147,7 @@ export default function Collaborate() {
               
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight text-white" style={{ fontFamily: "'ClashDisplay-Variable', sans-serif" }}>
-                Let's architect <span className="text-transparent bg-clip-text bg-gradient-to-r from-white/10 to-white/5">intelligent</span> systems.
+                Let's architect <span className="text-transparent bg-clip-text bg-gradient-to-r from-white/70 to-white/30">intelligent</span> systems.
               </h1>
 
               <p className="text-gray-400 text-sm md:text-base leading-relaxed">

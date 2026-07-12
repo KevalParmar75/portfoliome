@@ -10,7 +10,7 @@ export default function LiquidGlassCursor() {
 
   const [visible, setVisible] = useState(false);
 
-  const SIZE = 120;
+  const SIZE = 50;
 
   useEffect(() => {
     const move = (e: MouseEvent) => {
@@ -45,19 +45,23 @@ export default function LiquidGlassCursor() {
             zIndex: 99999,
 
             /* Glass look */
-            background: "rgba(255,255,255,0.05)",
-            backdropFilter: "brightness(1.2) contrast(1.1)",
-            WebkitBackdropFilter: "brightness(1.2) contrast(1.1)",
+            background: "rgba(255,255,255,0.03)",
+            backdropFilter: "blur(8px) brightness(1.1)",
+            WebkitBackdropFilter: "blur(8px) brightness(1.1)",
 
-            border: "1px solid rgba(255,255,255,0.6)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
 
             boxShadow: `
-              inset 0 4px 10px rgba(255,255,255,0.8),
-              inset 0 -6px 12px rgba(0,0,0,0.3),
-              0 15px 50px rgba(0,0,0,0.45)
+              inset 0 0 20px rgba(255,255,255,0.1),
+              0 8px 32px rgba(0,0,0,0.2)
             `,
           }}
-        />
+        >
+          <div style={{ width: "6px", height: "6px", backgroundColor: "white", borderRadius: "50%" }} />
+        </motion.div>
       )}
     </>
   );
