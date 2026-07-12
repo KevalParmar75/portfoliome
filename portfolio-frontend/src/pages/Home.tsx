@@ -10,26 +10,28 @@ import api from "../api/axios";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import {
   SiPython, SiDjango, SiMongodb, SiReact, SiTailwindcss, SiDocker,
-  SiOpenai, SiFastapi, SiHtml5, SiCss3, SiJavascript, SiTypescript,SiOllama,
+  SiOpenai, SiFastapi, SiHtml5, SiCss3, SiJavascript, SiTypescript, SiOllama,
   SiGithub, SiLinkedin, SiInstagram, SiGmail, SiFlask, SiHuggingface, SiStreamlit, SiX
 } from "react-icons/si";
-import { FaServer, FaGlobe, FaLink, FaProjectDiagram, FaBrain, FaTimes, FaTerminal, FaCode, FaHandshake} from "react-icons/fa";
+import { FaServer, FaGlobe, FaLink, FaProjectDiagram, FaBrain, FaTimes, FaTerminal, FaCode, FaHandshake } from "react-icons/fa";
 
 const skillIconMap: Record<string, any> = {
   python: SiPython, django: SiDjango, mongodb: SiMongodb, html: SiHtml5,
   css: SiCss3, javascript: SiJavascript, typescript: SiTypescript, react: SiReact,
-  tailwindcss: SiTailwindcss, "git / github": SiGithub, docker: SiDocker,"ollama": SiOllama,
-  openai: SiOpenai, fastapi: SiFastapi, flask: SiFlask, streamlit: SiStreamlit,"transformers": SiHuggingface,
-  "hugging face": SiHuggingface, langchain: FaLink, langgraph: FaProjectDiagram,collaborate: FaHandshake,
+  tailwindcss: SiTailwindcss, "git / github": SiGithub, docker: SiDocker, "ollama": SiOllama,
+  openai: SiOpenai, fastapi: SiFastapi, flask: SiFlask, streamlit: SiStreamlit, "transformers": SiHuggingface,
+  "hugging face": SiHuggingface, langchain: FaLink, langgraph: FaProjectDiagram, collaborate: FaHandshake,
   "rag (retrieval-augmented generation)": FaBrain
 };
 
 const socialIconMap: Record<string, any> = {
   github: SiGithub, linkedin: SiLinkedin, instagram: SiInstagram,
-  gmail: SiGmail, email: SiGmail, website: FaGlobe, twitter: SiX,"twitter/x": SiX,collaborate: FaHandshake,
+  gmail: SiGmail, email: SiGmail, website: FaGlobe, twitter: SiX, "twitter/x": SiX, collaborate: FaHandshake,
   collaboration: FaHandshake,
   x: SiX,
 };
+
+
 
 // ─── Plasma Blob ────────────────────────────────────────────────────────────────
 const PlasmaBlob = ({ blob }: { blob: any }) => (
@@ -69,12 +71,12 @@ const Typewriter = ({ lines, className = "" }: { lines: string[]; className?: st
   return (
     <div className={`font-mono text-xs md:text-sm ${className}`}>
       {displayed.map((l, i) => (
-        <div key={i} className="text-emerald-400/70">{l}</div>
+        <div key={i} className="text-gray-400/70">{l}</div>
       ))}
       {!done && (
-        <div className="flex items-center gap-1 text-emerald-300">
+        <div className="flex items-center gap-1 text-rose-300">
           <span>{activeLine}</span>
-          <span className="w-[2px] h-[1em] bg-emerald-400 inline-block animate-[blink_1s_step-end_infinite]" />
+          <span className="w-[2px] h-[1em] bg-rose-400 inline-block animate-[blink_1s_step-end_infinite]" />
         </div>
       )}
     </div>
@@ -90,11 +92,11 @@ const SectionTitle = ({ children, sub, className = "" }: { children: string; sub
   return (
     <div ref={ref} className={`mb-12 md:mb-20 ${className}`}>
       <div className="flex items-center gap-3 mb-3">
-        <span className="h-px flex-1 max-w-[40px] md:max-w-[60px] bg-gradient-to-r from-transparent to-cyan-500/60" />
-        <span className="text-[10px] md:text-xs font-mono text-cyan-400/70 tracking-[0.25em] uppercase">
+        <span className="h-px flex-1 max-w-[40px] md:max-w-[60px] bg-gradient-to-r from-transparent to-transparent" />
+        <span className="text-[10px] md:text-xs font-mono text-white/70 tracking-[0.25em] uppercase">
           {sub || "section"}
         </span>
-        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-cyan-500/60 max-w-[40px] md:max-w-[60px]" />
+        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-transparent max-w-[40px] md:max-w-[60px]" />
       </div>
       <h2 className="section-title text-center" aria-label={children}>
         {words.map((word, wi) => (
@@ -147,10 +149,10 @@ const SkillCard = ({ skill, idx }: { skill: any; idx: number }) => {
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       >
         {/* Glow behind card */}
-        <div className="absolute inset-0 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-cyan-500/30 to-violet-500/30" />
-        <div className="relative skill-card px-4 py-3 md:px-5 md:py-3.5 flex items-center gap-3 group-hover:border-cyan-400/50 transition-all duration-300">
+        <div className="absolute inset-0 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-white/5 to-transparent" />
+        <div className="relative skill-card px-4 py-3 md:px-5 md:py-3.5 flex items-center gap-3 group-hover:border-white/10 transition-all duration-300">
           <div className="skill-icon-wrap">
-            <Icon className="text-base md:text-lg text-cyan-400 group-hover:text-white transition" />
+            <Icon className="text-base md:text-lg text-white group-hover:text-white transition" />
           </div>
           <span className="font-mono text-xs md:text-sm text-gray-300 tracking-wide group-hover:text-white transition whitespace-nowrap">
             {skill.name}
@@ -176,7 +178,7 @@ const ProjectCard = ({ project, idx, navigate }: { project: any; idx: number; na
       onClick={() => navigate(`/projects/${project.slug}`)}
     >
       {/* Top edge accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* Number watermark */}
       <div className="absolute top-5 right-5 font-mono text-[4rem] md:text-[5rem] font-black leading-none text-white/[0.03] select-none pointer-events-none">
@@ -185,14 +187,14 @@ const ProjectCard = ({ project, idx, navigate }: { project: any; idx: number; na
 
       {/* Tag */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
-        <span className="font-mono text-[10px] text-cyan-400/70 tracking-[0.2em] uppercase">Project_{String(idx + 1).padStart(2, "0")}</span>
+        <div className="w-1.5 h-1.5 rounded-full bg-white/20 shadow-none" />
+        <span className="font-mono text-[10px] text-white/70 tracking-[0.2em] uppercase">Project_{String(idx + 1).padStart(2, "0")}</span>
       </div>
 
-      <h3 className="text-lg md:text-xl font-semibold mb-3 text-white group-hover:text-cyan-200 transition-colors duration-300">{project.title}</h3>
+      <h3 className="text-lg md:text-xl font-semibold mb-3 text-white group-hover:text-white transition-colors duration-300">{project.title}</h3>
       <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">{project.short_description}</p>
 
-      <div className="flex items-center gap-2 text-cyan-400 text-sm font-mono group-hover:gap-3 transition-all duration-300">
+      <div className="flex items-center gap-2 text-white text-sm font-mono group-hover:gap-3 transition-all duration-300">
         <span>explore_project</span>
         <span className="opacity-60">→</span>
       </div>
@@ -209,13 +211,13 @@ const ExperienceCard = ({ exp, idx }: { exp: any; idx: number }) => {
     <div ref={ref} className="flex gap-4 md:gap-6">
       <div className="flex flex-col items-center shrink-0">
         <motion.div
-          className="w-2.5 h-2.5 rounded-full bg-cyan-400 mt-2 shrink-0 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
+          className="w-2.5 h-2.5 rounded-full bg-white/20 mt-2 shrink-0 shadow-none"
           initial={{ scale: 0 }}
           animate={inView ? { scale: 1 } : {}}
           transition={{ delay: idx * 0.2 + 0.1, type: "spring", stiffness: 400 }}
         />
         <motion.div
-          className="w-px bg-gradient-to-b from-cyan-400/50 to-transparent flex-grow mt-1"
+          className="w-px bg-gradient-to-b from-white/5 to-transparent flex-grow mt-1"
           initial={{ scaleY: 0, originY: 0 }}
           animate={inView ? { scaleY: 1 } : {}}
           transition={{ delay: idx * 0.2 + 0.3, duration: 0.8 }}
@@ -234,7 +236,7 @@ const ExperienceCard = ({ exp, idx }: { exp: any; idx: number }) => {
             {exp.start_date} — {exp.currently_working ? "Present" : exp.end_date}
           </span>
         </div>
-        <p className="text-cyan-400 text-sm mb-3">{exp.company}</p>
+        <p className="text-white text-sm mb-3">{exp.company}</p>
         <p className="text-gray-400 text-sm leading-relaxed">{exp.description}</p>
       </motion.div>
     </div>
@@ -260,46 +262,29 @@ const SocialIcon = ({ link, idx }: { link: any; idx: number }) => {
       whileTap={{ scale: 0.95 }}
       className="group relative"
     >
-      <div className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-cyan-500/40 to-violet-500/40" />
-      <div className="relative social-card flex flex-col items-center justify-center gap-2.5 group-hover:border-cyan-400/50 transition-all duration-300">
-        <Icon className="text-xl md:text-2xl text-cyan-400 group-hover:text-white transition" />
+      <div className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/5 to-transparent" />
+      <div className="relative social-card flex flex-col items-center justify-center gap-2.5 group-hover:border-white/10 transition-all duration-300">
+        <Icon className="text-xl md:text-2xl text-white group-hover:text-white transition" />
         <span className="font-mono text-[10px] md:text-xs text-gray-400 group-hover:text-white tracking-widest uppercase">{link.name}</span>
       </div>
     </motion.a>
   );
 };
 
-// ─── Hero Name ────────────────────────────────────────────────────────────────────
-const HeroName = ({ name }: { name: string }) => {
-  const words = name.split(" ");
-  let globalCharIdx = 0;
-
+// ─── Hero Text ────────────────────────────────────────────────────────────────────
+const HeroText = () => {
   return (
-    <motion.h1
-      className="hero-name flex flex-wrap justify-center gap-x-[0.25em] gap-y-1"
-      aria-label={name}
-      // z-index ensures cursor never covers text
-      style={{ position: "relative", zIndex: 10 }}
-    >
-      {words.map((word, wordIdx) => (
-        <span key={wordIdx} className="inline-flex whitespace-nowrap">
-          {word.split("").map((char) => {
-            const idx = globalCharIdx++;
-            return (
-              <motion.span
-                key={idx}
-                className="inline-block"
-                initial={{ opacity: 0, y: 60, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.3 + idx * 0.038 }}
-              >
-                {char}
-              </motion.span>
-            );
-          })}
-        </span>
-      ))}
-    </motion.h1>
+    <div className="flex flex-col items-center">
+      <motion.h1
+        className="hero-name flex flex-row items-center justify-center gap-3 md:gap-4 mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+      >
+        <span className="text-white font-medium tracking-tight">Keval</span>
+        <span className="font-serif italic text-white/90">Parmar</span>
+      </motion.h1>
+    </div>
   );
 };
 
@@ -316,8 +301,8 @@ const SkillCategory = ({ category, groupedSkills }: { category: string; groupedS
         transition={{ duration: 0.4 }}
         className="flex items-center gap-3 mb-6 md:mb-8"
       >
-        <span className="text-[9px] md:text-[10px] font-mono text-violet-400/80 tracking-[0.3em] uppercase">{category}</span>
-        <span className="h-px flex-grow bg-gradient-to-r from-violet-500/40 to-transparent" />
+        <span className="text-[9px] md:text-[10px] font-mono text-gray-300/80 tracking-[0.3em] uppercase">{category}</span>
+        <span className="h-px flex-grow bg-gradient-to-r from-transparent to-transparent" />
       </motion.div>
       <div className="flex flex-wrap gap-2.5 md:gap-3">
         {groupedSkills.map((skill: any, idx: number) => (
@@ -332,7 +317,7 @@ const SkillCategory = ({ category, groupedSkills }: { category: string; groupedS
 const GridLines = () => (
   <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
     style={{
-      backgroundImage: `linear-gradient(rgba(34,211,238,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.6) 1px, transparent 1px)`,
+      backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
       backgroundSize: "60px 60px"
     }}
   />
@@ -343,37 +328,37 @@ const PARTICLES_OPTIONS = {
   background: { color: "transparent" },
   fpsLimit: 30,
   particles: {
-    color: { value: ["#22d3ee", "#818cf8", "#ffffff"] },
+    color: { value: ["#d946ef", "#a855f7", "#ffffff"] },
     move: { enable: true, speed: 0.1 },
     number: { value: 18 },
     opacity: { value: 0.12 },
     size: { value: { min: 0.5, max: 1.5 } },
-    links: { enable: true, distance: 140, color: "#22d3ee", opacity: 0.04, width: 1 },
+    links: { enable: true, distance: 140, color: "#d946ef", opacity: 0.04, width: 1 },
   },
 };
 
 const BLOBS = [
-  { size: 380, top: "0%",   left: "60%",  color: "plasma-cyan",   delay: 0 },
-  { size: 420, top: "50%",  left: "-10%", color: "plasma-violet", delay: 3 },
-  { size: 300, top: "80%",  left: "75%",  color: "plasma-cyan",   delay: 7 },
-  { size: 350, top: "-5%",  left: "-5%",  color: "plasma-violet", delay: 5 },
-  { size: 280, top: "35%",  left: "50%",  color: "plasma-indigo", delay: 2 },
-  { size: 320, top: "100%", left: "40%",  color: "plasma-cyan",   delay: 9 },
+  { size: 380, top: "0%", left: "60%", color: "plasma-fuchsia", delay: 0 },
+  { size: 420, top: "50%", left: "-10%", color: "plasma-violet", delay: 3 },
+  { size: 300, top: "80%", left: "75%", color: "plasma-fuchsia", delay: 7 },
+  { size: 350, top: "-5%", left: "-5%", color: "plasma-violet", delay: 5 },
+  { size: 280, top: "35%", left: "50%", color: "plasma-rose", delay: 2 },
+  { size: 320, top: "100%", left: "40%", color: "plasma-fuchsia", delay: 9 },
 ];
 
 // ─── Main ─────────────────────────────────────────────────────────────────────────
 export default function Home() {
   const navigate = useNavigate();
 
-  const [projects, setProjects]     = useState<any[]>([]);
-  const [skills, setSkills]         = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [skills, setSkills] = useState<any[]>([]);
   const [experience, setExperience] = useState<any[]>([]);
-  const [about, setAbout]           = useState<any>(null);
-  const [socials, setSocials]       = useState<any[]>([]);
+  const [about, setAbout] = useState<any>(null);
+  const [socials, setSocials] = useState<any[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [, setRanking]       = useState<any>(null);
+  const [, setRanking] = useState<any>(null);
   const [backendRecommendation, setBackendRecommendation] = useState<string | null>(null);
-  const [dismissSuggestion, setDismissSuggestion]         = useState(false);
+  const [dismissSuggestion, setDismissSuggestion] = useState(false);
   const [timeSpent, setTimeSpent] = useState<Record<string, number>>({
     about: 0, skills: 0, experience: 0, projects: 0, contact: 0,
   });
@@ -391,7 +376,7 @@ export default function Home() {
     api.get("ranking/").then(res => {
       setRanking(res.data);
       if (res.data?.data?.length > 0) setBackendRecommendation(res.data.data[0].section);
-    }).catch(() => {});
+    }).catch(() => { });
 
     if (localStorage.getItem("dismissedAI")) setDismissSuggestion(true);
   }, []);
@@ -451,7 +436,7 @@ export default function Home() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="relative min-h-screen bg-[#080b10] text-white overflow-hidden custom-cursor-wrapper"
+      className="relative min-h-screen bg-transparent text-white overflow-hidden custom-cursor-wrapper"
     >
       <LiquidGlassCursor />
       <Navbar />
@@ -482,22 +467,22 @@ export default function Home() {
                 <FaTimes size={10} />
               </button>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
-                  <FaBrain className="text-cyan-400 text-xs animate-pulse" />
+                <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                  <FaBrain className="text-white text-xs animate-pulse" />
                 </div>
-                <span className="font-mono text-[9px] text-cyan-400 tracking-[0.2em] uppercase">AI_ANALYTICS</span>
+                <span className="font-mono text-[9px] text-white tracking-[0.2em] uppercase">AI_ANALYTICS</span>
               </div>
               <div
                 className="cursor-pointer mb-3 pb-3 border-b border-white/5"
                 onClick={() => document.getElementById(finalRecommendation)?.scrollIntoView({ behavior: "smooth" })}
               >
                 <p className="text-xs text-gray-400 mb-1">Most explored section</p>
-                <p className="text-sm text-white font-medium capitalize">{finalRecommendation} <span className="text-cyan-400">↗</span></p>
+                <p className="text-sm text-white font-medium capitalize">{finalRecommendation} <span className="text-white">↗</span></p>
               </div>
               {trendingProject && (
                 <div className="cursor-pointer" onClick={() => navigate(`/projects/${trendingProject.slug}`)}>
                   <p className="text-xs text-gray-400 mb-1">Trending project</p>
-                  <p className="text-sm text-white font-medium">{trendingProject.title} <span className="text-violet-400">↗</span></p>
+                  <p className="text-sm text-white font-medium">{trendingProject.title} <span className="text-gray-300">↗</span></p>
                 </div>
               )}
             </div>
@@ -506,25 +491,22 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ── Main Glass Tile ─────────────────────────────────────────────── */}
-      <main className="relative z-10 m-3 sm:m-4 md:m-6 rounded-[2rem] md:rounded-[2.5rem] bg-black/40 backdrop-blur-[60px] border border-white/[0.07] shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.02)] pb-10">
+      <main className="relative z-10 m-3 sm:m-4 md:m-6 rounded-[2rem] md:rounded-[2.5rem] bg-black/40 backdrop-blur-[20px] border border-white/[0.07] shadow-[0_20px_80px_rgba(0,0,0,0.6),inset_0_0_40px_rgba(255,255,255,0.02)] pb-10">
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section id="hero" className="relative min-h-[100svh] flex flex-col items-center justify-center text-center pt-24 pb-16 px-6">
-          <HeroName name="Keval Parmar" />
+          <HeroText />
 
           {/* Role line */}
           <motion.div
-            initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: 0.85, duration: 0.7 }}
-            className="mt-5 md:mt-7 flex flex-wrap justify-center items-center gap-2 md:gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.7 }}
+            className="mt-6 md:mt-8 flex flex-wrap justify-center items-center gap-2 md:gap-3 max-w-2xl text-gray-300 text-sm md:text-base leading-relaxed"
           >
-            {["AI Systems Engineer", "LLM Architect", "RAG Specialist"].map((tag, i) => (
-              <span key={i} className="role-tag">
-                {i > 0 && <span className="text-gray-600 mr-2 hidden md:inline">/</span>}
-                {tag}
-              </span>
-            ))}
+            <p>
+              I build enterprise AI systems, scalable RAG pipelines, and intelligent agents around the clock — turning noise into actionable insights, and only speaking up when it matters.
+            </p>
           </motion.div>
 
           {/* Terminal widget */}
@@ -575,6 +557,7 @@ export default function Home() {
               Chat with Portfolio
             </motion.button>
           </motion.div>
+          
         </section>
 
         {/* ── ABOUT ─────────────────────────────────────────────────────── */}
@@ -590,15 +573,16 @@ export default function Home() {
               className="glass-card p-6 md:p-10"
             >
               <div className="flex items-start gap-3 mb-5 md:mb-6">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <FaTerminal className="text-cyan-400 text-xs" />
+                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <FaTerminal className="text-white text-xs" />
                 </div>
-                <h3 className="text-base md:text-lg text-cyan-300 font-mono">{about.headline}</h3>
+                <h3 className="text-base md:text-lg text-gray-300 font-mono">{about.headline}</h3>
               </div>
               <p className="text-gray-400 leading-relaxed whitespace-pre-line text-sm md:text-[15px]">
                 {about.bio}
               </p>
             </motion.div>
+            
           </section>
         )}
 
@@ -615,6 +599,7 @@ export default function Home() {
           ).map(([category, groupedSkills]: any) => (
             <SkillCategory key={category} category={category} groupedSkills={groupedSkills} />
           ))}
+        
         </section>
 
         {/* ── EXPERIENCE ────────────────────────────────────────────────── */}
@@ -625,6 +610,7 @@ export default function Home() {
               <ExperienceCard key={exp.id} exp={exp} idx={idx} />
             ))}
           </div>
+        
         </section>
 
         {/* ── PROJECTS ──────────────────────────────────────────────────── */}
@@ -635,6 +621,7 @@ export default function Home() {
               <ProjectCard key={project.id} project={project} idx={idx} navigate={navigate} />
             ))}
           </div>
+        
         </section>
 
         {/* ── CONTACT ───────────────────────────────────────────────────── */}
@@ -656,6 +643,7 @@ export default function Home() {
               <SocialIcon key={link.id} link={link} idx={idx} />
             ))}
           </div>
+        
         </section>
       </main>
 
@@ -664,51 +652,53 @@ export default function Home() {
       <footer className="relative z-10 py-8 text-center">
         <p className="font-mono text-gray-600 text-xs tracking-[0.2em] flex items-center justify-center gap-3">
           <span>© 2026 KEVAL_PARMAR</span>
-          <span className="w-1 h-1 rounded-full bg-cyan-500/40" />
+          <span className="w-1 h-1 rounded-full bg-white/5" />
           <span>POWERED_BY_AI</span>
         </p>
 
         <span className="decal-easter-egg text-[10px] sm:text-xs">
-        "to automate and overwrite..."
-      </span>
+          "to automate and overwrite..."
+        </span>
       </footer>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap');
-        @import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
+        
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
         * { box-sizing: border-box; }
 
-        body { font-family: 'Syne', sans-serif; }
-        .font-mono { font-family: 'Space Mono', monospace; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'Inter', sans-serif; }
 
         .custom-cursor-wrapper * { cursor: none !important; }
 
         :root {
-          --cyan: #22d3ee;
-          --violet: #818cf8;
-          --indigo: #6366f1;
-          --bg: #080b10;
+          --cyan: #d946ef;
+          --violet: #a855f7;
+          --indigo: #7c3aed;
+          --bg: #030305;
         }
 
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
         /* ── Hero name ─────────────────────────────────────────────── */
         .hero-name {
-          font-family: 'ClashDisplay-Variable', 'Clash Display', 'Syne', 'Segoe UI', system-ui, sans-serif;
-          font-weight: 800;
-          font-size: clamp(3rem, 11vw, 8rem);
-          line-height: 1.0;
-          letter-spacing: -0.03em;
+          font-family: 'Inter', sans-serif;
+          font-weight: 500;
+          font-size: clamp(2.5rem, 6vw, 4.5rem);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
           color: #ffffff;
-          text-shadow: 0 0 60px rgba(34,211,238,0.35), 0 0 120px rgba(129,140,248,0.2);
           position: relative;
           z-index: 10;
+        }
+        .hero-name .font-serif {
+          font-family: 'Playfair Display', serif;
         }
 
         /* ── Role tags ─────────────────────────────────────────────── */
         .role-tag {
-          font-family: 'Space Mono', monospace;
+          font-family: 'Inter', sans-serif;
           font-size: 0.65rem;
           color: rgba(148,163,184,0.8);
           letter-spacing: 0.12em;
@@ -718,8 +708,9 @@ export default function Home() {
 
         /* ── Section title ─────────────────────────────────────────── */
         .section-title {
-          font-family: 'ClashDisplay-Variable', 'Clash Display', 'Syne', 'Segoe UI', system-ui, sans-serif;
-          font-weight: 900;
+          font-family: 'Playfair Display', serif;
+          font-weight: 500;
+          font-style: italic;
           font-size: clamp(2rem, 5vw, 3.2rem);
           letter-spacing: -0.02em;
           color: #e2e8f0;
@@ -728,47 +719,50 @@ export default function Home() {
         /* ── Glass cards ───────────────────────────────────────────── */
         .glass-card {
           border-radius: 1.25rem;
-          background: rgba(15, 23, 35, 0.7);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .glass-card:hover {
-          border-color: rgba(34,211,238,0.15);
-          box-shadow: 0 0 40px rgba(34,211,238,0.06);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 0 40px rgba(255,255,255,0.1);
         }
 
         /* ── Project card ──────────────────────────────────────────── */
         .project-card {
           border-radius: 1.25rem;
           padding: 1.5rem;
-          background: rgba(15, 23, 35, 0.7);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
           transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
         }
         @media (min-width: 768px) { .project-card { padding: 2rem; } }
         .project-card:hover {
-          border-color: rgba(34,211,238,0.2);
-          box-shadow: 0 16px 50px rgba(34,211,238,0.08), 0 0 0 1px rgba(34,211,238,0.05);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 16px 50px rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.1);
           transform: translateY(-4px);
         }
 
         /* ── Skill card ────────────────────────────────────────────── */
         .skill-card {
           border-radius: 0.875rem;
-          background: rgba(15, 23, 35, 0.8);
+          background: rgba(255, 255, 255, 0.04);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
           transition: all 0.25s ease;
         }
         .skill-icon-wrap {
           width: 28px;
           height: 28px;
           border-radius: 6px;
-          background: rgba(34,211,238,0.08);
+          background: rgba(255,255,255,0.1);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -780,9 +774,10 @@ export default function Home() {
           width: 90px;
           height: 90px;
           border-radius: 1.25rem;
-          background: rgba(15, 23, 35, 0.8);
+          background: rgba(255, 255, 255, 0.04);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
           transition: all 0.3s ease;
         }
         @media (min-width: 768px) { .social-card { width: 108px; height: 108px; } }
@@ -790,10 +785,10 @@ export default function Home() {
         /* ── Terminal ──────────────────────────────────────────────── */
         .terminal-widget {
           border-radius: 0.875rem;
-          background: rgba(8, 12, 18, 0.9);
-          border: 1px solid rgba(34,211,238,0.12);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255,255,255,0.1);
           overflow: hidden;
-          box-shadow: 0 0 30px rgba(34,211,238,0.05);
+          box-shadow: 0 0 30px rgba(255,255,255,0.1);
         }
         .terminal-header {
           display: flex;
@@ -806,52 +801,26 @@ export default function Home() {
 
         /* ── CTAs ──────────────────────────────────────────────────── */
         .cta-primary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.75rem;
-          background: linear-gradient(135deg, rgba(34,211,238,0.9), rgba(99,102,241,0.9));
-          color: white;
-          font-size: 0.875rem;
-          font-weight: 600;
-          letter-spacing: 0.01em;
-          border: none;
-          transition: box-shadow 0.3s ease;
+          display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.875rem 2rem; border-radius: 9999px; background: #ffffff; color: #000000; font-size: 0.875rem; font-weight: 500; border: none; transition: all 0.3s ease;
         }
         .cta-primary:hover {
-          box-shadow: 0 0 30px rgba(34,211,238,0.4), 0 0 60px rgba(34,211,238,0.15);
+          background: #e5e7eb; transform: translateY(-1px);
         }
 
         .cta-secondary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.75rem;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.85);
-          font-size: 0.875rem;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
+          display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.875rem 2rem; border-radius: 9999px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; font-size: 0.875rem; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(10px);
         }
         .cta-secondary:hover {
-          border-color: rgba(34,211,238,0.4);
-          color: white;
-          box-shadow: 0 0 20px rgba(34,211,238,0.1);
+          background: rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.3); transform: translateY(-1px);
         }
 
         /* ── AI insight widget ─────────────────────────────────────── */
         .insight-widget {
           border-radius: 1rem;
-          background: rgba(8, 12, 20, 0.92);
-          backdrop-filter: blur(30px);
-          border: 1px solid rgba(34,211,238,0.15);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.05);
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.1);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
         }
 .decal-easter-egg {
   /* The New Guaranteed Font */
@@ -877,6 +846,7 @@ export default function Home() {
 }
         /* ── Plasma blobs ──────────────────────────────────────────── */
         .plasma {
+          display: none !important;
           position: absolute;
           filter: blur(10px);
           opacity: 0.12;
@@ -884,9 +854,9 @@ export default function Home() {
           animation: plasma-drift 25s ease-in-out infinite;
           will-change: transform;
         }
-        .plasma-cyan   { background: radial-gradient(circle, #22d3ee, #0ea5e9); animation-duration: 22s; }
-        .plasma-violet { background: radial-gradient(circle, #818cf8, #6366f1); animation-duration: 28s; animation-direction: reverse; }
-        .plasma-indigo { background: radial-gradient(circle, #6366f1, #4f46e5); animation-duration: 32s; }
+        .plasma-fuchsia   { background: radial-gradient(circle, #d946ef, #0ea5e9); animation-duration: 22s; }
+        .plasma-violet { background: radial-gradient(circle, #a855f7, #7c3aed); animation-duration: 28s; animation-direction: reverse; }
+        .plasma-rose { background: radial-gradient(circle, #f43f5e, #e11d48); animation-duration: 32s; }
 
         @keyframes plasma-drift {
           0%, 100% { transform: translate(0, 0) scale(1); }

@@ -39,7 +39,7 @@ const TypingDots = () => (
     {[0, 1, 2].map(i => (
       <motion.span
         key={i}
-        className="w-1.5 h-1.5 rounded-full bg-cyan-400"
+        className="w-1.5 h-1.5 rounded-full bg-white/20"
         animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
         transition={{ duration: 1, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
       />
@@ -135,11 +135,11 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
               <div className="chat-header flex items-center justify-between px-5 py-4 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="chat-icon-wrap">
-                    <FaBrain className={`text-sm ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
+                    <FaBrain className={`text-sm ${mode === 'sales' ? 'text-gray-300' : 'text-white'}`} />
                     <span className="chat-icon-ping" />
                   </div>
                   <div>
-                    <p className={`font-mono text-[9px] tracking-[0.2em] uppercase ${mode === 'sales' ? 'text-violet-400/60' : 'text-cyan-400/60'}`}>
+                    <p className={`font-mono text-[9px] tracking-[0.2em] uppercase ${mode === 'sales' ? 'text-gray-300/60' : 'text-white/60'}`}>
                       {config.tag}
                     </p>
                     <p className="text-sm font-semibold text-white leading-tight">{config.title}</p>
@@ -147,9 +147,9 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="font-mono text-[9px] text-emerald-400 tracking-widest">ONLINE</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                    <span className="font-mono text-[9px] text-gray-400 tracking-widest">ONLINE</span>
                   </div>
                   <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
                     <FiX size={16} />
@@ -166,8 +166,8 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {msg.role === "ai" && (
-                      <div className={`w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-violet-500/20 bg-violet-500/10' : ''}`}>
-                        <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
+                      <div className={`w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-white/10 bg-white/5' : ''}`}>
+                        <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-gray-300' : 'text-white'}`} />
                       </div>
                     )}
                     <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed chat-markdown ${msg.role === "user" ? "user-bubble" : "ai-bubble"}`}>
@@ -177,8 +177,8 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                 ))}
                 {loading && (
                    <div className="flex justify-start">
-                    <div className={`w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-violet-500/20 bg-violet-500/10' : ''}`}>
-                      <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
+                    <div className={`w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mr-2 mt-1 ${mode === 'sales' ? 'border-white/10 bg-white/5' : ''}`}>
+                      <FaBrain className={`text-[9px] ${mode === 'sales' ? 'text-gray-300' : 'text-white'}`} />
                     </div>
                     <div className="ai-bubble rounded-2xl"><TypingDots /></div>
                   </div>
@@ -190,7 +190,7 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="px-4 pb-2 flex flex-wrap gap-2">
                     {config.chips.map((chip, i) => (
                       <button key={i} onClick={() => handleSend(chip, true)} className="chip">
-                        <FiZap className={`text-[10px] ${mode === 'sales' ? 'text-violet-400' : 'text-cyan-400'}`} />
+                        <FiZap className={`text-[10px] ${mode === 'sales' ? 'text-gray-300' : 'text-white'}`} />
                         {chip}
                       </button>
                     ))}
@@ -235,9 +235,9 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           /* 1. Use svh (small viewport height) to respect mobile toolbars/keyboard */
           max-height: 92svh;
           background: rgba(9, 13, 20, 0.98);
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
-          border: 1px solid rgba(34,211,238,0.12);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.1);
           box-shadow: 0 -8px 48px rgba(0,0,0,0.6);
         }
 
@@ -258,7 +258,7 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           .chat-modal {
             border-radius: 1.5rem;
             max-height: 700px;
-            border-bottom: 1px solid rgba(34,211,238,0.12);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
           }
         }
 
@@ -267,22 +267,22 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           position: relative;
           width: 32px; height: 32px;
           border-radius: 10px;
-          background: rgba(34,211,238,0.08);
-          border: 1px solid rgba(34,211,238,0.2);
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.15);
           display: flex; align-items: center; justify-content: center;
         }
         .chat-icon-ping {
           position: absolute;
           inset: -2px;
           border-radius: 12px;
-          border: 1px solid rgba(34,211,238,0.3);
+          border: 1px solid rgba(255,255,255,0.1);
           animation: ping 2s cubic-bezier(0,0,0.2,1) infinite;
         }
         @keyframes ping { 75%, 100% { transform: scale(1.3); opacity: 0; } }
 
         .user-bubble {
-          background: rgba(34,211,238,0.1);
-          border: 1px solid rgba(34,211,238,0.2);
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.15);
           color: #e2e8f0;
           border-top-right-radius: 4px !important;
         }
@@ -295,16 +295,16 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
 
         .chip {
           display: inline-flex; align-items: center; gap: 0.375rem;
-          font-family: 'Space Mono', monospace;
+          font-family: 'Inter', sans-serif;
           font-size: 0.65rem;
           padding: 0.375rem 0.75rem;
           border-radius: 9999px;
-          background: rgba(34,211,238,0.05);
-          border: 1px solid rgba(34,211,238,0.15);
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.1);
           color: rgba(148,163,184,0.9);
           transition: all 0.2s ease;
         }
-        .chip:hover { background: rgba(34,211,238,0.12); color: #22d3ee; }
+        .chip:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
 
         .chat-input-area { border-top: 1px solid rgba(255,255,255,0.05); }
         .chat-input {
@@ -315,24 +315,24 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
           color: white;
           outline: none;
         }
-        .chat-input:focus { border-color: rgba(34,211,238,0.4); }
+        .chat-input:focus { border-color: rgba(255,255,255,0.1); }
 
         .send-btn {
           width: 40px; height: 40px;
           border-radius: 0.75rem;
-          background: linear-gradient(135deg, #22d3ee, #6366f1);
+          background: linear-gradient(135deg, #d946ef, #7c3aed);
           color: white;
           display: flex; align-items: center; justify-content: center;
           border: none;
         }
 
         .chat-scroll::-webkit-scrollbar { width: 3px; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); border-radius: 10px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         .chat-markdown p { margin-bottom: 0.4rem; }
         .chat-markdown p:last-child { margin-bottom: 0; }
         .chat-markdown ul { list-style: none; padding-left: 0.75rem; }
-        .chat-markdown ul li::before { content: "▸ "; color: #22d3ee; font-size: 0.75em; }
+        .chat-markdown ul li::before { content: "▸ "; color: #ffffff; font-size: 0.75em; }
       `}</style>
     </>
   );

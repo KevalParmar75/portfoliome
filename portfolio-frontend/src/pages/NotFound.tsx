@@ -27,7 +27,7 @@ const PlasmaBlob = ({ blob, springX, springY }: { blob: any; springX: any; sprin
 const GridLines = () => (
   <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
     style={{
-      backgroundImage: `linear-gradient(rgba(34,211,238,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.6) 1px, transparent 1px)`,
+      backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
       backgroundSize: "60px 60px"
     }}
   />
@@ -51,7 +51,7 @@ const LOGS = [
   { text: "GET /unknown-route → 404",       color: "text-red-400"   },
   { text: "resolving path... failed",        color: "text-yellow-400/70" },
   { text: "neural link severed",             color: "text-red-400/70"   },
-  { text: "suggest: return to /home",        color: "text-cyan-400"  },
+  { text: "suggest: return to /home",        color: "text-white"  },
 ];
 
 const TerminalLog = () => {
@@ -85,7 +85,7 @@ const TerminalLog = () => {
             <span className="text-gray-600">$</span>
             {log.text}
             {i === visible - 1 && visible < LOGS.length && (
-              <span className="w-[6px] h-[0.9em] bg-cyan-400 inline-block animate-[blink_1s_step-end_infinite]" />
+              <span className="w-[6px] h-[0.9em] bg-white/20 inline-block animate-[blink_1s_step-end_infinite]" />
             )}
           </motion.div>
         ))}
@@ -116,7 +116,7 @@ export default function NotFound() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="relative min-h-screen bg-[#080b10] text-white overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
+      className="relative min-h-screen bg-transparent text-white overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
     >
       <LiquidGlassCursor />
       <Navbar />
@@ -198,13 +198,13 @@ export default function NotFound() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 1.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mt-10 origin-left"
+          className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent mt-10 origin-left"
         />
       </main>
 <footer className="relative z-10 py-8 text-center">
         <p className="font-mono text-gray-600 text-xs tracking-[0.2em] flex items-center justify-center gap-3">
           <span>© 2026 KEVAL_PARMAR</span>
-          <span className="w-1 h-1 rounded-full bg-cyan-500/40" />
+          <span className="w-1 h-1 rounded-full bg-white/5" />
           <span>POWERED_BY_AI</span>
         </p>
 
@@ -213,7 +213,7 @@ export default function NotFound() {
       </span>
       </footer>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
 
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -222,12 +222,12 @@ export default function NotFound() {
 
         /* ── 404 glitch digits ─────────────────────────────────── */
         .glitch-digit {
-          font-family: 'Space Mono', monospace;
+          font-family: 'Inter', sans-serif;
           font-size: clamp(5rem, 20vw, 9rem);
           font-weight: 700;
           line-height: 1;
           color: #ffffff;
-          text-shadow: 0 0 60px rgba(34,211,238,0.4), 0 0 120px rgba(129,140,248,0.2);
+          text-shadow: 0 0 60px rgba(255,255,255,0.1), 0 0 120px rgba(168,85,247,0.2);
           position: relative;
           display: inline-block;
         }
@@ -241,14 +241,14 @@ export default function NotFound() {
         }
         .glitch-digit:hover::before {
           opacity: 0.7;
-          color: #22d3ee;
+          color: #ffffff;
           clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
           transform: translateX(-3px);
           animation: glitch-a 0.4s steps(2) forwards;
         }
         .glitch-digit:hover::after {
           opacity: 0.7;
-          color: #818cf8;
+          color: #a855f7;
           clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
           transform: translateX(3px);
           animation: glitch-b 0.4s steps(2) forwards;
@@ -267,8 +267,8 @@ export default function NotFound() {
         /* ── Terminal log ──────────────────────────────────────── */
         .terminal-log {
           border-radius: 0.875rem;
-          background: rgba(8, 12, 18, 0.9);
-          border: 1px solid rgba(34,211,238,0.1);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255,255,255,0.1);
           overflow: hidden;
           text-align: left;
         }
@@ -287,7 +287,7 @@ export default function NotFound() {
           align-items: center;
           padding: 0.75rem 2rem;
           border-radius: 0.875rem;
-          background: linear-gradient(135deg, rgba(34,211,238,0.9), rgba(99,102,241,0.9));
+          background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(124,58,237,0.9));
           color: white;
           font-size: 0.875rem;
           font-weight: 600;
@@ -295,7 +295,7 @@ export default function NotFound() {
           transition: box-shadow 0.25s ease;
         }
         .reroute-btn:hover {
-          box-shadow: 0 0 30px rgba(34,211,238,0.4), 0 0 60px rgba(34,211,238,0.15);
+          box-shadow: 0 0 30px rgba(255,255,255,0.1), 0 0 60px rgba(255,255,255,0.1);
         }
 .decal-easter-egg {
   /* The New Guaranteed Font */
@@ -321,6 +321,7 @@ export default function NotFound() {
 }
         /* ── Plasma blobs ──────────────────────────────────────── */
         .plasma {
+          display: none !important;
           position: absolute;
           filter: blur(10px);
           opacity: 0.12;
@@ -328,9 +329,9 @@ export default function NotFound() {
           animation: plasma-drift 25s ease-in-out infinite;
           will-change: transform;
         }
-        .plasma-cyan   { background: radial-gradient(circle, #22d3ee, #0ea5e9); animation-duration: 22s; }
-        .plasma-violet { background: radial-gradient(circle, #818cf8, #6366f1); animation-duration: 28s; animation-direction: reverse; }
-        .plasma-indigo { background: radial-gradient(circle, #6366f1, #4f46e5); animation-duration: 32s; }
+        .plasma-cyan   { background: radial-gradient(circle, #d946ef, #0ea5e9); animation-duration: 22s; }
+        .plasma-violet { background: radial-gradient(circle, #a855f7, #7c3aed); animation-duration: 28s; animation-direction: reverse; }
+        .plasma-indigo { background: radial-gradient(circle, #7c3aed, #4f46e5); animation-duration: 32s; }
 
         @keyframes plasma-drift {
           0%, 100% { transform: translate(0, 0) scale(1); }

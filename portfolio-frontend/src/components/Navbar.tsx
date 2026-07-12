@@ -90,8 +90,8 @@ export default function Navbar() {
         <button onClick={handleBrandClick} className="flex items-center gap-2.5 group flex-shrink-0">
           {/* Status dot */}
           <div className="relative flex items-center justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
-            <div className="absolute w-3 h-3 rounded-full border border-cyan-400/30 animate-ping opacity-60" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/20 shadow-none" />
+            <div className="absolute w-3 h-3 rounded-full border border-white/10 animate-ping opacity-60" />
           </div>
 
           {/* Logo text */}
@@ -146,7 +146,7 @@ export default function Navbar() {
         <div className="hidden sm:flex items-center pl-4 border-l border-white/10">
           <button
             onClick={() => navigate("/collaborate")}
-            className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-400/10 to-violet-400/10 border border-cyan-400/30 text-cyan-300 font-mono text-xs uppercase tracking-wider hover:bg-cyan-400/20 hover:text-white transition-all shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+            className="px-4 py-1.5 rounded-full bg-gradient-to-r from-white/5 to-transparent border border-white/10 text-gray-300 font-mono text-xs uppercase tracking-wider hover:bg-white/5 hover:text-white transition-all shadow-none hover:shadow-none"
           >
             Collaborate
           </button>
@@ -154,7 +154,7 @@ export default function Navbar() {
 
         {/* ── Mobile Toggle ───────────────────────────────────────────── */}
         <button
-          className="sm:hidden text-gray-400 hover:text-cyan-400 transition-colors duration-200 ml-2"
+          className="sm:hidden text-gray-400 hover:text-white transition-colors duration-200 ml-2"
           onClick={() => setIsMobileMenuOpen(v => !v)}
           aria-label="Toggle menu"
         >
@@ -193,7 +193,7 @@ export default function Navbar() {
                   onClick={() => scrollTo(item.id)}
                   className={`mobile-nav-item ${isActive ? "mobile-nav-item-active" : ""}`}
                 >
-                  <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" : "bg-gray-600"}`} />
+                  <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-white/20 shadow-none" : "bg-gray-600"}`} />
                   <span className="font-mono text-sm tracking-widest uppercase">{item.label}</span>
                 </motion.button>
               );
@@ -211,7 +211,7 @@ export default function Navbar() {
                   setIsMobileMenuOpen(false);
                   navigate("/collaborate");
                 }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-400/30 text-cyan-300 font-mono text-xs uppercase tracking-widest hover:bg-cyan-400/20 transition-all shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-white/10 text-gray-300 font-mono text-xs uppercase tracking-widest hover:bg-white/5 transition-all shadow-none"
               >
                 Collaborate
               </button>
@@ -222,55 +222,50 @@ export default function Navbar() {
       </AnimatePresence>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        
         @import url('https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@1,700&display=swap');
 
         /* ── Pill ─────────────────────────────────────────────────── */
         .nav-pill {
           border-radius: 9999px;
-          background: rgba(8, 12, 18, 0.7);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.08);
           transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .nav-pill-scrolled {
-          background: rgba(8, 12, 18, 0.88);
-          border-color: rgba(34,211,238,0.12);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(34,211,238,0.06);
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255,255,255,0.1);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
         }
 
         /* ── Brand ────────────────────────────────────────────────── */
         .brand-font {
-          font-family: 'Lobster Two', cursive;
+          font-family: 'Playfair Display', serif;
           font-style: italic;
           font-weight: 700;
           line-height: 1.2;
           padding-bottom: 2px;
         }
         .brand-k, .brand-p {
-          background: linear-gradient(135deg, #22d3ee, #818cf8);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          /* fallback */
-          color: #22d3ee;
+          color: #ffffff;
         }
         .brand-expand {
-          color: rgba(148,163,184,0.9);
+          color: #ffffff;
           font-style: italic;
         }
         .brand-dot {
-          color: #22d3ee;
-          -webkit-text-fill-color: #22d3ee;
+          color: #ffffff;
+          -webkit-text-fill-color: #ffffff;
         }
 
         /* ── Nav items ────────────────────────────────────────────── */
         .nav-item {
           position: relative;
           padding: 0.375rem 0.75rem;
-          border-radius: 0.5rem;
-          font-family: 'Space Mono', monospace;
+          border-radius: 9999px;
+          font-family: 'Inter', sans-serif;
           font-size: 0.7rem;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -279,21 +274,21 @@ export default function Navbar() {
           white-space: nowrap;
         }
         .nav-item:hover { color: #ffffff; }
-        .nav-item-active { color: #22d3ee; }
+        .nav-item-active { color: #ffffff; }
         .nav-active-bg {
           position: absolute;
           inset: 0;
-          border-radius: 0.5rem;
-          background: rgba(34,211,238,0.08);
-          border: 1px solid rgba(34,211,238,0.2);
+          border-radius: 9999px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.15);
         }
 
         /* ── Mobile menu ──────────────────────────────────────────── */
         .mobile-menu {
           border-radius: 1.25rem;
-          background: rgba(8, 12, 18, 0.92);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.07);
           box-shadow: 0 16px 48px rgba(0,0,0,0.5);
           display: flex;
@@ -316,9 +311,9 @@ export default function Navbar() {
           color: white;
         }
         .mobile-nav-item-active {
-          background: rgba(34,211,238,0.06);
-          color: #22d3ee;
-          border: 1px solid rgba(34,211,238,0.15);
+          background: rgba(255,255,255,0.1);
+          color: #ffffff;
+          border: 1px solid rgba(255,255,255,0.1);
         }
       `}</style>
     </div>
