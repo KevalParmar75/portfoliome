@@ -1,15 +1,23 @@
 @import "tailwindcss";
 
+:root {
+  --ink: #060a08;
+  --fog: #e9efe9;
+  --sage: #9db4a4;
+  --mint: #cfe3d4;
+}
+
 body {
-  background-color: #0b1110;
-  background-image: linear-gradient(rgba(11, 17, 16, 0.4), rgba(11, 17, 16, 0.7)), url('/bg.webp');
+  background-color: var(--ink);
+  background-image: linear-gradient(rgba(6, 10, 8, 0.35), rgba(6, 10, 8, 0.6)), url('/bg.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  color: #f3f4f6;
+  color: var(--fog);
   margin: 0;
   overflow-x: hidden;
   font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────────────────── */
@@ -18,12 +26,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(207, 227, 212, 0.25);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(207, 227, 212, 0.45);
 }
 
 ::-webkit-scrollbar-track {
@@ -32,6 +40,6 @@ body {
 
 /* ── Selection ────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(207, 227, 212, 0.25);
   color: #ffffff;
 }

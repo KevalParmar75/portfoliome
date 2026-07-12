@@ -46,11 +46,15 @@ export default function Navbar() {
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
       let current = "hero";
       navItems.forEach(item => {
         const el = document.getElementById(item.id);
-        if (el && el.offsetTop <= scrollPosition) current = item.id;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= window.innerHeight / 3) {
+            current = item.id;
+          }
+        }
       });
       setActiveSection(current);
     };
@@ -90,8 +94,8 @@ export default function Navbar() {
         <button onClick={handleBrandClick} className="flex items-center gap-2.5 group flex-shrink-0">
           {/* Status dot */}
           <div className="relative flex items-center justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-white/20 shadow-none" />
-            <div className="absolute w-3 h-3 rounded-full border border-white/10 animate-ping opacity-60" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#9fe3b4]/80 shadow-none" />
+            <div className="absolute w-3 h-3 rounded-full border border-[#9fe3b4]/30 animate-ping opacity-60" />
           </div>
 
           {/* Logo text */}
@@ -228,16 +232,16 @@ export default function Navbar() {
         /* ── Pill ─────────────────────────────────────────────────── */
         .nav-pill {
           border-radius: 9999px;
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(6, 10, 8, 0.45);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border: 1px solid rgba(255,255,255,0.08);
           transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .nav-pill-scrolled {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255,255,255,0.1);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+          background: rgba(6, 10, 8, 0.7);
+          border-color: rgba(207,227,212,0.14);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
         }
 
         /* ── Brand ────────────────────────────────────────────────── */
@@ -279,8 +283,8 @@ export default function Navbar() {
           position: absolute;
           inset: 0;
           border-radius: 9999px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(207,227,212,0.1);
+          border: 1px solid rgba(207,227,212,0.18);
         }
 
         /* ── Mobile menu ──────────────────────────────────────────── */
