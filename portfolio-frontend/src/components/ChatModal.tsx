@@ -147,9 +147,9 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-                    <span className="font-mono text-[9px] text-gray-400 tracking-widest">ONLINE</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="font-mono text-[9px] text-white tracking-widest">ONLINE</span>
                   </div>
                   <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
                     <FiX size={16} />
@@ -234,9 +234,9 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
         .chat-modal {
           /* 1. Use svh (small viewport height) to respect mobile toolbars/keyboard */
           max-height: 92svh;
-          background: rgba(9, 13, 20, 0.98);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
           border: 1px solid rgba(255,255,255,0.1);
           box-shadow: 0 -8px 48px rgba(0,0,0,0.6);
         }
@@ -320,11 +320,13 @@ export default function ChatModal({ isOpen, onClose, mode = "normal" }: ChatModa
         .send-btn {
           width: 40px; height: 40px;
           border-radius: 0.75rem;
-          background: linear-gradient(135deg, #d946ef, #7c3aed);
-          color: white;
+          background: #ffffff;
+          color: #000000;
           display: flex; align-items: center; justify-content: center;
           border: none;
+          transition: all 0.3s ease;
         }
+        .send-btn:hover { background: #e5e7eb; }
 
         .chat-scroll::-webkit-scrollbar { width: 3px; }
         .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
