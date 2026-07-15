@@ -178,46 +178,25 @@ const Stat = ({ value, suffix, label, idx }: { value: number; suffix?: string; l
   );
 };
 
-/* ── Scroll-linked word-by-word bio reveal ──────────────────────────────────── */
-const BioWord = ({ word, progress, range }: { word: string; progress: MotionValue<number>; range: [number, number] }) => {
-  const opacity = useTransform(progress, range, [0.12, 1]);
-  const y = useTransform(progress, range, [6, 0]);
-  return (
-    <motion.span style={{ opacity, y }} className="inline-block mr-[0.3em] will-change-transform">
-      {word}
-    </motion.span>
-  );
-};
-
+/* ── Simplified bio reveal ──────────────────────────────────────────────────── */
 const ScrollBio = ({ text }: { text: string }) => {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.82", "end 0.42"] });
+  const inView = useInView(ref, { once: true, amount: 0.3 });
   const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
-  const total = paragraphs.reduce((n, p) => n + p.split(/\s+/).length, 0);
-  let cursor = 0;
 
   return (
     <div ref={ref} className="space-y-6">
-      {paragraphs.map((para, pi) => {
-        const words = para.split(/\s+/);
-        const start = cursor;
-        cursor += words.length;
-        return (
-          <p key={pi} className="text-lg md:text-2xl leading-relaxed text-[#e9efe9] font-light">
-            {words.map((w, wi) => {
-              const i = start + wi;
-              return (
-                <BioWord
-                  key={wi}
-                  word={w}
-                  progress={scrollYProgress}
-                  range={[i / total, Math.min(1, (i + 1.5) / total)]}
-                />
-              );
-            })}
-          </p>
-        );
-      })}
+      {paragraphs.map((para, pi) => (
+        <motion.p 
+          key={pi} 
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: EASE, delay: pi * 0.15 }}
+          className="text-lg md:text-2xl leading-relaxed text-[#e9efe9] font-light"
+        >
+          {para}
+        </motion.p>
+      ))}
     </div>
   );
 };
@@ -455,9 +434,7 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
           transition={{ duration: 0.8, ease: EASE, delay: 0.8 }}
           className="mt-7 md:mt-9 max-w-xl text-sm md:text-lg leading-relaxed text-[#aebfb3] font-light"
         >
-          I build enterprise AI systems, scalable RAG pipelines, and intelligent
-          agents around the clock — turning noise into actionable insight, and
-          only speaking up when it matters.
+          I help founders and businesses integrate scalable AI, automate complex workflows, and build intelligent agents that deliver real-world ROI.
         </motion.p>
 
         {/* Status line */}
@@ -512,6 +489,7 @@ export default function Home() {
     about: 0, skills: 0, experience: 0, projects: 0, contact: 0,
   });
   const [currentView, setCurrentView] = useState("hero");
+  const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   useEffect(() => {
     Promise.all([
@@ -684,7 +662,7 @@ export default function Home() {
         <section id="experience" className="relative py-24 md:py-40 max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10 lg:gap-16">
             <div className="lg:sticky lg:top-32 h-fit">
-              <SectionHeader index="03" eyebrow="work.history" title="Experience" className="mb-6 md:mb-8" />
+              <SectionHeader index="03" eyebrow="client.engagements" title="Experience" className="mb-6 md:mb-8" />
               <p className="font-mono text-[11px] leading-relaxed tracking-wider text-[#7d9284] max-w-[240px]">
                 Where the systems thinking was forged.
               </p>
@@ -695,7 +673,7 @@ export default function Home() {
 
         {/* ── PROJECTS ──────────────────────────────────────────────── */}
         <section id="projects" className="relative py-24 md:py-40 max-w-6xl mx-auto px-6 md:px-10">
-          <SectionHeader index="04" eyebrow="work.showcase" title="Selected Work" />
+          <SectionHeader index="04" eyebrow="case.studies" title="Selected Work" />
           <div>
             {projects.map((project, idx) => (
               <ProjectRow key={project.id} project={project} idx={idx} navigate={navigate} />
@@ -714,33 +692,64 @@ export default function Home() {
       {/* ── SOLID PANEL: AI Search Context (SEO) ────────────────────────── */}
       <div className="relative z-10 bg-[#060a08]">
         <section id="ai-context" className="relative py-16 md:py-24 max-w-4xl mx-auto px-6 md:px-10 border-t border-white/[0.06]">
-          <SectionHeader index="05" eyebrow="ai.search.index" title="AI Developer Portfolio" className="mb-6 md:mb-10" />
+          <SectionHeader index="05" eyebrow="client.faq" title="Freelance AI Architect" className="mb-6 md:mb-10" />
           <article className="prose prose-invert prose-sm md:prose-base max-w-none text-[#94a89a] font-light space-y-6">
             <p>
-              Welcome to the digital nervous system of <strong>Keval Parmar</strong>, a senior <strong>AI Engineer</strong>. 
-              This platform isn't just a static display; it represents the intersection of robust backend architecture and cutting-edge 
-              <strong>liquid glass portfolio ideas</strong>. If you are exploring modern <strong>portfolio websites</strong> or looking for 
-              <strong>AI developer portfolio</strong> inspiration, this space serves as a live demonstration of intelligent design and 
-              LLM integration.
+              Welcome to the digital nervous system of <strong>Keval Parmar</strong>, an independent <strong>AI Architect and Engineer</strong>. 
+              This platform isn't just a static display; it serves as a live demonstration of the scalable infrastructure and intelligent design 
+              I bring to client engagements. Whether you need custom LLM integrations, agentic workflows, or end-to-end full-stack 
+              development, this portfolio highlights how complex technical problems are solved with robust architectures.
             </p>
-            <div className="grid md:grid-cols-2 gap-8 mt-10">
-              <div>
-                <h3 className="font-serif text-[#e9efe9] text-xl mb-3">Why an AI Engineer Portfolio?</h3>
-                <p className="text-sm leading-relaxed">
-                  The landscape of software is shifting. An <strong>AI engineer portfolio</strong> must go beyond standard UI; it requires 
-                  showcasing Retrieval-Augmented Generation (RAG), agentic workflows, and semantic search capabilities. By integrating 
-                  frameworks like Django, React, and LangChain, this site demonstrates how to turn conceptual <strong>portfolio ideas</strong> into 
-                  scalable production systems.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-serif text-[#e9efe9] text-xl mb-3">Liquid Glass & Modern UI</h3>
-                <p className="text-sm leading-relaxed">
-                  Aesthetics drive engagement. Utilizing <strong>liquid glass portfolio ideas</strong>—such as dynamic refractions, 
-                  fluid cursors, and deep space aesthetics—creates a tactile user experience. It proves that an AI developer can build 
-                  interfaces that are as visually arresting as the machine learning models running behind them.
-                </p>
-              </div>
+            <div className="mt-12 space-y-4">
+              {[ 
+                {
+                  q: "What is your typical engagement model?",
+                  a: <>I partner directly with founders and product teams. Depending on the scale of the challenge, engagements range from <strong>architecture scoping</strong> and technical consulting, to hands-on <strong>freelance development</strong> where I build and deploy scalable AI products (like custom RAG pipelines or intelligent agents) directly into your existing infrastructure.</>
+                },
+                {
+                  q: "Do you handle full-stack or just AI?",
+                  a: <>Both. Delivering a successful AI product requires a seamless connection between the model and the user interface. My expertise spans modern frontends (React, Tailwind) and robust backends (Django, FastAPI), ensuring that the machine learning models I integrate are packaged in highly aesthetic and reliable applications.</>
+                },
+                {
+                  q: "How do we get started?",
+                  a: <>The best way is to reach out via the <strong className="text-[#cfe3d4]">Collaborate</strong> page. We will begin with a brief scoping conversation to align on architecture, timelines, and business goals before any code is written.</>
+                }
+              ].map((faq, idx) => {
+                const isOpen = openFAQ === idx;
+                return (
+                  <div key={idx} className={`border border-white/[0.06] bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'border-[#cfe3d4]/30 bg-white/[0.04]' : 'hover:border-white/[0.12] hover:bg-white/[0.03]'}`}>
+                    <button 
+                      onClick={() => setOpenFAQ(isOpen ? null : idx)}
+                      className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 cursor-pointer"
+                    >
+                      <h3 className={`font-serif text-lg md:text-xl transition-colors duration-300 m-0 ${isOpen ? 'text-[#cfe3d4]' : 'text-[#e9efe9]'}`}>
+                        {faq.q}
+                      </h3>
+                      <motion.div
+                        initial={false}
+                        animate={{ rotate: isOpen ? 0 : 45 }}
+                        className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center shrink-0"
+                      >
+                        <FaTimes className="text-sm text-[#9db4a4]" />
+                      </motion.div>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: EASE }}
+                        >
+                          <div className="px-6 pb-6 pt-2 text-[#94a89a] text-sm leading-relaxed border-t border-white/[0.03] mt-2">
+                            {faq.a}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
           </article>
         </section>
@@ -758,8 +767,7 @@ export default function Home() {
             transition={{ duration: 0.7, ease: EASE }}
             className="text-[#94a89a] text-sm md:text-lg mb-12 md:mb-16 max-w-lg mx-auto font-light -mt-6 md:-mt-12"
           >
-            Open to collaborations, research projects, and building the next
-            generation of intelligent systems.
+            Currently accepting new freelance projects, technical consulting engagements, and architecture design work.
           </motion.p>
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-4">

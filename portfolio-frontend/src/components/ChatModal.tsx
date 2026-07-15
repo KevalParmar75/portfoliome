@@ -21,9 +21,9 @@ const MODES = {
   normal: {
     tag: "portfolio.ai",
     title: "Ask me anything",
-    greeting: "Hi! I'm Keval's AI assistant. Ask me anything about his experience, projects, or tech stack!",
-    placeholder: "Ask about experience, projects...",
-    chips: ["What's your tech stack?", "Tell me about his projects", "Do you have LLM experience?"]
+    greeting: "Hi! I'm Keval's AI assistant. Ask me about his freelance services, case studies, or tech stack!",
+    placeholder: "Ask about freelance work, case studies...",
+    chips: ["Are you available for freelance work?", "What is your typical engagement model?", "Tell me about your client projects"]
   },
   sales: {
     tag: "scoping.ai",
