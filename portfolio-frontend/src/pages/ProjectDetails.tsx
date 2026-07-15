@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt} from "react-icons/fa";
-import { FiRefreshCw, FiX, FiChevronLeft, FiChevronRight, FiZap, FiMaximize2 } from "react-icons/fi";
+import { FiRefreshCw, FiX, FiChevronLeft, FiChevronRight, FiZap, FiMaximize2, FiArrowUpRight } from "react-icons/fi";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 
 interface Project {
@@ -34,6 +34,62 @@ const Grain = () => (
     }}
   />
 );
+
+// ─── Scroll progress bar ──────────────────────────────────────────────────────
+const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 });
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-[2px] z-[96] origin-left bg-gradient-to-r from-transparent via-[#cfe3d4]/70 to-[#cfe3d4]/30"
+      style={{ scaleX }}
+    />
+  );
+};
+
+// ─── Scroll-linked word-by-word reveal ────────────────────────────────────────
+const ScrollWord = ({ word, progress, range }: { word: string; progress: MotionValue<number>; range: [number, number] }) => {
+  const opacity = useTransform(progress, range, [0.12, 1]);
+  const y = useTransform(progress, range, [6, 0]);
+  return (
+    <motion.span style={{ opacity, y }} className="inline-block mr-[0.3em] will-change-transform">
+      {word}
+    </motion.span>
+  );
+};
+
+const ScrollText = ({ text }: { text: string }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.5"] });
+  const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
+  const total = paragraphs.reduce((n, p) => n + p.split(/\s+/).length, 0);
+  let cursor = 0;
+
+  return (
+    <div ref={ref} className="space-y-5">
+      {paragraphs.map((para, pi) => {
+        const words = para.split(/\s+/);
+        const start = cursor;
+        cursor += words.length;
+        return (
+          <p key={pi} className="text-[#c3d2c7] font-light text-base md:text-lg leading-relaxed">
+            {words.map((w, wi) => {
+              const i = start + wi;
+              return (
+                <ScrollWord
+                  key={wi}
+                  word={w}
+                  progress={scrollYProgress}
+                  range={[i / total, Math.min(1, (i + 1.5) / total)]}
+                />
+              );
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
 
 // ─── Animated Title ───────────────────────────────────────────────────────────
 const AnimatedTitle = ({ text }: { text: string }) => {
@@ -273,6 +329,136 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
   );
 };
 
+// ─── Meta chip ────────────────────────────────────────────────────────────────
+const MetaChip = ({ children }: { children: React.ReactNode }) => (
+  <span className="px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-md font-mono text-[10px] tracking-[0.2em] uppercase text-[#b9cec0]">
+    {children}
+  </span>
+);
+
+// ─── Parallax hero (photo shows through from body bg) ────────────────────────
+const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCount: number; onBack: () => void }) => {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  const scrimOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.9]);
+
+  return (
+    <section ref={ref} className="relative pt-28 md:pt-44 pb-24 md:pb-32 overflow-hidden">
+      <motion.div style={{ opacity: scrimOpacity }} className="absolute inset-0 bg-[#060a08] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-[#060a08] pointer-events-none" />
+
+      <motion.div style={{ y, opacity }} className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 will-change-transform">
+        <motion.button
+          onClick={onBack}
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-2 font-mono text-xs text-[#8fa697] hover:text-[#e9efe9] transition-colors duration-200 mb-10 md:mb-14 group"
+        >
+          <FiChevronLeft className="group-hover:-translate-x-0.5 transition-transform duration-200" />
+          <span className="tracking-[0.2em] uppercase">back_to_projects</span>
+        </motion.button>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-4 mb-6"
+        >
+          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
+            project.details
+          </span>
+          <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
+        </motion.div>
+
+        <AnimatedTitle text={project.title} />
+
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-6 md:mt-8 text-[#a9baae] text-sm md:text-lg max-w-2xl font-light leading-relaxed"
+        >
+          {project.short_description}
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex flex-wrap gap-2.5 mt-8"
+        >
+          {typeof project.views === "number" && <MetaChip>{project.views} views</MetaChip>}
+          {project.images && project.images.length > 0 && <MetaChip>{project.images.length} visuals</MetaChip>}
+          <MetaChip>{techCount} technologies</MetaChip>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="flex flex-wrap gap-3 mt-10"
+        >
+          {project.github_url && (
+            <ActionButton href={project.github_url} icon={<FaGithub className="text-base" />} label="Repository" />
+          )}
+          {project.live_url && (
+            <ActionButton href={project.live_url} icon={<FaExternalLinkAlt className="text-sm" />} label="Live Demo" primary />
+          )}
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+};
+
+// ─── Up Next ──────────────────────────────────────────────────────────────────
+const UpNext = ({ project, onOpen }: { project: Project; onOpen: () => void }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const ghostY = useTransform(scrollYProgress, [0, 1], [50, -50]);
+
+  return (
+    <section className="relative z-10 bg-[#060a08] border-t border-white/[0.06]">
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 32 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease: EASE }}
+        onClick={onOpen}
+        className="group relative max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 cursor-pointer overflow-hidden"
+      >
+        <motion.span
+          style={{ y: ghostY }}
+          className="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 font-serif italic text-[7rem] md:text-[10rem] leading-none text-white/[0.03] select-none pointer-events-none"
+        >
+          next
+        </motion.span>
+
+        <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
+          up.next
+        </span>
+
+        <div className="relative flex items-center justify-between gap-6 mt-5">
+          <div className="min-w-0">
+            <h2 className="font-serif italic text-3xl md:text-6xl text-[#e9efe9] leading-tight transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-4">
+              {project.title}
+            </h2>
+            <p className="mt-4 text-sm md:text-base text-[#94a89a] font-light leading-relaxed max-w-xl transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-4">
+              {project.short_description}
+            </p>
+          </div>
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 flex items-center justify-center shrink-0 transition-all duration-500 group-hover:border-[#cfe3d4]/50 group-hover:bg-[#cfe3d4]/10 group-hover:rotate-45">
+            <FiArrowUpRight className="text-lg md:text-2xl text-[#9db4a4] group-hover:text-[#e9efe9] transition-colors duration-300" />
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+};
+
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-[#060a08] text-white flex items-center justify-center">
@@ -391,66 +577,14 @@ export default function ProjectDetails() {
     >
       <LiquidGlassCursor />
       <Navbar />
+      <ScrollProgress />
       <Grain />
 
-      {/* ── Solid panel backdrop ───────────────────────────────────── */}
-      <div className="absolute inset-x-0 top-0 h-[50vh] bg-gradient-to-b from-transparent to-[#060a08] pointer-events-none" />
+      {/* ── Parallax hero ──────────────────────────────────────────── */}
+      <ProjectHero project={project} techCount={techLines.length} onBack={() => navigate(-1)} />
 
-      <main className="relative z-10 min-h-screen bg-[#060a08] pb-20 pt-28 md:pt-40">
-        <div className="px-6 md:px-10 max-w-6xl mx-auto">
-
-          {/* ── Back button ───────────────────────────────────────────── */}
-          <motion.button
-            onClick={() => navigate(-1)}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex items-center gap-2 font-mono text-xs text-[#8fa697] hover:text-[#e9efe9] transition-colors duration-200 mb-8 md:mb-12 group"
-          >
-            <FiChevronLeft className="group-hover:-translate-x-0.5 transition-transform duration-200" />
-            <span className="tracking-[0.2em] uppercase">back_to_projects</span>
-          </motion.button>
-
-          {/* ── Header ────────────────────────────────────────────────── */}
-          <div className="mb-12 md:mb-16">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
-              className="flex items-center gap-4 mb-6"
-            >
-              <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
-                project.details
-              </span>
-              <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
-            </motion.div>
-
-            <AnimatedTitle text={project.title} />
-
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="mt-6 md:mt-8 text-[#94a89a] text-sm md:text-lg max-w-2xl font-light leading-relaxed"
-            >
-              {project.short_description}
-            </motion.p>
-          </div>
-
-          {/* ── Action Buttons ─────────────────────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.5 }}
-            className="flex flex-wrap gap-3 mb-16 md:mb-20"
-          >
-            {project.github_url && (
-              <ActionButton href={project.github_url} icon={<FaGithub className="text-base" />} label="Repository" />
-            )}
-            {project.live_url && (
-              <ActionButton href={project.live_url} icon={<FaExternalLinkAlt className="text-sm" />} label="Live Demo" primary />
-            )}
-          </motion.div>
+      <main className="relative z-10 bg-[#060a08] pb-20">
+        <div className="px-6 md:px-10 max-w-6xl mx-auto pt-4 md:pt-8">
 
           {/* ── Two-column layout ──────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 md:gap-16 mb-12">
@@ -467,9 +601,9 @@ export default function ProjectDetails() {
                 </span>
                 <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
               </div>
-              <p className="text-[#a9baae] font-light text-sm md:text-base leading-relaxed whitespace-pre-line mb-12">
-                {project.detailed_description}
-              </p>
+              <div className="mb-12">
+                <ScrollText text={project.detailed_description} />
+              </div>
               {project.images && project.images.length > 0 && (
                 <ImageCarousel images={project.images} />
               )}
@@ -554,6 +688,14 @@ export default function ProjectDetails() {
 
         </div>
       </main>
+
+      {/* ── Up Next ────────────────────────────────────────────────────── */}
+      {recommendedProject && (
+        <UpNext
+          project={recommendedProject}
+          onOpen={() => navigate(`/projects/${recommendedProject.slug}`)}
+        />
+      )}
 
       {/* ── Recommendation Widget ──────────────────────────────────────── */}
       <AnimatePresence>
@@ -789,15 +931,13 @@ export default function ProjectDetails() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.4);
-          mix-blend-mode: overlay;
-          text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(255, 255, 255, 0.2);
+          color: rgba(207, 227, 212, 0.45);
+          text-shadow: 0 0 10px rgba(207, 227, 212, 0.15);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }
         .decal-easter-egg:hover {
           color: rgba(220, 38, 38, 0.9);
-          mix-blend-mode: normal;
           text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
         }
       `}</style>

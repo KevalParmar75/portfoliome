@@ -1,5 +1,5 @@
-import { useState} from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
 import { FaBrain, FaServer, FaProjectDiagram, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
 import ChatModal from "../components/ChatModal";
 import Navbar from "../components/Navbar";
@@ -17,6 +17,83 @@ const Grain = () => (
 );
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+// ─── Scroll progress bar ──────────────────────────────────────────────────────
+const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 });
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-[2px] z-[96] origin-left bg-gradient-to-r from-transparent via-[#cfe3d4]/70 to-[#cfe3d4]/30"
+      style={{ scaleX }}
+    />
+  );
+};
+
+// ─── Parallax hero (photo shows through from body bg) ────────────────────────
+const TITLE_WORDS: { word: string; accent: boolean }[] = [
+  { word: "Let's", accent: false },
+  { word: "architect", accent: false },
+  { word: "intelligent", accent: true },
+  { word: "systems.", accent: false },
+];
+
+const CollabHero = () => {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  const scrimOpacity = useTransform(scrollYProgress, [0, 1], [0.5, 0.9]);
+
+  return (
+    <section ref={ref} className="relative pt-36 md:pt-52 pb-24 md:pb-36 overflow-hidden">
+      <motion.div style={{ opacity: scrimOpacity }} className="absolute inset-0 bg-[#060a08] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-[#060a08] pointer-events-none" />
+
+      <motion.div
+        style={{ y, opacity }}
+        className="relative z-10 text-center max-w-3xl mx-auto px-6 will-change-transform"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+          className="flex justify-center items-center gap-4 mb-8"
+        >
+          <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#9db4a4]/40" />
+          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
+            collaborate
+          </span>
+          <span className="h-px w-12 bg-gradient-to-r from-[#9db4a4]/40 to-transparent" />
+        </motion.div>
+
+        <h1 className="display-title mb-6 md:mb-8" aria-label="Let's architect intelligent systems.">
+          {TITLE_WORDS.map(({ word, accent }, i) => (
+            <span key={i} className="inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em] mr-[0.28em] last:mr-0">
+              <motion.span
+                className={`inline-block will-change-transform ${accent ? "text-[#cfe3d4]" : ""}`}
+                initial={{ y: "110%", rotate: 4, opacity: 0 }}
+                animate={{ y: 0, rotate: 0, opacity: 1 }}
+                transition={{ duration: 0.9, ease: EASE, delay: 0.25 + i * 0.09 }}
+              >
+                {word}
+              </motion.span>
+            </span>
+          ))}
+        </h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.7 }}
+          className="text-[#a9baae] text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto"
+        >
+          I help founders and teams build and integrate reliable AI systems into real products.
+        </motion.p>
+      </motion.div>
+    </section>
+  );
+};
 
 export default function Collaborate() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -88,35 +165,16 @@ export default function Collaborate() {
     >
       <LiquidGlassCursor />
       <Navbar />
+      <ScrollProgress />
       <Grain />
 
-      <div className="absolute inset-x-0 top-0 h-[60vh] bg-gradient-to-b from-transparent to-[#060a08] pointer-events-none z-0" />
+      {/* ── Parallax hero ──────────────────────────────────────────── */}
+      <CollabHero />
 
       {/* ── Main Panel ─────────────────────────────────────────────── */}
-      <main className="relative z-10 min-h-screen bg-[#060a08] pb-24 pt-36 md:pt-44">
+      <main className="relative z-10 bg-[#060a08] pb-24 pt-4 md:pt-8">
 
         <section className="relative flex flex-col items-center justify-start px-6 md:px-10 max-w-6xl mx-auto">
-
-          {/* Header Section */}
-          <div className="text-center max-w-3xl mx-auto mb-16 md:mb-24">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: EASE }}>
-              <div className="flex justify-center items-center gap-4 mb-6">
-                <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#9db4a4]/40" />
-                <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
-                  collaborate
-                </span>
-                <span className="h-px w-12 bg-gradient-to-r from-[#9db4a4]/40 to-transparent" />
-              </div>
-
-              <h1 className="display-title mb-6 md:mb-8">
-                Let's architect <span className="text-[#cfe3d4]">intelligent</span> systems.
-              </h1>
-
-              <p className="text-[#a9baae] text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto">
-                I help founders and teams build and integrate reliable AI systems into real products.
-              </p>
-            </motion.div>
-          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 w-full">
 
@@ -133,19 +191,26 @@ export default function Collaborate() {
                   Core Capabilities
                 </motion.h3>
 
-                <div className="space-y-4">
+                <div>
                   {services.map((service, idx) => (
-                    <motion.div 
-                      key={idx} 
-                      initial={{ opacity: 0, y: 20 }} 
-                      animate={{ opacity: 1, y: 0 }} 
-                      transition={{ delay: 0.3 + idx * 0.1, ease: EASE }}
-                      className="p-6 md:p-8 border-t border-white/[0.06] flex gap-5 hover:bg-white/[0.01] transition-colors duration-300"
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + idx * 0.12, duration: 0.7, ease: EASE }}
+                      className="group border-t border-white/[0.06] last:border-b py-7 md:py-9 grid grid-cols-[auto_auto_1fr] gap-5 md:gap-6 items-start hover:bg-white/[0.015] transition-colors duration-300"
                     >
+                      <span className="font-mono text-[10px] text-[#8fa697] tracking-[0.25em] pt-2">
+                        0{idx + 1}
+                      </span>
                       <div className="mt-1 shrink-0">{service.icon}</div>
                       <div>
-                        <h4 className="text-lg font-serif italic text-[#e9efe9] mb-2">{service.title}</h4>
-                        <p className="text-sm font-light text-[#94a89a] leading-relaxed">{service.desc}</p>
+                        <h4 className="text-lg md:text-xl font-serif italic text-[#e9efe9] mb-2 transition-transform duration-500 group-hover:translate-x-1.5">
+                          {service.title}
+                        </h4>
+                        <p className="text-sm font-light text-[#94a89a] leading-relaxed transition-transform duration-500 group-hover:translate-x-1.5">
+                          {service.desc}
+                        </p>
                       </div>
                     </motion.div>
                   ))}
@@ -361,15 +426,13 @@ export default function Collaborate() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.4);
-          mix-blend-mode: overlay;
-          text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(255, 255, 255, 0.2);
+          color: rgba(207, 227, 212, 0.45);
+          text-shadow: 0 0 10px rgba(207, 227, 212, 0.15);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }
         .decal-easter-egg:hover {
           color: rgba(220, 38, 38, 0.9);
-          mix-blend-mode: normal;
           text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
         }
       `}</style>
