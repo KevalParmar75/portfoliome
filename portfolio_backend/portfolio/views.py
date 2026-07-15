@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, action, permission_classes
+import resend
 from rest_framework.views import APIView
 from django.core.mail import send_mail
 from django.conf import settings
@@ -320,8 +321,9 @@ def submit_inquiry(request):
     if serializer.is_valid():
         inquiry = serializer.save()
         
-        # Send Email
+        # Send Email via Resend HTTP API
         try:
+            resend.api_key = settings.RESEND_API_KEY
             subject = f"New Inquiry from {inquiry.name} ({inquiry.company})"
             message = f"Name: {inquiry.name}\n" \
                       f"Email: {inquiry.email}\n" \
@@ -329,17 +331,18 @@ def submit_inquiry(request):
                       f"Engagement Type: {inquiry.engagement_type}\n\n" \
                       f"Scope Details:\n{inquiry.scope}"
                       
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[settings.RECEIVER_EMAIL],
-                fail_silently=False,
-            )
+            params = {
+                "from": "Portfolio <onboarding@resend.dev>",
+                "to": [settings.RECEIVER_EMAIL],
+                "subject": subject,
+                "text": message
+            }
+            
+            email_response = resend.Emails.send(params)
         except Exception as e:
             # We still return success because the inquiry was saved to DB, 
             # but we log the email failure.
-            print(f"Email failed to send: {e}")
+            print(f"Email failed to send via Resend: {e}")
 
         return Response({"message": "Transmission received"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
