@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   motion, AnimatePresence, useInView, useScroll, useSpring,
-  useTransform, useMotionValue, animate, type MotionValue,
+  useTransform, useMotionValue, animate,
 } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -187,8 +187,8 @@ const ScrollBio = ({ text }: { text: string }) => {
   return (
     <div ref={ref} className="space-y-6">
       {paragraphs.map((para, pi) => (
-        <motion.p 
-          key={pi} 
+        <motion.p
+          key={pi}
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: EASE, delay: pi * 0.15 }}
@@ -695,13 +695,13 @@ export default function Home() {
           <SectionHeader index="05" eyebrow="client.faq" title="Freelance AI Architect" className="mb-6 md:mb-10" />
           <article className="prose prose-invert prose-sm md:prose-base max-w-none text-[#94a89a] font-light space-y-6">
             <p>
-              Welcome to the digital nervous system of <strong>Keval Parmar</strong>, an independent <strong>AI Architect and Engineer</strong>. 
-              This platform isn't just a static display; it serves as a live demonstration of the scalable infrastructure and intelligent design 
-              I bring to client engagements. Whether you need custom LLM integrations, agentic workflows, or end-to-end full-stack 
+              Welcome to the digital nervous system of <strong>Keval Parmar</strong>, an independent <strong>AI Architect and Engineer</strong>.
+              This platform isn't just a static display; it serves as a live demonstration of the scalable infrastructure and intelligent design
+              I bring to client engagements. Whether you need custom LLM integrations, agentic workflows, or end-to-end full-stack
               development, this portfolio highlights how complex technical problems are solved with robust architectures.
             </p>
             <div className="mt-12 space-y-4">
-              {[ 
+              {[
                 {
                   q: "What is your typical engagement model?",
                   a: <>I partner directly with founders and product teams. Depending on the scale of the challenge, engagements range from <strong>architecture scoping</strong> and technical consulting, to hands-on <strong>freelance development</strong> where I build and deploy scalable AI products (like custom RAG pipelines or intelligent agents) directly into your existing infrastructure.</>
@@ -718,7 +718,7 @@ export default function Home() {
                 const isOpen = openFAQ === idx;
                 return (
                   <div key={idx} className={`border border-white/[0.06] bg-white/[0.02] backdrop-blur-md rounded-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'border-[#cfe3d4]/30 bg-white/[0.04]' : 'hover:border-white/[0.12] hover:bg-white/[0.03]'}`}>
-                    <button 
+                    <button
                       onClick={() => setOpenFAQ(isOpen ? null : idx)}
                       className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 cursor-pointer"
                     >

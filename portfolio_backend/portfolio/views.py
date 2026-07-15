@@ -2,6 +2,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.views import APIView
+from django.core.mail import send_mail
+from django.conf import settings
 # Added CollaborationInquiry to your imports
 from .models import Project, ProjectExplanation, Skill, Experience, About, SocialLink, ChatCache, SectionAnalytics, \
     CollaborationInquiry
@@ -316,7 +318,29 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
 def submit_inquiry(request):
     serializer = CollaborationInquirySerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        inquiry = serializer.save()
+        
+        # Send Email
+        try:
+            subject = f"New Inquiry from {inquiry.name} ({inquiry.company})"
+            message = f"Name: {inquiry.name}\n" \
+                      f"Email: {inquiry.email}\n" \
+                      f"Company: {inquiry.company}\n" \
+                      f"Engagement Type: {inquiry.engagement_type}\n\n" \
+                      f"Scope Details:\n{inquiry.scope}"
+                      
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[settings.RECEIVER_EMAIL],
+                fail_silently=False,
+            )
+        except Exception as e:
+            # We still return success because the inquiry was saved to DB, 
+            # but we log the email failure.
+            print(f"Email failed to send: {e}")
+
         return Response({"message": "Transmission received"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
