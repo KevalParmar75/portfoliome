@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, action, permission_classes
+from rest_framework.decorators import api_view, action, permission_classes, throttle_classes
+from rest_framework.throttling import ScopedRateThrottle
 import resend
 from rest_framework.views import APIView
 from django.core.mail import send_mail
@@ -23,6 +24,39 @@ from rest_framework import status
 from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Sum
+
+
+from rest_framework.throttling import SimpleRateThrottle
+
+
+class ChatThrottle(SimpleRateThrottle):
+    scope = 'chat'
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
+
+
+class InquiryThrottle(SimpleRateThrottle):
+    scope = 'inquire'
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
+
+
+class AnalyticsThrottle(SimpleRateThrottle):
+    scope = 'analytics'
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': self.get_ident(request)
+        }
 
 
 class ProjectListView(APIView):
@@ -147,6 +181,7 @@ class SocialLinksView(APIView):
 
 # ─── THE UPGRADED CHAT ENDPOINT ──────────────────────────────────────────
 @api_view(["POST"])
+@throttle_classes([ChatThrottle])
 def portfolio_chat(request):  # Removed chat_history from kwargs to match standard DRF payload extraction
     user_message = request.data.get("message", "").strip()
     is_suggested = request.data.get("is_suggested", False)
@@ -316,6 +351,7 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
 # ─── THE NEW COLLABORATION FORM ENDPOINT ─────────────────────────────────
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([InquiryThrottle])
 def submit_inquiry(request):
     serializer = CollaborationInquirySerializer(data=request.data)
     if serializer.is_valid():
@@ -349,6 +385,7 @@ def submit_inquiry(request):
 
 
 @api_view(['POST'])
+@throttle_classes([AnalyticsThrottle])
 def track_section(request):
     section = request.data.get("section")
     time_spent = float(request.data.get("time_spent", 0))
