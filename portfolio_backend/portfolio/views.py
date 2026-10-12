@@ -18,7 +18,7 @@ from .serializers import (
     SocialLinkSerializer,
     CollaborationInquirySerializer
 )
-from ai_services.hf_service import generate_explanation, generate_chat_response
+from ai_services.groq_service import generate_explanation, generate_chat_response
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils.timezone import now
