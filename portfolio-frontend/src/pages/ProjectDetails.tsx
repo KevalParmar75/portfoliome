@@ -794,8 +794,22 @@ export default function ProjectDetails() {
                   ) : (
                     <motion.div key="content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35 }}
-                      className="markdown-body text-[#a9baae] font-light leading-relaxed text-sm md:text-base max-w-3xl">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{typedText}</ReactMarkdown>
+                      className="markdown-body text-[#a9baae] leading-relaxed text-sm md:text-base max-w-3xl">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          a: ({ node, ...props }) => (
+                            <a
+                              {...props}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#cfe3d4] hover:text-white underline font-semibold transition-colors"
+                            />
+                          )
+                        }}
+                      >
+                        {typedText}
+                      </ReactMarkdown>
                       {typedText.length < explanation.length && (
                         <motion.span
                           animate={{ opacity: [1, 0] }}
