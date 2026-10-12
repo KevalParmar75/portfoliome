@@ -345,6 +345,8 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
             "cached": False
         })
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return Response({"error": str(e)}, status=500)
 
 
