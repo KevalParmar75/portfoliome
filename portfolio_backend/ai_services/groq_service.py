@@ -1,12 +1,13 @@
+import os
 from groq import Groq
 from django.conf import settings
 
 # Default flagship model on Groq: fast, robust reasoning and large context window
-DEFAULT_MODEL = getattr(settings, "GROQ_MODEL", "llama-3.3-70b-versatile")
+DEFAULT_MODEL = getattr(settings, "GROQ_MODEL", None) or os.getenv("GROQ_MODEL") or "llama-3.3-70b-versatile"
 
 
 def get_groq_client() -> Groq:
-    api_key = getattr(settings, "GROQ_API_KEY", None)
+    api_key = getattr(settings, "GROQ_API_KEY", None) or os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY is not configured in settings or environment variables.")
     return Groq(api_key=api_key)
