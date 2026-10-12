@@ -77,72 +77,79 @@ def explain_project(request, slug):
         return Response({"error": "Project not found"}, status=404)
 
     # Check cache
-    existing = ProjectExplanation.objects.filter(
-        project=project,
-        explanation_type=explanation_type,
-        complexity_level=complexity
-    ).first()
+    force_refresh = request.data.get("refresh", False) or request.data.get("force_refresh", False)
+    if not force_refresh:
+        existing = ProjectExplanation.objects.filter(
+            project=project,
+            explanation_type=explanation_type,
+            complexity_level=complexity
+        ).first()
 
-    if existing:
-        return Response({
-            "content": existing.content,
-            "cached": True
-        })
+        # Only use cached content if it already has rich markdown formatting
+        if existing and ("###" in existing.content or "**" in existing.content):
+            return Response({
+                "content": existing.content,
+                "cached": True
+            })
 
     # Build prompt
     if explanation_type == "hr":
         audience_instruction = """
     Focus on:
-    - Business value
-    - User benefits
-    - Impact on operations
-    - Accessibility
-    Avoid deep technical details.
-    Use professional executive tone.
+    - Business value & ROI
+    - User benefits & engagement
+    - Impact on operational efficiency
+    - High-level architecture & accessibility
+    Avoid low-level jargon. Use a polished executive tone.
     """
 
     elif explanation_type == "simple":
         audience_instruction = """
-    Explain like you're speaking to a non-technical person.
-    Use simple language.
-    Avoid jargon.
-    Use short clear paragraphs.
+    Explain like you're speaking to a curious non-technical stakeholder or client.
+    Use clear, relatable analogies and simple language.
+    Avoid dense acronyms and jargon without explanation.
+    Use short, accessible paragraphs.
     """
 
     else:
         audience_instruction = """
-    Provide a technical architecture overview.
-    Discuss system design, scalability and data flow.
+    Provide an in-depth technical architecture overview.
+    Discuss system design, algorithmic decisions, data pipeline flow, scalability, and performance optimizations.
     """
 
     prompt = f"""
-    You are writing a professional portfolio explanation.
+    You are writing a professional, high-impact portfolio explanation for the project below.
 
-    Rules:
-    - No markdown symbols.
-    - No reasoning steps.
-    - No meta commentary.
-    - Clean professional formatting.
+    Formatting Requirements:
+    - Use clean, structured Markdown formatting.
+    - Use bold section headings (e.g. ### Architecture & System Flow, ### Key Technical Highlights, ### Impact & Value).
+    - Use bullet points (- ) with bold leading keywords for key features and components.
+    - Use **bold text** to highlight frameworks, databases, models, and performance metrics.
+    - Use clean paragraph breaks between sections for great scannability.
+    - If GitHub or Live URLs are provided, format them as clean markdown links: [GitHub Repository]({project.github_url or '#' }).
+    - Do NOT include conversational preamble (e.g. do not say "Here is the explanation..."). Start directly with the content.
 
     {audience_instruction}
 
-    Complexity: {complexity}
+    Target Complexity: {complexity}
 
-    Project:
+    Project Information:
     Title: {project.title}
     Description: {project.detailed_description}
     Tech Stack: {project.tech_stack}
+    GitHub: {project.github_url or 'N/A'}
+    Live URL: {project.live_url or 'N/A'}
 
-    Generate the explanation.
+    Generate the explanation in rich Markdown.
     """
 
     generated_text = generate_explanation(prompt)
 
-    explanation = ProjectExplanation.objects.create(
+    explanation, _ = ProjectExplanation.objects.update_or_create(
         project=project,
         explanation_type=explanation_type,
         complexity_level=complexity,
-        content=generated_text
+        defaults={"content": generated_text}
     )
 
     return Response({
@@ -217,7 +224,8 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
     cache_key = f"{mode}:{user_message.lower()}"
     existing_cache = ChatCache.objects.filter(user_query=cache_key).first()
 
-    if existing_cache:
+    # Only return cache if it contains rich markdown formatting
+    if existing_cache and ("**" in existing_cache.ai_response or "###" in existing_cache.ai_response):
         return Response({
             "content": existing_cache.ai_response,
             "cached": True
@@ -263,7 +271,7 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
         5. Scope & Tech Stack (Textarea)
 
         YOUR GOAL:
-        help them scope their architecture needs, understand their tech stack, and prove that Keval is the perfect AI Systems Engineer for the job. 
+        Help them scope their architecture needs, understand their tech stack, and prove that Keval is the perfect AI Systems Engineer for the job. 
         Be highly technical, concise, and professional. Ask clarifying questions about their LLM requirements, data pipelines, and user volume. 
         Do NOT sound like a generic chatbot. Sound like a Senior Engineer discussing system architecture.
         Help the user fill out this form effectively. If they ask what details to provide, 
@@ -272,9 +280,14 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
         - Their existing tech stack (e.g., Python, Node, Java).
         - The specific problem they want Keval to solve (e.g., RAG pipeline, Agentic workflows).
 
-        TONE:
-        Highly technical, professional, and encouraging. Sound like a Lead Engineer helping 
-        a partner draft a Project Brief.
+        TONE & FORMATTING:
+        - Highly technical, professional, and encouraging.
+        - Always format with rich, clean Markdown.
+        - Use bold headings (### Heading) to organize answers.
+        - Use bullet points (- ) with bold leading keywords for lists of requirements, tech options, or deliverables.
+        - Use **bold text** to emphasize key technologies, architecture concepts, and Keval's core strengths.
+        - Format links as clean markdown links: [Inquiry Form](#inquire).
+        - Use clear paragraph breaks between distinct points.
 
         RELEVANT ARCHITECTURE SKILLS AND OTHER DETAILS TO MENTION:
         {skills_formatted}
@@ -298,9 +311,14 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
         You are embedded directly into his portfolio website.
         Your job is to answer questions from recruiters and developers about his work, skills, and experience.
 
-        TONE & STYLE:
-        - Professional, highly technical, yet conversational and confident.
-        - Keep responses concise and scannable. Use bullet points if listing multiple things.
+        TONE & FORMATTING:
+        - Professional, highly technical, yet conversational, engaging, and confident.
+        - Always format with rich, beautiful Markdown:
+          * Use **bold text** for important skills, numbers/metrics, tech stacks, and company/project names.
+          * Use bullet points (- ) with bold leading keywords for scannable lists.
+          * Use bold subheadings (### Section Name) when answering multi-part questions.
+          * When referencing GitHub, live projects, or links, format as clickable markdown links like [GitHub Profile](url) or [Live Demo](url).
+          * Use clean paragraph breaks so the response is easy to read and never a dense wall of text.
         - NEVER invent or hallucinate information. ONLY use the database context provided below.
         - If someone asks something unrelated to Keval, politely refuse and guide the conversation back to his engineering skills.
 
@@ -335,9 +353,9 @@ def portfolio_chat(request):  # Removed chat_history from kwargs to match standa
 
         # 5. Save to Cache
         if is_suggested:
-            ChatCache.objects.create(
+            ChatCache.objects.update_or_create(
                 user_query=cache_key,
-                ai_response=generated_text
+                defaults={"ai_response": generated_text}
             )
 
         return Response({
