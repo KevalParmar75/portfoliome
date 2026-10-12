@@ -2,8 +2,8 @@ import os
 from groq import Groq
 from django.conf import settings
 
-# Default flagship model on Groq: fast, robust reasoning and large context window
-DEFAULT_MODEL = getattr(settings, "GROQ_MODEL", None) or os.getenv("GROQ_MODEL") or "llama-3.3-70b-versatile"
+# Default model on Groq accessible with your key
+DEFAULT_MODEL = getattr(settings, "GROQ_MODEL", None) or os.getenv("GROQ_MODEL") or "qwen/qwen3.8-27b"
 
 
 def get_groq_client() -> Groq:
