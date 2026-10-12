@@ -325,7 +325,6 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-HUGGINGFACE_API_KEY = os.getenv("HF_API_KEY")
 
 STORAGES = {
     "default": {
