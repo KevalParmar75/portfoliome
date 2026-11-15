@@ -504,6 +504,12 @@ export default function Freelance() {
       </footer>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Dancing+Script:wght@600&display=swap');
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-serif { font-family: 'Playfair Display', serif; }
         .custom-cursor-wrapper * { cursor: none !important; }
 
         /* ── Smoked Apple Liquid Glass Card ───────────────────────── */
@@ -664,6 +670,19 @@ export default function Freelance() {
           -webkit-mask-composite: xor;
           mask-composite: exclude;
           z-index: 1;
+        }
+
+        .decal-easter-egg {
+          font-family: 'Dancing Script', cursive;
+          letter-spacing: 0.08em;
+          font-size: 1.1rem;
+          color: rgba(255, 255, 255, 0.45);
+          cursor: crosshair;
+          transition: all 0.4s ease-in-out;
+        }
+        .decal-easter-egg:hover {
+          color: rgba(220, 38, 38, 0.9);
+          text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
         }
       `}</style>
     </div>
