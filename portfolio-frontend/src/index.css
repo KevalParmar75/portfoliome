@@ -1,18 +1,31 @@
 @import "tailwindcss";
 
+/* ── Typography palette: Warm Ivory + Koi Vermilion ────────────────────────── */
 :root {
-  --ink: #060a08;
-  --fog: #e9efe9;
-  --sage: #9db4a4;
-  --mint: #cfe3d4;
+  --ink: #000000;
+  --fog: #F2EFE6;
+  --color-text-primary: #F2EFE6;
+  --color-text-accent: #E98259;
+  --color-text-soft: #E5E1D3;
+  --color-text-muted: #C9C5B4;
+  --color-text-dim: #ABA797;
+  --color-text-faint: #908B77;
+  --color-text-ghost: #6E6A57;
+}
+
+/* Tailwind theme tokens (text-ivory, text-vermilion, opacity modifiers, etc.) */
+@theme {
+  --color-ivory: #F2EFE6;
+  --color-ivory-soft: #E5E1D3;
+  --color-ivory-muted: #C9C5B4;
+  --color-ivory-dim: #ABA797;
+  --color-ivory-faint: #908B77;
+  --color-ivory-ghost: #6E6A57;
+  --color-vermilion: #E98259;
 }
 
 body {
   background-color: var(--ink);
-  background-image: linear-gradient(rgba(6, 10, 8, 0.35), rgba(6, 10, 8, 0.6)), url('/bg.webp');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
   color: var(--fog);
   margin: 0;
   overflow-x: hidden;
@@ -26,12 +39,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(207, 227, 212, 0.25);
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(207, 227, 212, 0.45);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 ::-webkit-scrollbar-track {
@@ -40,8 +53,8 @@ body {
 
 /* ── Selection ────────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(207, 227, 212, 0.25);
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-text-primary);
 }
 
 /* ── Rich Markdown Typography ────────────────────────────────────────────── */
@@ -61,7 +74,7 @@ body {
 .markdown-body strong,
 .markdown-body b {
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-primary);
 }
 
 .chat-markdown h1,
@@ -69,7 +82,7 @@ body {
 .chat-markdown h3,
 .chat-markdown h4 {
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-primary);
   margin-top: 1rem;
   margin-bottom: 0.4rem;
   line-height: 1.35;
@@ -85,7 +98,7 @@ body {
 .markdown-body h3,
 .markdown-body h4 {
   font-weight: 600;
-  color: #cfe3d4;
+  color: var(--color-text-accent);
   margin-top: 1.4rem;
   margin-bottom: 0.5rem;
   line-height: 1.35;
@@ -117,7 +130,7 @@ body {
   content: "▸";
   position: absolute;
   left: 0;
-  color: #38bdf8;
+  color: var(--color-text-accent);
   font-weight: bold;
 }
 
@@ -125,7 +138,7 @@ body {
   content: "▸";
   position: absolute;
   left: 0;
-  color: #cfe3d4;
+  color: var(--color-text-accent);
   font-weight: bold;
 }
 
@@ -144,7 +157,7 @@ body {
 }
 
 .chat-markdown a {
-  color: #38bdf8;
+  color: var(--color-text-accent);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -152,11 +165,11 @@ body {
 }
 
 .chat-markdown a:hover {
-  color: #bae6fd;
+  color: var(--color-text-primary);
 }
 
 .markdown-body a {
-  color: #cfe3d4;
+  color: var(--color-text-accent);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -164,14 +177,13 @@ body {
 }
 
 .markdown-body a:hover {
-  color: #ffffff;
-  text-shadow: 0 0 8px rgba(207, 227, 212, 0.4);
+  color: var(--color-text-primary);
 }
 
 .chat-markdown code,
 .markdown-body code {
   background: rgba(255, 255, 255, 0.1);
-  color: #e0f2fe;
+  color: var(--color-text-soft);
   padding: 0.15rem 0.35rem;
   border-radius: 0.25rem;
   font-family: monospace;
@@ -194,4 +206,5 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   margin: 1rem 0;
 }
+
 

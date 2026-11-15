@@ -1,27 +1,8 @@
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import Navbar from "../components/Navbar";
-
-const BLOBS = [
-  { size: 380, top: "0%",   left: "60%",  color: "plasma-cyan",   factor: 0.05,  delay: 0 },
-  { size: 420, top: "50%",  left: "-10%", color: "plasma-violet", factor: -0.04, delay: 3 },
-  { size: 300, top: "80%",  left: "75%",  color: "plasma-cyan",   factor: 0.07,  delay: 7 },
-  { size: 350, top: "-5%",  left: "-5%",  color: "plasma-violet", factor: -0.03, delay: 5 },
-  { size: 280, top: "35%",  left: "50%",  color: "plasma-indigo", factor: 0.06,  delay: 2 },
-];
-
-const PlasmaBlob = ({ blob, springX, springY }: { blob: any; springX: any; springY: any }) => {
-  const x = useTransform(springX, (v: number) => v * blob.factor);
-  const y = useTransform(springY, (v: number) => v * blob.factor);
-  return (
-    <motion.div
-      className={`plasma ${blob.color}`}
-      style={{ width: blob.size, height: blob.size, top: blob.top, left: blob.left, animationDelay: `${blob.delay}s`, x, y }}
-    />
-  );
-};
 
 // Grid lines
 const GridLines = () => (
@@ -51,7 +32,7 @@ const LOGS = [
   { text: "GET /unknown-route → 404",       color: "text-red-400"   },
   { text: "resolving path... failed",        color: "text-yellow-400/70" },
   { text: "neural link severed",             color: "text-red-400/70"   },
-  { text: "suggest: return to /home",        color: "text-white"  },
+  { text: "suggest: return to /home",        color: "text-ivory"  },
 ];
 
 const TerminalLog = () => {
@@ -69,9 +50,9 @@ const TerminalLog = () => {
         <div className="flex gap-1.5">
           <div className="w-2 h-2 rounded-full bg-red-500/70" />
           <div className="w-2 h-2 rounded-full bg-yellow-500/70" />
-          <div className="w-2 h-2 rounded-full bg-green-500/70" />
+          <div className="w-2 h-2 rounded-full bg-vermilion/70" />
         </div>
-        <span className="font-mono text-[10px] text-gray-600">system.log</span>
+        <span className="font-mono text-[10px] text-ivory-ghost">system.log</span>
       </div>
       <div className="p-4 space-y-1.5 min-h-[100px]">
         {LOGS.slice(0, visible).map((log, i) => (
@@ -82,7 +63,7 @@ const TerminalLog = () => {
             transition={{ duration: 0.3 }}
             className={`font-mono text-xs ${log.color} flex items-center gap-2`}
           >
-            <span className="text-gray-600">$</span>
+            <span className="text-ivory-ghost">$</span>
             {log.text}
             {i === visible - 1 && visible < LOGS.length && (
               <span className="w-[6px] h-[0.9em] bg-white/20 inline-block animate-[blink_1s_step-end_infinite]" />
@@ -96,19 +77,6 @@ const TerminalLog = () => {
 
 export default function NotFound() {
   const navigate = useNavigate();
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 30 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 30 });
-
-  useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      mouseX.set(e.clientX - window.innerWidth / 2);
-      mouseY.set(e.clientY - window.innerHeight / 2);
-    };
-    window.addEventListener("mousemove", fn);
-    return () => window.removeEventListener("mousemove", fn);
-  }, []);
 
   return (
     <motion.div
@@ -116,18 +84,11 @@ export default function NotFound() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="relative min-h-screen bg-transparent text-white overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
+      className="relative min-h-screen bg-transparent text-ivory overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
     >
       <LiquidGlassCursor />
       <Navbar />
       <GridLines />
-
-      {/* Plasma */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {BLOBS.map((blob, i) => (
-          <PlasmaBlob key={i} blob={blob} springX={springX} springY={springY} />
-        ))}
-      </div>
 
       {/* Content */}
       <main className="relative z-10 flex flex-col items-center text-center max-w-lg w-full">
@@ -155,7 +116,7 @@ export default function NotFound() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, duration: 0.5 }}
-          className="text-lg md:text-xl font-semibold text-gray-300 mb-3 tracking-tight"
+          className="text-lg md:text-xl font-semibold text-ivory-muted mb-3 tracking-tight"
         >
           Neural Link Severed
         </motion.h2>
@@ -164,7 +125,7 @@ export default function NotFound() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="font-mono text-xs text-gray-500 leading-relaxed mb-8 max-w-sm"
+          className="font-mono text-xs text-ivory-faint leading-relaxed mb-8 max-w-sm"
         >
           The node you requested does not exist in this architecture. The connection may have been dropped or the directory relocated.
         </motion.p>
@@ -202,7 +163,7 @@ export default function NotFound() {
         />
       </main>
 <footer className="relative z-10 py-8 text-center">
-        <p className="font-mono text-gray-600 text-xs tracking-[0.2em] flex items-center justify-center gap-3">
+        <p className="font-mono text-ivory-ghost text-xs tracking-[0.2em] flex items-center justify-center gap-3">
           <span>© 2026 KEVAL_PARMAR</span>
           <span className="w-1 h-1 rounded-full bg-white/5" />
           <span>POWERED_BY_AI</span>
@@ -226,7 +187,7 @@ export default function NotFound() {
           font-size: clamp(5rem, 20vw, 9rem);
           font-weight: 700;
           line-height: 1;
-          color: #ffffff;
+          color: var(--color-text-primary);
           text-shadow: 0 0 60px rgba(255,255,255,0.1), 0 0 120px rgba(168,85,247,0.2);
           position: relative;
           display: inline-block;
@@ -241,7 +202,7 @@ export default function NotFound() {
         }
         .glitch-digit:hover::before {
           opacity: 0.7;
-          color: #ffffff;
+          color: var(--color-text-primary);
           clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
           transform: translateX(-3px);
           animation: glitch-a 0.4s steps(2) forwards;
@@ -286,16 +247,23 @@ export default function NotFound() {
           display: inline-flex;
           align-items: center;
           padding: 0.75rem 2rem;
-          border-radius: 0.875rem;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(124,58,237,0.9));
-          color: white;
+          border-radius: 9999px;
+          background: rgba(168, 85, 247, 0.15);
+          backdrop-filter: blur(8px) brightness(1.1);
+          -webkit-backdrop-filter: blur(8px) brightness(1.1);
+          border: 1px solid rgba(168, 85, 247, 0.3);
+          box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.1), 0 8px 32px rgba(0, 0, 0, 0.25);
+          color: var(--color-text-primary);
           font-size: 0.875rem;
           font-weight: 600;
-          border: none;
-          transition: box-shadow 0.25s ease;
+          transition: all 0.25s ease;
+          cursor: pointer;
         }
         .reroute-btn:hover {
-          box-shadow: 0 0 30px rgba(255,255,255,0.1), 0 0 60px rgba(255,255,255,0.1);
+          background: rgba(168, 85, 247, 0.25);
+          border-color: rgba(168, 85, 247, 0.5);
+          box-shadow: inset 0 0 24px rgba(168, 85, 247, 0.15), 0 12px 36px rgba(0, 0, 0, 0.35);
+          transform: translateY(-2px);
         }
 .decal-easter-egg {
   /* The New Guaranteed Font */
@@ -319,25 +287,6 @@ export default function NotFound() {
   mix-blend-mode: normal;
   text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
 }
-        /* ── Plasma blobs ──────────────────────────────────────── */
-        .plasma {
-          display: none !important;
-          position: absolute;
-          filter: blur(10px);
-          opacity: 0.12;
-          border-radius: 50%;
-          animation: plasma-drift 25s ease-in-out infinite;
-          will-change: transform;
-        }
-        .plasma-cyan   { background: radial-gradient(circle, #d946ef, #0ea5e9); animation-duration: 22s; }
-        .plasma-violet { background: radial-gradient(circle, #a855f7, #7c3aed); animation-duration: 28s; animation-direction: reverse; }
-        .plasma-indigo { background: radial-gradient(circle, #7c3aed, #4f46e5); animation-duration: 32s; }
-
-        @keyframes plasma-drift {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33%       { transform: translate(30px, -20px) scale(1.05); }
-          66%       { transform: translate(-20px, 30px) scale(0.95); }
-        }
       `}</style>
     </motion.div>
   );

@@ -1,14 +1,32 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt} from "react-icons/fa";
-import { FiRefreshCw, FiX, FiChevronLeft, FiChevronRight, FiZap, FiMaximize2, FiArrowUpRight } from "react-icons/fi";
+import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import {
+  FiRefreshCw,
+  FiX,
+  FiChevronLeft,
+  FiChevronRight,
+  FiZap,
+  FiMaximize2,
+  FiArrowUpRight,
+} from "react-icons/fi";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
+import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
+import { LiquidGlassCard, LiquidLensFilter } from "../components/LiquidGlass";
+import { useCardLensMap } from "../hooks/useLensMap";
 
 interface Project {
   id: number;
@@ -24,6 +42,46 @@ interface Project {
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+
+/* ── Liquid Glass Section Divider (Refractive Tube + Center Crystal Node) ──── */
+const LiquidSectionDivider = ({ label }: { label?: string }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+
+  return (
+    <div
+      ref={ref}
+      className="relative max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-12 flex items-center justify-center gap-4 select-none"
+    >
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={inView ? { scaleX: 1, opacity: 1 } : {}}
+        transition={{ duration: 1.1, ease: EASE }}
+        className="liquid-divider-line flex-1 origin-right"
+      />
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={inView ? { scale: 1, opacity: 1 } : {}}
+        transition={{ duration: 0.6, ease: EASE, delay: 0.25 }}
+        className="liquid-divider-pill px-3.5 py-1 rounded-full flex items-center gap-2 shrink-0"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
+        {label && (
+          <span className="font-mono text-[9px] tracking-[0.28em] uppercase text-ivory-soft/90">
+            {label}
+          </span>
+        )}
+      </motion.div>
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={inView ? { scaleX: 1, opacity: 1 } : {}}
+        transition={{ duration: 1.1, ease: EASE }}
+        className="liquid-divider-line flex-1 origin-left"
+      />
+    </div>
+  );
+};
 
 // ─── Film Grain ───────────────────────────────────────────────────────────────
 const Grain = () => (
@@ -41,52 +99,32 @@ const ScrollProgress = () => {
   const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 });
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-[2px] z-[96] origin-left bg-gradient-to-r from-transparent via-[#cfe3d4]/70 to-[#cfe3d4]/30"
+      className="fixed top-0 left-0 right-0 h-[2px] z-[96] origin-left bg-gradient-to-r from-transparent via-vermilion/70 to-vermilion/30"
       style={{ scaleX }}
     />
   );
 };
 
-// ─── Scroll-linked word-by-word reveal ────────────────────────────────────────
-const ScrollWord = ({ word, progress, range }: { word: string; progress: MotionValue<number>; range: [number, number] }) => {
-  const opacity = useTransform(progress, range, [0.12, 1]);
-  const y = useTransform(progress, range, [6, 0]);
-  return (
-    <motion.span style={{ opacity, y }} className="inline-block mr-[0.3em] will-change-transform">
-      {word}
-    </motion.span>
-  );
-};
-
-const ScrollText = ({ text }: { text: string }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.5"] });
-  const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
-  const total = paragraphs.reduce((n, p) => n + p.split(/\s+/).length, 0);
-  let cursor = 0;
+// ─── Clean, Crisp Project Description (No Scroll-to-Reveal Dimming) ──────────
+const DescriptionText = ({ text }: { text: string }) => {
+  const paragraphs = text
+    .split(/\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return (
-    <div ref={ref} className="space-y-5">
-      {paragraphs.map((para, pi) => {
-        const words = para.split(/\s+/);
-        const start = cursor;
-        cursor += words.length;
-        return (
-          <p key={pi} className="text-[#c3d2c7] font-light text-base md:text-lg leading-relaxed">
-            {words.map((w, wi) => {
-              const i = start + wi;
-              return (
-                <ScrollWord
-                  key={wi}
-                  word={w}
-                  progress={scrollYProgress}
-                  range={[i / total, Math.min(1, (i + 1.5) / total)]}
-                />
-              );
-            })}
-          </p>
-        );
-      })}
+    <div className="space-y-5">
+      {paragraphs.map((para, pi) => (
+        <motion.p
+          key={pi}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.15 + pi * 0.08 }}
+          className="text-ivory font-light text-base md:text-lg leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]"
+        >
+          {para}
+        </motion.p>
+      ))}
     </div>
   );
 };
@@ -95,9 +133,15 @@ const ScrollText = ({ text }: { text: string }) => {
 const AnimatedTitle = ({ text }: { text: string }) => {
   const words = text.split(" ");
   return (
-    <h1 className="display-title leading-tight py-1" aria-label={text}>
+    <h1
+      className="display-title leading-tight py-1 drop-shadow-[0_4px_24px_rgba(0,0,0,0.75)]"
+      aria-label={text}
+    >
       {words.map((word, wi) => (
-        <span key={wi} className="inline-block overflow-hidden mr-[0.25em] align-bottom pb-[0.08em] -mb-[0.08em]">
+        <span
+          key={wi}
+          className="inline-block overflow-hidden mr-[0.25em] align-bottom pb-[0.08em] -mb-[0.08em]"
+        >
           <motion.span
             className="inline-block will-change-transform"
             initial={{ y: "110%", rotate: 4, opacity: 0 }}
@@ -125,14 +169,26 @@ const TechItem = ({ tech, idx }: { tech: string; idx: number }) => {
       transition={{ duration: 0.4, ease: EASE, delay: idx * 0.045 }}
       className="flex items-start gap-3 group"
     >
-      <span className="text-[#9db4a4] mt-[3px] text-[10px] shrink-0 transition-opacity">▸</span>
-      <span className="font-mono text-xs md:text-sm text-[#a9baae] leading-relaxed group-hover:text-white transition-colors duration-200">{tech}</span>
+      <span className="text-vermilion mt-[3px] text-[10px] shrink-0 transition-opacity">▸</span>
+      <span className="font-mono text-xs md:text-sm text-ivory-soft leading-relaxed group-hover:text-ivory transition-colors duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+        {tech}
+      </span>
     </motion.li>
   );
 };
 
 // ─── Action Button ────────────────────────────────────────────────────────────
-const ActionButton = ({ href, icon, label, primary = false }: { href: string; icon: React.ReactNode; label: string; primary?: boolean }) => (
+const ActionButton = ({
+  href,
+  icon,
+  label,
+  primary = false,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  primary?: boolean;
+}) => (
   <motion.a
     href={href}
     target="_blank"
@@ -140,22 +196,28 @@ const ActionButton = ({ href, icon, label, primary = false }: { href: string; ic
     whileHover={{ y: -2, scale: 1.02 }}
     whileTap={{ scale: 0.97 }}
     transition={{ type: "spring", stiffness: 350, damping: 20 }}
-    className={primary ? "action-btn-primary" : "action-btn-secondary"}
+    className={primary ? "liquid-pill-primary" : "liquid-pill-secondary"}
   >
-    {icon}
-    <span className="font-mono text-xs tracking-[0.1em] uppercase">{label}</span>
+    <span className="text-vermilion">{icon}</span>
+    <span className="font-mono text-xs tracking-[0.1em] uppercase text-ivory">{label}</span>
   </motion.a>
 );
 
-// ─── Carousel ─────────────────────────────────────────────────────────────────
+// ─── Carousel inside Liquid Glass ─────────────────────────────────────────────
 const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) => {
   const [idx, setIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
 
-  const prev = useCallback(() => setIdx(i => (i === 0 ? images.length - 1 : i - 1)), [images.length]);
-  const next = useCallback(() => setIdx(i => (i === images.length - 1 ? 0 : i + 1)), [images.length]);
+  const prev = useCallback(
+    () => setIdx((i) => (i === 0 ? images.length - 1 : i - 1)),
+    [images.length]
+  );
+  const next = useCallback(
+    () => setIdx((i) => (i === images.length - 1 ? 0 : i + 1)),
+    [images.length]
+  );
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -180,150 +242,172 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
       transition={{ duration: 0.7, ease: EASE }}
       className="mb-8"
     >
-      <div className="flex items-center gap-4 mb-6">
-        <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
+      <div className="flex items-center gap-4 mb-5">
+        <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
           visual.overview
         </span>
-        <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
+        <span className="liquid-divider-line flex-1 max-w-[160px]" />
       </div>
 
-      <div className="relative group rounded-2xl overflow-hidden border border-white/[0.06] bg-[#060a08]/50 aspect-video w-full flex items-center justify-center transition-all duration-500 hover:border-white/10 hover:shadow-none">
-        
-        {/* Counter */}
-        <div className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-[#060a08]/70 border border-white/10 backdrop-blur-md font-mono text-[10px] text-[#cfe3d4] tracking-widest">
-          {String(idx + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
-        </div>
-
-        {images.length > 1 && (
-          <motion.button onClick={prev} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-            className="absolute left-3 z-20 p-2.5 rounded-xl bg-[#060a08]/50 border border-white/10 backdrop-blur-xl text-[#9db4a4] hover:text-[#cfe3d4] hover:border-white/10 transition-all opacity-0 group-hover:opacity-100">
-            <FiChevronLeft size={20} />
-          </motion.button>
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -16 }}
-            transition={{ duration: 0.3, ease: EASE }}
-            className="absolute inset-0 w-full h-full flex items-center justify-center p-2"
-          >
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(true)}
-              className="relative w-full h-full flex items-center justify-center cursor-zoom-in"
-              aria-label="View image full screen"
-            >
-              <img
-                src={images[idx].image}
-                alt={images[idx].caption || `Screenshot ${idx + 1}`}
-                className="w-full h-full object-contain"
-                loading="lazy"
-              />
-              <span className="absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg bg-[#060a08]/60 border border-white/10 text-[#cfe3d4]">
-                <FiMaximize2 size={14} />
-              </span>
-            </button>
-            {images[idx].caption && (
-              <div className="absolute bottom-10 px-4 py-1.5 rounded-full bg-[#060a08]/80 border border-white/10 backdrop-blur-md font-mono text-xs text-[#9db4a4]">
-                {images[idx].caption}
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {images.length > 1 && (
-          <motion.button onClick={next} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-            className="absolute right-3 z-20 p-2.5 rounded-xl bg-[#060a08]/50 border border-white/10 backdrop-blur-xl text-[#9db4a4] hover:text-[#cfe3d4] hover:border-white/10 transition-all opacity-0 group-hover:opacity-100">
-            <FiChevronRight size={20} />
-          </motion.button>
-        )}
-
-        {images.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-            {images.map((_, i) => (
-              <motion.button
-                key={i}
-                onClick={() => setIdx(i)}
-                animate={{ width: i === idx ? 20 : 6, backgroundColor: i === idx ? "#cfe3d4" : "rgba(157, 180, 164, 0.3)" }}
-                transition={{ duration: 0.3 }}
-                className="h-1.5 rounded-full"
-              />
-            ))}
+      <LiquidGlassCard borderRadius={26} zoom={0.9} className="p-3 sm:p-4">
+        <div className="relative group rounded-2xl overflow-hidden bg-[#000000]/55 border border-white/[0.08] aspect-video w-full flex items-center justify-center">
+          {/* Counter */}
+          <div className="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-[#000000]/75 border border-white/12 backdrop-blur-md font-mono text-[10px] text-vermilion tracking-widest">
+            {String(idx + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
           </div>
-        )}
-      </div>
+
+          {images.length > 1 && (
+            <motion.button
+              onClick={prev}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              className="liquid-icon-box absolute left-3 z-20 p-2.5 rounded-xl text-ivory-soft hover:text-ivory transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+            >
+              <FiChevronLeft size={20} />
+            </motion.button>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              className="absolute inset-0 w-full h-full flex items-center justify-center p-2"
+            >
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                className="relative w-full h-full flex items-center justify-center cursor-zoom-in"
+                aria-label="View image full screen"
+              >
+                <img
+                  src={images[idx].image}
+                  alt={images[idx].caption || `Screenshot ${idx + 1}`}
+                  className="w-full h-full object-contain rounded-lg"
+                  loading="lazy"
+                />
+                <span className="liquid-icon-box absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg text-vermilion">
+                  <FiMaximize2 size={14} />
+                </span>
+              </button>
+              {images[idx].caption && (
+                <div className="absolute bottom-10 px-4 py-1.5 rounded-full bg-[#000000]/85 border border-white/12 backdrop-blur-md font-mono text-xs text-ivory">
+                  {images[idx].caption}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {images.length > 1 && (
+            <motion.button
+              onClick={next}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              className="liquid-icon-box absolute right-3 z-20 p-2.5 rounded-xl text-ivory-soft hover:text-ivory transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+            >
+              <FiChevronRight size={20} />
+            </motion.button>
+          )}
+
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+              {images.map((_, i) => (
+                <motion.button
+                  key={i}
+                  onClick={() => setIdx(i)}
+                  animate={{
+                    width: i === idx ? 20 : 6,
+                    backgroundColor:
+                      i === idx ? "#E98259" : "rgba(242, 239, 230, 0.28)",
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="h-1.5 rounded-full cursor-pointer"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </LiquidGlassCard>
 
       {/* ── Fullscreen Lightbox ────────────────────────────────────── */}
       {createPortal(
-      <AnimatePresence>
-        {lightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[110] bg-[#060a08]/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8"
-            onClick={() => setLightboxOpen(false)}
-          >
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-[120] p-2.5 rounded-xl bg-white/5 border border-white/10 text-[#9db4a4] hover:text-[#cfe3d4] active:scale-95 transition"
-              aria-label="Close full screen image"
-            >
-              <FiX size={22} />
-            </button>
-
-            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-[120] px-3 py-1 rounded-full bg-[#060a08]/70 border border-white/10 backdrop-blur-md font-mono text-[10px] text-[#cfe3d4] tracking-widest">
-              {String(idx + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
-            </div>
-
-            {images.length > 1 && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-2 sm:left-6 z-[120] p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl text-[#9db4a4] hover:text-[#cfe3d4] active:scale-95 transition"
-                aria-label="Previous image"
-              >
-                <FiChevronLeft size={24} />
-              </button>
-            )}
-
-            <motion.img
-              key={idx}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
+        <AnimatePresence>
+          {lightboxOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              src={images[idx].image}
-              alt={images[idx].caption || `Screenshot ${idx + 1}`}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-full max-h-full object-contain rounded-lg select-none"
-            />
-
-            {images.length > 1 && (
+              className="fixed inset-0 z-[110] bg-[#000000]/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8"
+              onClick={() => setLightboxOpen(false)}
+            >
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-2 sm:right-6 z-[120] p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl text-[#9db4a4] hover:text-[#cfe3d4] active:scale-95 transition"
-                aria-label="Next image"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxOpen(false);
+                }}
+                className="liquid-icon-box absolute top-4 right-4 sm:top-6 sm:right-6 z-[120] p-2.5 rounded-xl text-ivory-soft hover:text-ivory active:scale-95 transition cursor-pointer"
+                aria-label="Close full screen image"
               >
-                <FiChevronRight size={24} />
+                <FiX size={22} />
               </button>
-            )}
 
-            {images[idx].caption && (
-              <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[#060a08]/80 border border-white/10 backdrop-blur-md font-mono text-xs text-[#9db4a4] max-w-[85%] text-center">
-                {images[idx].caption}
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-[120] px-3.5 py-1.5 rounded-full bg-[#000000]/80 border border-white/12 backdrop-blur-md font-mono text-[10px] text-vermilion tracking-widest">
+                {String(idx + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>,
-      document.body
+
+              {images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prev();
+                  }}
+                  className="liquid-icon-box absolute left-2 sm:left-6 z-[120] p-3 rounded-xl text-ivory-soft hover:text-ivory active:scale-95 transition cursor-pointer"
+                  aria-label="Previous image"
+                >
+                  <FiChevronLeft size={24} />
+                </button>
+              )}
+
+              <motion.img
+                key={idx}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.25 }}
+                src={images[idx].image}
+                alt={images[idx].caption || `Screenshot ${idx + 1}`}
+                onClick={(e) => e.stopPropagation()}
+                className="max-w-full max-h-full object-contain rounded-xl select-none shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
+              />
+
+              {images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    next();
+                  }}
+                  className="liquid-icon-box absolute right-2 sm:right-6 z-[120] p-3 rounded-xl text-ivory-soft hover:text-ivory active:scale-95 transition cursor-pointer"
+                  aria-label="Next image"
+                >
+                  <FiChevronRight size={24} />
+                </button>
+              )}
+
+              {images[idx].caption && (
+                <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[#000000]/85 border border-white/12 backdrop-blur-md font-mono text-xs text-ivory max-w-[85%] text-center">
+                  {images[idx].caption}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
     </motion.div>
   );
@@ -331,33 +415,40 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
 
 // ─── Meta chip ────────────────────────────────────────────────────────────────
 const MetaChip = ({ children }: { children: React.ReactNode }) => (
-  <span className="px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-md font-mono text-[10px] tracking-[0.2em] uppercase text-[#b9cec0]">
+  <span className="liquid-chip px-4 py-1.5 rounded-full font-mono text-[10px] tracking-[0.2em] uppercase text-ivory-soft">
     {children}
   </span>
 );
 
-// ─── Parallax hero (photo shows through from body bg) ────────────────────────
-const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCount: number; onBack: () => void }) => {
+// ─── Parallax hero (Transparent so Koi Pond Shines Through) ───────────────────
+const ProjectHero = ({
+  project,
+  techCount,
+  onBack,
+}: {
+  project: Project;
+  techCount: number;
+  onBack: () => void;
+}) => {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
-  const scrimOpacity = useTransform(scrollYProgress, [0, 1], [0.55, 0.9]);
 
   return (
-    <section ref={ref} className="relative pt-28 md:pt-44 pb-24 md:pb-32 overflow-hidden">
-      <motion.div style={{ opacity: scrimOpacity }} className="absolute inset-0 bg-[#060a08] pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-[#060a08] pointer-events-none" />
-
-      <motion.div style={{ y, opacity }} className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 will-change-transform">
+    <section ref={ref} className="relative pt-28 md:pt-40 pb-12 md:pb-20 overflow-hidden">
+      <motion.div
+        style={{ y, opacity }}
+        className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 will-change-transform"
+      >
         <motion.button
           onClick={onBack}
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center gap-2 font-mono text-xs text-[#8fa697] hover:text-[#e9efe9] transition-colors duration-200 mb-10 md:mb-14 group"
+          className="liquid-pill-secondary inline-flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[11px] text-ivory-soft hover:text-ivory transition-all mb-10 md:mb-12 group cursor-pointer"
         >
-          <FiChevronLeft className="group-hover:-translate-x-0.5 transition-transform duration-200" />
+          <FiChevronLeft className="text-vermilion group-hover:-translate-x-0.5 transition-transform duration-200" />
           <span className="tracking-[0.2em] uppercase">back_to_projects</span>
         </motion.button>
 
@@ -365,12 +456,12 @@ const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCou
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="flex items-center gap-4 mb-6"
+          className="flex items-center gap-4 mb-5"
         >
-          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
+          <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
             project.details
           </span>
-          <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
+          <span className="liquid-divider-line flex-1 max-w-[160px]" />
         </motion.div>
 
         <AnimatedTitle text={project.title} />
@@ -378,8 +469,8 @@ const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCou
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-6 md:mt-8 text-[#a9baae] text-sm md:text-lg max-w-2xl font-light leading-relaxed"
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="mt-6 md:mt-8 text-ivory-soft text-sm md:text-lg max-w-2xl font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
         >
           {project.short_description}
         </motion.p>
@@ -387,25 +478,36 @@ const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCou
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="flex flex-wrap gap-2.5 mt-8"
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="flex flex-wrap gap-2.5 mt-7"
         >
           {typeof project.views === "number" && <MetaChip>{project.views} views</MetaChip>}
-          {project.images && project.images.length > 0 && <MetaChip>{project.images.length} visuals</MetaChip>}
+          {project.images && project.images.length > 0 && (
+            <MetaChip>{project.images.length} visuals</MetaChip>
+          )}
           <MetaChip>{techCount} technologies</MetaChip>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-          className="flex flex-wrap gap-3 mt-10"
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex flex-wrap gap-3.5 mt-9"
         >
           {project.github_url && (
-            <ActionButton href={project.github_url} icon={<FaGithub className="text-base" />} label="Repository" />
+            <ActionButton
+              href={project.github_url}
+              icon={<FaGithub className="text-base" />}
+              label="Repository"
+            />
           )}
           {project.live_url && (
-            <ActionButton href={project.live_url} icon={<FaExternalLinkAlt className="text-sm" />} label="Live Demo" primary />
+            <ActionButton
+              href={project.live_url}
+              icon={<FaExternalLinkAlt className="text-xs" />}
+              label="Live Demo"
+              primary
+            />
           )}
         </motion.div>
       </motion.div>
@@ -413,47 +515,55 @@ const ProjectHero = ({ project, techCount, onBack }: { project: Project; techCou
   );
 };
 
-// ─── Up Next ──────────────────────────────────────────────────────────────────
+// ─── Up Next (Refractive Liquid Glass Card) ───────────────────────────────────
 const UpNext = ({ project, onOpen }: { project: Project; onOpen: () => void }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const inView = useInView(ref, { once: true, amount: 0.35 });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const ghostY = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const ghostY = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section className="relative z-10 bg-[#060a08] border-t border-white/[0.06]">
+    <section className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pb-20 md:pb-28">
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 32 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: EASE }}
-        onClick={onOpen}
-        className="group relative max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 cursor-pointer overflow-hidden"
       >
-        <motion.span
-          style={{ y: ghostY }}
-          className="absolute right-2 md:right-10 top-1/2 -translate-y-1/2 font-serif italic text-[7rem] md:text-[10rem] leading-none text-white/[0.03] select-none pointer-events-none"
+        <LiquidGlassCard
+          borderRadius={30}
+          zoom={0.88}
+          onClick={onOpen}
+          className="group p-8 sm:p-12 md:p-16 cursor-pointer transition-transform duration-500 hover:-translate-y-1"
         >
-          next
-        </motion.span>
+          <motion.span
+            style={{ y: ghostY }}
+            className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 font-serif italic text-[6rem] md:text-[9.5rem] leading-none text-ivory/[0.04] select-none pointer-events-none"
+          >
+            next
+          </motion.span>
 
-        <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
-          up.next
-        </span>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
+            <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+              up.next
+            </span>
+          </div>
 
-        <div className="relative flex items-center justify-between gap-6 mt-5">
-          <div className="min-w-0">
-            <h2 className="font-serif italic text-3xl md:text-6xl text-[#e9efe9] leading-tight transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-4">
-              {project.title}
-            </h2>
-            <p className="mt-4 text-sm md:text-base text-[#94a89a] font-light leading-relaxed max-w-xl transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-4">
-              {project.short_description}
-            </p>
+          <div className="relative flex items-center justify-between gap-6">
+            <div className="min-w-0">
+              <h2 className="font-serif italic text-3xl md:text-5xl lg:text-6xl text-ivory leading-tight transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+                {project.title}
+              </h2>
+              <p className="mt-3 md:mt-4 text-sm md:text-base text-ivory-soft font-light leading-relaxed max-w-xl transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+                {project.short_description}
+              </p>
+            </div>
+            <div className="liquid-icon-box w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 group-hover:border-vermilion/50 group-hover:bg-vermilion/15 group-hover:rotate-45">
+              <FiArrowUpRight className="text-lg md:text-2xl text-vermilion group-hover:text-ivory transition-colors duration-300" />
+            </div>
           </div>
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/10 flex items-center justify-center shrink-0 transition-all duration-500 group-hover:border-[#cfe3d4]/50 group-hover:bg-[#cfe3d4]/10 group-hover:rotate-45">
-            <FiArrowUpRight className="text-lg md:text-2xl text-[#9db4a4] group-hover:text-[#e9efe9] transition-colors duration-300" />
-          </div>
-        </div>
+        </LiquidGlassCard>
       </motion.div>
     </section>
   );
@@ -461,22 +571,36 @@ const UpNext = ({ project, onOpen }: { project: Project; onOpen: () => void }) =
 
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 const LoadingSkeleton = () => (
-  <div className="min-h-screen bg-[#060a08] text-white flex items-center justify-center">
-    <motion.div className="flex flex-col items-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+  <div className="min-h-screen bg-[#000000] text-ivory flex items-center justify-center">
+    <motion.div
+      className="flex flex-col items-center gap-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <motion.div
-        className="w-10 h-10 rounded-full border-2 border-[#cfe3d4]/10 border-t-[#cfe3d4]/50"
+        className="w-10 h-10 rounded-full border-2 border-vermilion/15 border-t-[#E98259]"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
       />
-      <p className="font-mono text-[10px] text-[#8fa697] tracking-[0.3em] uppercase">loading_project</p>
+      <p className="font-mono text-[10px] text-ivory-faint tracking-[0.3em] uppercase">
+        loading_project
+      </p>
     </motion.div>
   </div>
 );
 
 // ─── Selector Tabs ────────────────────────────────────────────────────────────
-const SelectorTabs = ({ options, value, onChange }: { options: {label: string; value: string}[]; value: string; onChange: (v: string) => void }) => (
+const SelectorTabs = ({
+  options,
+  value,
+  onChange,
+}: {
+  options: { label: string; value: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) => (
   <div className="flex overflow-x-auto no-scrollbar selector-tabs p-1">
-    {options.map(opt => (
+    {options.map((opt) => (
       <motion.button
         key={opt.value}
         onClick={() => onChange(opt.value)}
@@ -492,17 +616,18 @@ const SelectorTabs = ({ options, value, onChange }: { options: {label: string; v
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ProjectDetails() {
   const { slug } = useParams();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
+  const lensMapUrl = useCardLensMap();
 
-  const [project, setProject]                           = useState<Project | null>(null);
-  const [showExplanation, setShowExplanation]           = useState(false);
-  const [explanationType, setExplanationType]           = useState("technical");
-  const [complexity, setComplexity]                     = useState("normal");
-  const [explanation, setExplanation]                   = useState("");
-  const [typedText, setTypedText]                       = useState("");
-  const [loading, setLoading]                           = useState(false);
-  const [recommendedProject, setRecommendedProject]     = useState<Project | null>(null);
-  const [showRecommendation, setShowRecommendation]     = useState(false);
+  const [project, setProject] = useState<Project | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [explanationType, setExplanationType] = useState("technical");
+  const [complexity, setComplexity] = useState("normal");
+  const [explanation, setExplanation] = useState("");
+  const [typedText, setTypedText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [recommendedProject, setRecommendedProject] = useState<Project | null>(null);
+  const [showRecommendation, setShowRecommendation] = useState(false);
   const [dismissRecommendation, setDismissRecommendation] = useState(false);
 
   useEffect(() => {
@@ -511,21 +636,24 @@ export default function ProjectDetails() {
     setDismissRecommendation(false);
     setProject(null);
 
-    api.get("projects/").then(res => {
-      const all: Project[] = res.data;
-      const found = all.find(p => p.slug === slug) ?? null;
-      setProject(found);
-      const others = all.filter(p => p.slug !== slug);
-      if (others.length > 0)
-        setRecommendedProject([...others].sort((a, b) => (b.views || 0) - (a.views || 0))[0]);
-    }).catch(console.error);
+    api
+      .get("projects/")
+      .then((res) => {
+        const all: Project[] = res.data;
+        const found = all.find((p) => p.slug === slug) ?? null;
+        setProject(found);
+        const others = all.filter((p) => p.slug !== slug);
+        if (others.length > 0)
+          setRecommendedProject([...others].sort((a, b) => (b.views || 0) - (a.views || 0))[0]);
+      })
+      .catch(console.error);
   }, [slug]);
 
   useEffect(() => {
     if (!project) return;
     const t = setTimeout(() => {
       setShowRecommendation(true);
-      api.post(`projects/${project.slug}/increment-view/`).catch(() => {});
+      api.post(`projects/${project.slug}/increment-view/`).catch(() => { });
     }, 8000);
     return () => clearTimeout(t);
   }, [project]);
@@ -544,7 +672,9 @@ export default function ProjectDetails() {
 
   useEffect(() => {
     document.body.style.overflow = showExplanation ? "hidden" : "auto";
-    return () => { document.body.style.overflow = "auto"; };
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [showExplanation]);
 
   const handleExplain = useCallback(async () => {
@@ -553,7 +683,10 @@ export default function ProjectDetails() {
       setLoading(true);
       setExplanation("");
       setTypedText("");
-      const res = await api.post(`projects/${project.slug}/explain/`, { type: explanationType, complexity });
+      const res = await api.post(`projects/${project.slug}/explain/`, {
+        type: explanationType,
+        complexity,
+      });
       setExplanation(res.data.content);
       setShowExplanation(true);
     } catch (err) {
@@ -565,7 +698,10 @@ export default function ProjectDetails() {
 
   if (!project) return <LoadingSkeleton />;
 
-  const techLines = project.tech_stack.split(/\n/).map(l => l.trim()).filter(Boolean);
+  const techLines = project.tech_stack
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   return (
     <motion.div
@@ -573,9 +709,17 @@ export default function ProjectDetails() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="relative min-h-screen text-[#e9efe9] custom-cursor-wrapper"
+      className="relative min-h-screen bg-[#000000] text-ivory overflow-x-hidden custom-cursor-wrapper"
     >
+      {/* ── Shared SVG Optical Refraction Filter ── */}
+      <LiquidLensFilter id="project-liquid-glass" mapUrl={lensMapUrl} />
+
       <LiquidGlassCursor />
+      <AsciiKoiCanvas />
+
+      {/* Ambient gradient glow in center water */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
+
       <Navbar />
       <ScrollProgress />
       <Grain />
@@ -583,121 +727,149 @@ export default function ProjectDetails() {
       {/* ── Parallax hero ──────────────────────────────────────────── */}
       <ProjectHero project={project} techCount={techLines.length} onBack={() => navigate(-1)} />
 
-      <main className="relative z-10 bg-[#060a08] pb-20">
-        <div className="px-6 md:px-10 max-w-6xl mx-auto pt-4 md:pt-8">
+      <LiquidSectionDivider label="01 · ARCHITECTURE & OVERVIEW" />
 
+      <main className="relative z-10 pb-12">
+        <div className="px-6 md:px-10 max-w-6xl mx-auto">
           {/* ── Two-column layout ──────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 md:gap-16 mb-12">
-
-            {/* Left: description + carousel */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 md:gap-12 mb-12 items-start">
+            {/* Left: Description Card + Carousel */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
+              className="space-y-10"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
-                  project.overview
-                </span>
-                <span className="h-px flex-1 max-w-[180px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
-              </div>
-              <div className="mb-12">
-                <ScrollText text={project.detailed_description} />
-              </div>
+              <LiquidGlassCard borderRadius={28} className="p-7 sm:p-10 md:p-12">
+                <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/[0.08]">
+                  <span className="w-2 h-2 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
+                  <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+                    project.overview
+                  </span>
+                </div>
+                <DescriptionText text={project.detailed_description} />
+              </LiquidGlassCard>
+
               {project.images && project.images.length > 0 && (
                 <ImageCarousel images={project.images} />
               )}
             </motion.div>
 
-            {/* Right: tech stack */}
+            {/* Right: Sticky Liquid Glass Tech Stack Card */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.32, duration: 0.6 }}
-              className="lg:sticky lg:top-32 h-fit"
+              className="lg:sticky lg:top-28 h-fit"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#9db4a4]">
-                  tech.stack
-                </span>
-                <span className="h-px flex-1 max-w-[100px] bg-gradient-to-r from-[#9db4a4]/40 to-transparent origin-left" />
-              </div>
-              <ul className="space-y-4 py-4 border-l border-white/[0.06] pl-6">
-                {techLines.map((tech, i) => (
-                  <TechItem key={i} tech={tech} idx={i} />
-                ))}
-              </ul>
+              <LiquidGlassCard borderRadius={26} zoom={0.86} className="p-7 sm:p-8">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
+                  <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+                    tech.stack
+                  </span>
+                  <span className="font-mono text-[10px] text-ivory-faint">
+                    [{techLines.length}]
+                  </span>
+                </div>
+                <ul className="space-y-3.5">
+                  {techLines.map((tech, i) => (
+                    <TechItem key={i} tech={tech} idx={i} />
+                  ))}
+                </ul>
+              </LiquidGlassCard>
             </motion.div>
           </div>
 
-          {/* ── AI Explain Panel ──────────────────────────────────────── */}
+          <LiquidSectionDivider label="02 · INTERACTIVE AI SYNTHESIS" />
+
+          {/* ── AI Explain Panel (Liquid Glass Card) ──────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.6 }}
-            className="border border-white/[0.06] bg-white/[0.02] rounded-2xl p-6 md:p-10 mt-16 md:mt-24"
           >
-            <div className="flex items-center gap-3 mb-8">
-              <FaBrain className="text-[#cfe3d4] text-sm animate-pulse" />
-              <span className="font-mono text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-[#8fa697]">
-                ai.explainer
-              </span>
-            </div>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center">
-              <SelectorTabs
-                value={explanationType}
-                onChange={setExplanationType}
-                options={[
-                  { label: "Technical",    value: "technical" },
-                  { label: "Non-Tech",     value: "simple" },
-                  { label: "HR Recruiter", value: "hr" },
-                ]}
-              />
-              <SelectorTabs
-                value={complexity}
-                onChange={setComplexity}
-                options={[
-                  { label: "Basic",    value: "basic" },
-                  { label: "Normal",   value: "normal" },
-                  { label: "Advanced", value: "advanced" },
-                ]}
-              />
-              <motion.button
-                onClick={handleExplain}
-                disabled={loading}
-                whileHover={{ scale: loading ? 1 : 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="explain-btn disabled:opacity-50 w-full sm:w-auto mt-4 sm:mt-0"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={loading ? "loading" : "idle"}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex items-center gap-2 justify-center"
-                  >
-                    {loading ? <FiRefreshCw className="animate-spin text-sm" /> : <FiZap className="text-sm" />}
-                    {loading ? "Initializing..." : "Explain with AI"}
-                  </motion.span>
-                </AnimatePresence>
-              </motion.button>
-            </div>
-          </motion.div>
+            <LiquidGlassCard borderRadius={28} zoom={0.9} className="p-7 md:p-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-7 pb-4 border-b border-white/[0.08]">
+                <div className="flex items-center gap-3">
+                  <div className="liquid-icon-box w-9 h-9 rounded-xl flex items-center justify-center">
+                    <FaBrain className="text-vermilion text-sm animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-vermilion block">
+                      ai.explainer
+                    </span>
+                    <span className="text-xs text-ivory-muted font-light">
+                      Generate a tailored architectural breakdown of this project in real time.
+                    </span>
+                  </div>
+                </div>
+              </div>
 
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-center justify-between">
+                <div className="flex flex-wrap gap-3">
+                  <SelectorTabs
+                    value={explanationType}
+                    onChange={setExplanationType}
+                    options={[
+                      { label: "Technical", value: "technical" },
+                      { label: "Non-Tech", value: "simple" },
+                      { label: "HR Recruiter", value: "hr" },
+                    ]}
+                  />
+                  <SelectorTabs
+                    value={complexity}
+                    onChange={setComplexity}
+                    options={[
+                      { label: "Basic", value: "basic" },
+                      { label: "Normal", value: "normal" },
+                      { label: "Advanced", value: "advanced" },
+                    ]}
+                  />
+                </div>
+
+                <motion.button
+                  onClick={handleExplain}
+                  disabled={loading}
+                  whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="liquid-pill-primary disabled:opacity-50 w-full sm:w-auto px-6 py-3 rounded-full cursor-pointer"
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={loading ? "loading" : "idle"}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex items-center gap-2.5 justify-center font-mono text-xs uppercase tracking-wider text-ivory"
+                    >
+                      {loading ? (
+                        <FiRefreshCw className="animate-spin text-sm text-vermilion" />
+                      ) : (
+                        <FiZap className="text-sm text-vermilion" />
+                      )}
+                      {loading ? "Initializing..." : "Explain with AI"}
+                    </motion.span>
+                  </AnimatePresence>
+                </motion.button>
+              </div>
+            </LiquidGlassCard>
+          </motion.div>
         </div>
       </main>
 
       {/* ── Up Next ────────────────────────────────────────────────────── */}
       {recommendedProject && (
-        <UpNext
-          project={recommendedProject}
-          onOpen={() => navigate(`/projects/${recommendedProject.slug}`)}
-        />
+        <>
+          <LiquidSectionDivider label="03 · CONTINUE EXPLORING" />
+          <UpNext
+            project={recommendedProject}
+            onOpen={() => navigate(`/projects/${recommendedProject.slug}`)}
+          />
+        </>
       )}
 
-      {/* ── Recommendation Widget ──────────────────────────────────────── */}
+      {/* ── Recommendation Widget (Liquid Glass Toast) ─────────────────── */}
       <AnimatePresence>
         {showRecommendation && !dismissRecommendation && recommendedProject && (
           <motion.div
@@ -707,51 +879,65 @@ export default function ProjectDetails() {
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
             className="fixed bottom-5 right-4 md:bottom-8 md:right-8 z-[90] max-w-[260px] md:max-w-xs"
           >
-            <div className="border border-white/[0.06] bg-[#060a08]/90 backdrop-blur-xl p-4 md:p-5 rounded-2xl relative shadow-2xl shadow-black">
+            <LiquidGlassCard borderRadius={20} className="p-4 md:p-5">
               <button
                 onClick={() => setDismissRecommendation(true)}
-                className="absolute top-2.5 right-2.5 text-[#6d8276] hover:text-[#e9efe9] transition p-1"
+                className="absolute top-3 right-3 text-ivory-faint hover:text-ivory transition p-1 z-20 cursor-pointer"
               >
                 <FaTimes size={10} />
               </button>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                  <FaBrain className="text-[#cfe3d4] text-[10px] animate-pulse" />
+                <div className="liquid-icon-box w-6 h-6 rounded-lg flex items-center justify-center">
+                  <FaBrain className="text-vermilion text-[10px] animate-pulse" />
                 </div>
-                <span className="font-mono text-[9px] text-[#b9cec0] tracking-[0.2em] uppercase">up_next</span>
+                <span className="font-mono text-[9px] text-vermilion tracking-[0.2em] uppercase">
+                  up_next
+                </span>
               </div>
               <div
-                className="cursor-pointer group mt-2 pt-2 border-t border-white/[0.05]"
-                onClick={() => { setDismissRecommendation(true); setTimeout(() => navigate(`/projects/${recommendedProject.slug}`), 200); }}
+                className="cursor-pointer group mt-2 pt-2 border-t border-white/[0.08]"
+                onClick={() => {
+                  setDismissRecommendation(true);
+                  setTimeout(() => navigate(`/projects/${recommendedProject.slug}`), 200);
+                }}
               >
-                <p className="text-xs text-[#8fa697] mb-1">Trending project</p>
-                <p className="text-sm text-[#e9efe9] font-medium group-hover:text-white transition">{recommendedProject.title} <span className="text-[#cfe3d4] opacity-0 group-hover:opacity-100 transition-opacity">↗</span></p>
+                <p className="text-xs text-ivory-dim mb-1">Trending project</p>
+                <p className="text-sm text-ivory font-medium group-hover:text-vermilion transition">
+                  {recommendedProject.title}{" "}
+                  <span className="text-vermilion opacity-80 group-hover:opacity-100 transition-opacity">
+                    ↗
+                  </span>
+                </p>
               </div>
-            </div>
+            </LiquidGlassCard>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── AI Explanation Modal ───────────────────────────────────────── */}
+      {/* ── AI Explanation Modal (Refractive Liquid Glass) ─────────────── */}
       <AnimatePresence>
         {showExplanation && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-[#060a08]/80 backdrop-blur-xl">
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-[#000000]/75 backdrop-blur-xl">
             <motion.div
               initial={{ opacity: 0, y: 60, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 60, scale: 0.96 }}
               transition={{ duration: 0.35, ease: EASE }}
-              className="modal-container w-full sm:max-w-4xl sm:max-h-[80vh] max-h-[90vh] flex flex-col border border-white/[0.08] bg-[#060a08]"
+              className="modal-container w-full sm:max-w-4xl sm:max-h-[82vh] max-h-[90vh] flex flex-col"
             >
               {/* Modal header */}
-              <div className="flex items-center justify-between px-5 md:px-8 py-4 border-b border-white/[0.06] shrink-0 bg-white/[0.02]">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-[#cfe3d4]/10 border border-[#cfe3d4]/20 flex items-center justify-center">
-                    <FaBrain className="text-[#cfe3d4] text-xs" />
+              <div className="flex items-center justify-between px-5 md:px-8 py-4 border-b border-white/[0.09] shrink-0 bg-white/[0.03]">
+                <div className="flex items-center gap-3.5">
+                  <div className="liquid-icon-box w-8 h-8 rounded-lg flex items-center justify-center">
+                    <FaBrain className="text-vermilion text-xs" />
                   </div>
                   <div>
-                    <p className="font-mono text-[9px] text-[#8fa697] tracking-[0.3em] uppercase mb-0.5">ai.explanation</p>
-                    <p className="text-sm font-medium text-[#e9efe9] font-serif italic">{project.title}</p>
+                    <p className="font-mono text-[9px] text-vermilion tracking-[0.3em] uppercase mb-0.5">
+                      ai.explanation
+                    </p>
+                    <p className="text-sm font-medium text-ivory font-serif italic">
+                      {project.title}
+                    </p>
                   </div>
                 </div>
 
@@ -761,9 +947,9 @@ export default function ProjectDetails() {
                     disabled={loading}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 font-mono text-[10px] px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-[#9db4a4] hover:text-[#e9efe9] transition disabled:opacity-40 tracking-widest uppercase"
+                    className="liquid-pill-secondary flex items-center gap-2 font-mono text-[10px] px-3.5 py-1.5 rounded-full text-ivory-soft hover:text-ivory transition disabled:opacity-40 tracking-widest uppercase cursor-pointer"
                   >
-                    <FiRefreshCw className={`text-[10px] ${loading ? "animate-spin" : ""}`} />
+                    <FiRefreshCw className={`text-[10px] text-vermilion ${loading ? "animate-spin" : ""}`} />
                     <span className="hidden sm:inline">regenerate</span>
                   </motion.button>
 
@@ -772,7 +958,7 @@ export default function ProjectDetails() {
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="text-[#6d8276] hover:text-[#e9efe9] transition p-1"
+                    className="text-ivory-dim hover:text-ivory transition p-1 cursor-pointer"
                   >
                     <FiX size={18} />
                   </motion.button>
@@ -783,29 +969,38 @@ export default function ProjectDetails() {
               <div className="p-6 md:p-10 overflow-y-auto flex-1 ai-scroll">
                 <AnimatePresence mode="wait">
                   {loading ? (
-                    <motion.div key="skel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      className="flex flex-col gap-4 animate-pulse max-w-3xl">
-                      <div className="h-5 bg-white/[0.04] rounded w-3/4" />
-                      <div className="h-4 bg-white/[0.04] rounded w-full" />
-                      <div className="h-4 bg-white/[0.04] rounded w-5/6" />
-                      <div className="h-4 bg-white/[0.04] rounded w-4/5" />
-                      <div className="h-4 bg-white/[0.04] rounded w-full" />
+                    <motion.div
+                      key="skel"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col gap-4 animate-pulse max-w-3xl"
+                    >
+                      <div className="h-5 bg-white/[0.06] rounded w-3/4" />
+                      <div className="h-4 bg-white/[0.06] rounded w-full" />
+                      <div className="h-4 bg-white/[0.06] rounded w-5/6" />
+                      <div className="h-4 bg-white/[0.06] rounded w-4/5" />
+                      <div className="h-4 bg-white/[0.06] rounded w-full" />
                     </motion.div>
                   ) : (
-                    <motion.div key="content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    <motion.div
+                      key="content"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35 }}
-                      className="markdown-body text-[#a9baae] leading-relaxed text-sm md:text-base max-w-3xl">
+                      className="markdown-body text-ivory leading-relaxed text-sm md:text-base max-w-3xl space-y-4"
+                    >
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          a: ({ node, ...props }) => (
+                          a: ({ node: _node, ...props }) => (
                             <a
                               {...props}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#cfe3d4] hover:text-white underline font-semibold transition-colors"
+                              className="text-vermilion hover:text-ivory underline font-semibold transition-colors"
                             />
-                          )
+                          ),
                         }}
                       >
                         {typedText}
@@ -814,7 +1009,7 @@ export default function ProjectDetails() {
                         <motion.span
                           animate={{ opacity: [1, 0] }}
                           transition={{ duration: 0.5, repeat: Infinity }}
-                          className="inline-block w-[2px] h-[1em] ml-1 bg-[#cfe3d4] align-middle"
+                          className="inline-block w-[2px] h-[1em] ml-1 bg-vermilion align-middle"
                         />
                       )}
                     </motion.div>
@@ -825,8 +1020,10 @@ export default function ProjectDetails() {
           </div>
         )}
       </AnimatePresence>
-      <footer className="relative z-10 py-8 text-center bg-[#060a08] border-t border-white/[0.06]">
-        <p className="font-mono text-[#5f7266] text-xs tracking-[0.2em] flex items-center justify-center gap-3">
+
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer className="relative z-10 py-8 text-center bg-[#000000]/60 backdrop-blur-md border-t border-white/[0.06]">
+        <p className="font-mono text-ivory-faint text-xs tracking-[0.2em] flex items-center justify-center gap-3">
           <span>© 2026 KEVAL_PARMAR</span>
           <span className="w-1 h-1 rounded-full bg-white/10" />
           <span>POWERED_BY_AI</span>
@@ -836,8 +1033,8 @@ export default function ProjectDetails() {
           "to automate and overwrite..."
         </span>
       </footer>
+
       <style>{`
-        
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Dancing+Script:wght@600&display=swap');
 
         * { box-sizing: border-box; }
@@ -854,99 +1051,223 @@ export default function ProjectDetails() {
           font-size: clamp(2.2rem, 6vw, 4.2rem);
           letter-spacing: -0.02em;
           line-height: 1.08;
-          color: #e9efe9;
+          color: var(--color-text-primary);
         }
 
-        /* ── Action buttons ──────────────────────────────────────── */
-        .action-btn-secondary {
-          display: inline-flex; align-items: center; gap: 0.75rem;
-          padding: 0.625rem 1.5rem; border-radius: 9999px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          color: #9db4a4;
-          font-size: 0.75rem; transition: all 0.25s ease;
+        /* ── Smoked Apple Liquid Glass Card ───────────────────────── */
+        .liquid-glass-card {
+          --mx: 50%;
+          --my: 50%;
+          background: rgba(0, 0, 0, 0.44);
+          backdrop-filter: url(#project-liquid-glass) blur(2.5px) saturate(145%) brightness(0.75);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.75);
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          box-shadow:
+            inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.22),
+            inset 0 -1px 1.5px 0 rgba(233, 130, 89, 0.12),
+            0 16px 40px -8px rgba(0, 0, 0, 0.65);
+          transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .action-btn-secondary:hover {
-          border-color: rgba(207,227,212,0.3); color: #e9efe9;
-          background: rgba(207,227,212,0.05);
+        .liquid-glass-card:hover {
+          background: rgba(0, 0, 0, 0.52);
+          border-color: rgba(255, 255, 255, 0.14);
+          box-shadow:
+            inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+            inset 0 -1.5px 2px 0 rgba(233, 130, 89, 0.2),
+            0 22px 48px -8px rgba(0, 0, 0, 0.78);
         }
-        .action-btn-primary {
-          display: inline-flex; align-items: center; gap: 0.75rem;
-          padding: 0.625rem 1.5rem; border-radius: 9999px;
-          background: rgba(207,227,212,0.1);
-          border: 1px solid rgba(207,227,212,0.2);
-          color: #e9efe9; font-size: 0.75rem;
-          transition: all 0.25s ease;
+
+        .liquid-card-rim {
+          position: absolute;
+          inset: 0;
+          padding: 1px;
+          background: linear-gradient(
+            165deg,
+            rgba(255, 255, 255, 0.24) 0%,
+            rgba(255, 255, 255, 0.02) 38%,
+            transparent 68%,
+            rgba(233, 130, 89, 0.16) 100%
+          );
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          z-index: 1;
         }
-        .action-btn-primary:hover { 
-          background: rgba(207,227,212,0.15);
-          border-color: rgba(207,227,212,0.4);
+
+        .liquid-card-glare {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            260px circle at var(--mx) var(--my),
+            rgba(255, 255, 255, 0.06),
+            transparent 70%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: 1;
+        }
+        .liquid-glass-card:hover .liquid-card-glare {
+          opacity: 1;
+        }
+
+        /* ── Liquid Glass Section Divider Tube & Node ─────────────── */
+        .liquid-divider-line {
+          height: 2px;
+          border-radius: 9999px;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.16) 35%,
+            rgba(233, 130, 89, 0.38) 50%,
+            rgba(255, 255, 255, 0.16) 65%,
+            transparent 100%
+          );
+          box-shadow:
+            0 1px 4px rgba(0, 0, 0, 0.6),
+            0 0 12px rgba(233, 130, 89, 0.18);
+        }
+        .liquid-divider-pill {
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: url(#project-liquid-glass) blur(3px) saturate(150%);
+          -webkit-backdrop-filter: blur(3px) saturate(150%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.28),
+            inset 0 -1px 1px rgba(233, 130, 89, 0.15),
+            0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ── Liquid Pill Buttons, Chips & Boxes ───────────────────── */
+        .liquid-pill-primary {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.65rem;
+          padding: 0.65rem 1.5rem;
+          border-radius: 9999px;
+          background: rgba(0, 0, 0, 0.55);
+          backdrop-filter: url(#project-liquid-glass) blur(2.5px) saturate(145%);
+          -webkit-backdrop-filter: blur(3px) saturate(145%);
+          border: 1px solid rgba(233, 130, 89, 0.26);
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.28),
+            inset 0 -1px 1.5px rgba(233, 130, 89, 0.18),
+            0 10px 28px -4px rgba(0, 0, 0, 0.55);
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        .liquid-pill-primary:hover {
+          background: rgba(0, 0, 0, 0.68);
+          border-color: rgba(233, 130, 89, 0.45);
+          box-shadow:
+            inset 0 1px 1px rgba(255, 255, 255, 0.38),
+            inset 0 -1px 2px rgba(233, 130, 89, 0.28),
+            0 14px 34px -4px rgba(0, 0, 0, 0.7),
+            0 0 20px rgba(233, 130, 89, 0.14);
+        }
+
+        .liquid-pill-secondary {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.65rem;
+          padding: 0.65rem 1.5rem;
+          border-radius: 9999px;
+          background: rgba(0, 0, 0, 0.46);
+          backdrop-filter: url(#project-liquid-glass) blur(2.5px) saturate(145%);
+          -webkit-backdrop-filter: blur(3px) saturate(145%);
+          border: 1px solid rgba(255, 255, 255, 0.11);
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.22),
+            inset 0 -1px 1px rgba(233, 130, 89, 0.1),
+            0 10px 28px -4px rgba(0, 0, 0, 0.5);
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        .liquid-pill-secondary:hover {
+          background: rgba(0, 0, 0, 0.58);
+          border-color: rgba(233, 130, 89, 0.3);
+          box-shadow:
+            inset 0 1px 1px rgba(255, 255, 255, 0.3),
+            0 14px 32px -4px rgba(0, 0, 0, 0.65);
+        }
+
+        .liquid-icon-box {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.24),
+            0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .liquid-chip {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.18);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
         }
 
         /* ── Selector tabs ───────────────────────────────────────── */
         .selector-tabs {
           display: flex;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.09);
           border-radius: 9999px;
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
         }
         .selector-tab {
-          padding: 0.5rem 1rem;
+          padding: 0.5rem 1.05rem;
           border-radius: 9999px;
           font-family: 'JetBrains Mono', monospace;
-          font-size: 0.65rem;
+          font-size: 0.68rem;
           text-transform: uppercase;
           white-space: nowrap;
-          color: #7d9284;
+          color: rgba(242, 239, 230, 0.72);
           transition: all 0.2s ease;
           letter-spacing: 0.1em;
+          cursor: pointer;
         }
-        .selector-tab:hover { color: #e9efe9; }
+        .selector-tab:hover { color: var(--color-text-primary); }
         .selector-tab-active {
-          background: rgba(207,227,212,0.1);
-          border: 1px solid rgba(207,227,212,0.15);
-          color: #e9efe9;
-        }
-
-        /* ── Explain button ──────────────────────────────────────── */
-        .explain-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          gap: 0.75rem;
-          padding: 0.625rem 1.5rem; border-radius: 9999px;
-          background: rgba(207,227,212,0.1);
-          border: 1px solid rgba(207,227,212,0.2);
-          color: #e9efe9; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
-          text-transform: uppercase; letter-spacing: 0.1em;
-          transition: all 0.25s ease;
-        }
-        .explain-btn:hover { 
-          background: rgba(207,227,212,0.15);
-          border-color: rgba(207,227,212,0.4);
+          background: rgba(233, 130, 89, 0.12);
+          border: 1px solid rgba(233, 130, 89, 0.3);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.28),
+            0 2px 8px rgba(0, 0, 0, 0.35);
+          color: var(--color-text-primary);
         }
 
         /* ── Modal ───────────────────────────────────────────────── */
         .modal-container {
           border-radius: 1.5rem 1.5rem 0 0;
           overflow: hidden;
+          background: rgba(0, 0, 0, 0.85);
+          backdrop-filter: url(#project-liquid-glass) blur(8px) saturate(150%);
+          -webkit-backdrop-filter: blur(8px) saturate(150%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow:
+            inset 0 1px 0.5px rgba(255, 255, 255, 0.25),
+            0 24px 80px rgba(0, 0, 0, 0.85);
         }
         @media (min-width: 640px) {
           .modal-container {
             border-radius: 1.5rem;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.8);
           }
         }
 
         /* ── Scrollbars ───────────────────────────────────────────── */
         .ai-scroll::-webkit-scrollbar { width: 4px; }
-        .ai-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .ai-scroll::-webkit-scrollbar-thumb { background: rgba(233, 130, 89, 0.25); border-radius: 10px; }
         .ai-scroll::-webkit-scrollbar-track { background: transparent; }
-        
+
         .decal-easter-egg {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(207, 227, 212, 0.45);
-          text-shadow: 0 0 10px rgba(207, 227, 212, 0.15);
+          color: rgba(242, 239, 230, 0.45);
+          text-shadow: 0 0 10px rgba(242, 239, 230, 0.15);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }
