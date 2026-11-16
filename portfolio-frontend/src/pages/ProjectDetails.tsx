@@ -11,6 +11,8 @@ import {
 } from "framer-motion";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
+import NotFound from "./NotFound";
+import { PAGE_SEO, setPageMetadata, SITE_ORIGIN } from "../seo";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt } from "react-icons/fa";
@@ -620,6 +622,7 @@ export default function ProjectDetails() {
   const lensMapUrl = useCardLensMap();
 
   const [project, setProject] = useState<Project | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [explanationType, setExplanationType] = useState("technical");
   const [complexity, setComplexity] = useState("normal");
@@ -631,23 +634,60 @@ export default function ProjectDetails() {
   const [dismissRecommendation, setDismissRecommendation] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+    const label = slug?.split("-").map((part) => part[0]?.toUpperCase() + part.slice(1)).join(" ") ?? "Project";
+    setPageMetadata({
+      ...PAGE_SEO.projectIndex,
+      title: `${label} | Keval Parmar`,
+      path: `/projects/${slug ?? ""}`,
+      type: "article",
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
     setShowRecommendation(false);
     setDismissRecommendation(false);
     setProject(null);
+    setNotFound(false);
 
     api
       .get("projects/")
       .then((res) => {
+        if (cancelled) return;
         const all: Project[] = res.data;
         const found = all.find((p) => p.slug === slug) ?? null;
         setProject(found);
+        setNotFound(!found);
         const others = all.filter((p) => p.slug !== slug);
         if (others.length > 0)
           setRecommendedProject([...others].sort((a, b) => (b.views || 0) - (a.views || 0))[0]);
       })
-      .catch(console.error);
+      .catch(() => {
+        if (!cancelled) setNotFound(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
+
+  useEffect(() => {
+    if (!project) return;
+    const path = `/projects/${project.slug}`;
+    setPageMetadata({
+      title: `${project.title} | Keval Parmar`,
+      description: project.short_description,
+      path,
+      type: "article",
+      image: project.images?.[0]?.image,
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        name: project.title,
+        description: project.short_description,
+        url: `${SITE_ORIGIN}${path}`,
+        creator: { "@id": `${SITE_ORIGIN}/#person` },
+        keywords: project.tech_stack.split(/\r?\n/).map((tech) => tech.trim()).filter(Boolean),
+      },
+    });
+  }, [project]);
 
   useEffect(() => {
     if (!project) return;
@@ -696,6 +736,7 @@ export default function ProjectDetails() {
     }
   }, [project, explanationType, complexity]);
 
+  if (notFound) return <NotFound />;
   if (!project) return <LoadingSkeleton />;
 
   const techLines = project.tech_stack

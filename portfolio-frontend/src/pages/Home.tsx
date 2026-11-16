@@ -9,11 +9,12 @@ import {
   useMotionValue,
   animate,
 } from "framer-motion";
-import { useNavigate, type NavigateFunction } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { IconType } from "react-icons";
 import Navbar from "../components/Navbar";
 import ChatModal from "../components/ChatModal";
 import api from "../api/axios";
+import { HOME_SCHEMA, PAGE_SEO, setPageMetadata } from "../seo";
 import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import {
@@ -497,7 +498,7 @@ const ExperienceTimeline = ({ experience }: { experience: Experience[] }) => {
 };
 
 /* ── Editorial project row inside Liquid Glass Card ─────────────────────────── */
-const ProjectRow = ({ project, idx, navigate }: { project: Project; idx: number; navigate: NavigateFunction }) => {
+const ProjectRow = ({ project, idx }: { project: Project; idx: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.25 });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -510,11 +511,11 @@ const ProjectRow = ({ project, idx, navigate }: { project: Project; idx: number;
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.75, ease: EASE, delay: (idx % 2) * 0.08 }}
     >
+      <Link to={`/projects/${project.slug}`} className="block">
       <LiquidGlassCard
         borderRadius={26}
         zoom={0.88}
-        onClick={() => navigate(`/projects/${project.slug}`)}
-        className="group cursor-pointer transition-transform duration-500 hover:-translate-y-1"
+        className="group transition-transform duration-500 hover:-translate-y-1"
       >
         {/* Parallax ghost number */}
         <motion.span
@@ -543,6 +544,7 @@ const ProjectRow = ({ project, idx, navigate }: { project: Project; idx: number;
           </div>
         </div>
       </LiquidGlassCard>
+      </Link>
     </motion.div>
   );
 };
@@ -685,19 +687,13 @@ export default function Home() {
   const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   useEffect(() => {
-    Promise.all([
-      api.get<Project[]>("projects/"),
-      api.get<Skill[]>("skills/"),
-      api.get<Experience[]>("experience/"),
-      api.get<About>("about/"),
-      api.get<Social[]>("socials/"),
-    ]).then(([p, s, e, a, so]) => {
-      setProjects(p.data);
-      setSkills(s.data);
-      setExperience(e.data);
-      setAbout(a.data);
-      setSocials(so.data);
-    });
+    setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
+
+    api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
+    api.get<Skill[]>("skills/").then((res) => setSkills(res.data)).catch(() => {});
+    api.get<Experience[]>("experience/").then((res) => setExperience(res.data)).catch(() => {});
+    api.get<About>("about/").then((res) => setAbout(res.data)).catch(() => {});
+    api.get<Social[]>("socials/").then((res) => setSocials(res.data)).catch(() => {});
 
     api
       .get<{ data?: { section: string }[] }>("ranking/")
@@ -914,7 +910,7 @@ export default function Home() {
           <SectionHeader index="04" eyebrow="case.studies" title="Selected Work" />
           <div className="space-y-5">
             {projects.map((project, idx) => (
-              <ProjectRow key={project.id} project={project} idx={idx} navigate={navigate} />
+              <ProjectRow key={project.id} project={project} idx={idx} />
             ))}
           </div>
         </section>

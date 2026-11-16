@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -13,6 +13,7 @@ import {
 } from "../components/LiquidGlass";
 import { TINT_ACCENTS, type GlassTint } from "../components/LiquidGlass.shared";
 import { useCardLensMap } from "../hooks/useLensMap";
+import { PAGE_SEO, PERSON_SCHEMA, setPageMetadata, SITE_ORIGIN } from "../seo";
 import {
   FaBrain,
   FaServer,
@@ -32,6 +33,27 @@ export default function Freelance() {
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const lensMapUrl = useCardLensMap();
+
+  useEffect(() => {
+    setPageMetadata({
+      ...PAGE_SEO.freelance,
+      structuredData: {
+        "@context": "https://schema.org",
+        "@graph": [
+          PERSON_SCHEMA,
+          {
+            "@type": "Service",
+            name: "AI application development",
+            description:
+              "AI applications, RAG systems, tool-calling assistants, and workflow automation for product teams.",
+            provider: { "@id": `${SITE_ORIGIN}/#person` },
+            url: `${SITE_ORIGIN}${PAGE_SEO.freelance.path}`,
+            areaServed: ["India", "Europe", "United States"],
+          },
+        ],
+      },
+    });
+  }, []);
 
   const services = [
     {

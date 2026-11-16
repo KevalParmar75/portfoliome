@@ -1,4 +1,4 @@
-import { useState, useRef, type FormEvent } from "react";
+import { useEffect, useState, useRef, type FormEvent } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
 import { FaBrain, FaServer, FaProjectDiagram, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
 import ChatModal from "../components/ChatModal";
@@ -8,6 +8,7 @@ import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import { LiquidChatOrb, LiquidGlassCard, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
 import api from "../api/axios";
+import { PAGE_SEO, setPageMetadata } from "../seo";
 
 // ─── Film Grain ───────────────────────────────────────────────────────────────
 const Grain = () => (
@@ -110,6 +111,10 @@ export default function Collaborate() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle, submitting, success
   const lensMapUrl = useCardLensMap();
+
+  useEffect(() => {
+    setPageMetadata(PAGE_SEO.collaborate);
+  }, []);
 
   // Custom Dropdown State
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

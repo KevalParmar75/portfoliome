@@ -1,292 +1,157 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
 import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import Navbar from "../components/Navbar";
-
-// Grid lines
-const GridLines = () => (
-  <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
-    style={{
-      backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-      backgroundSize: "60px 60px"
-    }}
-  />
-);
-
-// Glitchy 404 digits
-const GlitchDigit = ({ char, delay }: { char: string; delay: number }) => (
-  <motion.span
-    className="glitch-digit"
-    initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
-    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
-    data-text={char}
-  >
-    {char}
-  </motion.span>
-);
-
-// Terminal log lines
-const LOGS = [
-  { text: "GET /unknown-route → 404",       color: "text-red-400"   },
-  { text: "resolving path... failed",        color: "text-yellow-400/70" },
-  { text: "neural link severed",             color: "text-red-400/70"   },
-  { text: "suggest: return to /home",        color: "text-ivory"  },
-];
-
-const TerminalLog = () => {
-  const [visible, setVisible] = useState(0);
-
-  useEffect(() => {
-    if (visible >= LOGS.length) return;
-    const t = setTimeout(() => setVisible(v => v + 1), 600);
-    return () => clearTimeout(t);
-  }, [visible]);
-
-  return (
-    <div className="terminal-log">
-      <div className="terminal-log-header">
-        <div className="flex gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-red-500/70" />
-          <div className="w-2 h-2 rounded-full bg-yellow-500/70" />
-          <div className="w-2 h-2 rounded-full bg-vermilion/70" />
-        </div>
-        <span className="font-mono text-[10px] text-ivory-ghost">system.log</span>
-      </div>
-      <div className="p-4 space-y-1.5 min-h-[100px]">
-        {LOGS.slice(0, visible).map((log, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`font-mono text-xs ${log.color} flex items-center gap-2`}
-          >
-            <span className="text-ivory-ghost">$</span>
-            {log.text}
-            {i === visible - 1 && visible < LOGS.length && (
-              <span className="w-[6px] h-[0.9em] bg-white/20 inline-block animate-[blink_1s_step-end_infinite]" />
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
+import { LiquidGlassCard, LiquidGlassPill, LiquidLensFilter } from "../components/LiquidGlass";
+import { useCardLensMap } from "../hooks/useLensMap";
+import { PAGE_SEO, setPageMetadata } from "../seo";
 
 export default function NotFound() {
   const navigate = useNavigate();
+  const lensMapUrl = useCardLensMap();
+
+  useEffect(() => {
+    setPageMetadata({ ...PAGE_SEO.notFound, path: undefined });
+  }, []);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="relative min-h-screen bg-transparent text-ivory overflow-hidden custom-cursor-wrapper flex flex-col items-center justify-center px-4"
+      transition={{ duration: 0.4 }}
+      className="relative flex min-h-screen flex-col overflow-hidden bg-[#000000] font-sans text-ivory custom-cursor-wrapper"
     >
+      <LiquidLensFilter id="not-found-liquid-glass" mapUrl={lensMapUrl} />
       <LiquidGlassCursor />
+      <AsciiKoiCanvas />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
       <Navbar />
-      <GridLines />
 
-      {/* Content */}
-      <main className="relative z-10 flex flex-col items-center text-center max-w-lg w-full">
-
-        {/* Status badge */}
+      <main className="relative z-10 flex flex-1 items-center justify-center px-5 pb-12 pt-32 sm:px-8">
         <motion.div
-          initial={{ opacity: 0, y: -12 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/25 bg-red-500/8 backdrop-blur-sm mb-10"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-2xl"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.9)] animate-pulse" />
-          <span className="font-mono text-[10px] text-red-400/80 tracking-[0.2em]">ERROR_NODE_NOT_FOUND</span>
+          <LiquidGlassCard
+            borderRadius={30}
+            tint="neutral"
+            className="px-6 py-12 text-center sm:px-12 sm:py-16"
+          >
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-vermilion/20 bg-white/[0.03] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-vermilion">
+              <span className="h-1.5 w-1.5 rounded-full bg-vermilion" />
+              Page not found
+            </span>
+
+            <h1 className="mb-4 font-serif text-7xl italic tracking-tight text-ivory drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-9xl">
+              404
+            </h1>
+            <h2 className="mb-3 text-xl font-medium tracking-tight text-ivory sm:text-2xl">
+              This page isn’t here.
+            </h2>
+            <p className="mx-auto mb-8 max-w-md text-sm leading-relaxed text-ivory-muted sm:text-base">
+              The link may be out of date, or the page may have moved. Return to the portfolio and
+              continue from there.
+            </p>
+
+            <div className="flex justify-center">
+              <LiquidGlassPill
+                onClick={() => navigate("/")}
+                variant="primary"
+                className="px-7 py-3.5 text-sm font-medium text-ivory"
+              >
+                Return to home
+              </LiquidGlassPill>
+            </div>
+          </LiquidGlassCard>
         </motion.div>
-
-        {/* 404 */}
-        <div className="flex items-center justify-center gap-2 md:gap-3 mb-6">
-          {["4", "0", "4"].map((c, i) => (
-            <GlitchDigit key={i} char={c} delay={0.15 + i * 0.12} />
-          ))}
-        </div>
-
-        {/* Sub-heading */}
-        <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.5 }}
-          className="text-lg md:text-xl font-semibold text-ivory-muted mb-3 tracking-tight"
-        >
-          Neural Link Severed
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-          className="font-mono text-xs text-ivory-faint leading-relaxed mb-8 max-w-sm"
-        >
-          The node you requested does not exist in this architecture. The connection may have been dropped or the directory relocated.
-        </motion.p>
-
-        {/* Terminal log */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.85, duration: 0.5 }}
-          className="w-full mb-8"
-        >
-          <TerminalLog />
-        </motion.div>
-
-        {/* CTA */}
-        <motion.button
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, duration: 0.5 }}
-          onClick={() => navigate("/")}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          className="reroute-btn"
-        >
-          <span className="font-mono text-[10px] tracking-[0.15em] opacity-60 mr-2">~/</span>
-          Initialize Reroute
-        </motion.button>
-
-        {/* Decorative scan line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 1.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent mt-10 origin-left"
-        />
       </main>
-<footer className="relative z-10 py-8 text-center">
-        <p className="font-mono text-ivory-ghost text-xs tracking-[0.2em] flex items-center justify-center gap-3">
+
+      <footer className="relative z-10 border-t border-white/[0.06] bg-[#000000]/60 py-8 text-center backdrop-blur-md">
+        <p className="flex items-center justify-center gap-3 font-mono text-xs tracking-[0.2em] text-ivory-faint">
           <span>© 2026 KEVAL_PARMAR</span>
-          <span className="w-1 h-1 rounded-full bg-white/5" />
+          <span className="h-1 w-1 rounded-full bg-white/10" />
           <span>POWERED_BY_AI</span>
         </p>
-
         <span className="decal-easter-egg text-[10px] sm:text-xs">
-        "to automate and overwrite..."
-      </span>
+          "to automate and overwrite..."
+        </span>
       </footer>
+
       <style>{`
-        
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Dancing+Script:wght@600&display=swap');
 
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-serif { font-family: 'Playfair Display', serif; }
         .custom-cursor-wrapper * { cursor: none !important; }
 
-        /* ── 404 glitch digits ─────────────────────────────────── */
-        .glitch-digit {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(5rem, 20vw, 9rem);
-          font-weight: 700;
-          line-height: 1;
-          color: var(--color-text-primary);
-          text-shadow: 0 0 60px rgba(255,255,255,0.1), 0 0 120px rgba(168,85,247,0.2);
-          position: relative;
-          display: inline-block;
+        .liquid-glass-card {
+          --mx: 50%;
+          --my: 50%;
+          backdrop-filter: url(#not-found-liquid-glass) blur(2.5px) saturate(145%) brightness(0.75);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.75);
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.22), inset 0 -1px 1.5px rgba(255, 255, 255, 0.06), 0 16px 40px -8px rgba(0, 0, 0, 0.65);
+          transition: border-color 0.35s ease, box-shadow 0.35s ease;
         }
-        /* Glitch layers */
-        .glitch-digit::before,
-        .glitch-digit::after {
-          content: attr(data-text);
+        .liquid-glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
+        .liquid-card-rim {
           position: absolute;
           inset: 0;
+          padding: 1px;
+          background: linear-gradient(165deg, rgba(255,255,255,0.26), rgba(255,255,255,0.02) 38%, transparent 68%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          z-index: 1;
+        }
+        .liquid-card-glare {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,0.065), transparent 70%);
           opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: 1;
         }
-        .glitch-digit:hover::before {
-          opacity: 0.7;
-          color: var(--color-text-primary);
-          clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
-          transform: translateX(-3px);
-          animation: glitch-a 0.4s steps(2) forwards;
+        .liquid-glass-card:hover .liquid-card-glare { opacity: 1; }
+        .liquid-pill-btn {
+          backdrop-filter: url(#apple-liquid-glass) blur(2.5px) saturate(145%) brightness(0.76);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.76);
+          text-shadow: 0 1px 3px rgba(0,0,0,0.85);
         }
-        .glitch-digit:hover::after {
-          opacity: 0.7;
-          color: #a855f7;
-          clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-          transform: translateX(3px);
-          animation: glitch-b 0.4s steps(2) forwards;
+        .liquid-pill-primary {
+          border: 1px solid rgba(255,255,255,0.14);
+          box-shadow: inset 0 1px 0.5px rgba(255,255,255,0.28), inset 0 -1px 1.5px rgba(255,255,255,0.08), 0 10px 28px -4px rgba(0,0,0,0.55);
         }
-        @keyframes glitch-a {
-          0%  { transform: translateX(-3px); }
-          50% { transform: translateX(3px);  }
-          100%{ transform: translateX(0);    }
-        }
-        @keyframes glitch-b {
-          0%  { transform: translateX(3px);  }
-          50% { transform: translateX(-3px); }
-          100%{ transform: translateX(0);    }
-        }
-
-        /* ── Terminal log ──────────────────────────────────────── */
-        .terminal-log {
-          border-radius: 0.875rem;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255,255,255,0.1);
-          overflow: hidden;
-          text-align: left;
-        }
-        .terminal-log-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0.5rem 0.875rem;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          background: rgba(0,0,0,0.3);
-        }
-
-        /* ── Reroute button ────────────────────────────────────── */
-        .reroute-btn {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.75rem 2rem;
+        .liquid-pill-primary:hover { border-color: rgba(255,255,255,0.3); }
+        .liquid-pill-rim {
+          position: absolute;
+          inset: 0;
           border-radius: 9999px;
-          background: rgba(168, 85, 247, 0.15);
-          backdrop-filter: blur(8px) brightness(1.1);
-          -webkit-backdrop-filter: blur(8px) brightness(1.1);
-          border: 1px solid rgba(168, 85, 247, 0.3);
-          box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.1), 0 8px 32px rgba(0, 0, 0, 0.25);
-          color: var(--color-text-primary);
-          font-size: 0.875rem;
-          font-weight: 600;
-          transition: all 0.25s ease;
-          cursor: pointer;
+          padding: 1px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.02) 45%, transparent 70%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          z-index: 1;
         }
-        .reroute-btn:hover {
-          background: rgba(168, 85, 247, 0.25);
-          border-color: rgba(168, 85, 247, 0.5);
-          box-shadow: inset 0 0 24px rgba(168, 85, 247, 0.15), 0 12px 36px rgba(0, 0, 0, 0.35);
-          transform: translateY(-2px);
+        .decal-easter-egg {
+          font-family: 'Dancing Script', cursive;
+          letter-spacing: 0.08em;
+          font-size: 1.1rem;
+          color: rgba(255, 255, 255, 0.45);
+          cursor: crosshair;
+          transition: all 0.4s ease-in-out;
         }
-.decal-easter-egg {
-  /* The New Guaranteed Font */
-  font-family: 'Dancing Script', cursive;
-  letter-spacing: 0.08em; /* Gives it that stamped decal spacing */
-  font-size: 1.1rem; /* Bebas runs a little small, so we bump it up a hair */
-
-  /* Etched Liquid Glass Effect */
-  color: rgba(255, 255, 255, 0.4);
-  mix-blend-mode: overlay;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1),
-              -1px -1px 1px rgba(255, 255, 255, 0.2);
-
-  cursor: crosshair;
-  transition: all 0.4s ease-in-out;
-}
-
-.decal-easter-egg:hover {
-  /* Reveals the rogue AI energy on hover */
-  color: rgba(220, 38, 38, 0.9);
-  mix-blend-mode: normal;
-  text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
-}
+        .decal-easter-egg:hover {
+          color: rgba(220, 38, 38, 0.9);
+          text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+        }
       `}</style>
     </motion.div>
   );

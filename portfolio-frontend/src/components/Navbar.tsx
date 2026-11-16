@@ -223,9 +223,13 @@ export default function Navbar() {
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.id;
             return (
-              <button
+              <a
                 key={item.id}
-                onClick={() => handleNavClick(item)}
+                href={item.path ?? `/#${item.id}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavClick(item);
+                }}
                 className={`nav-item cursor-pointer ${isActive ? "nav-item-active" : ""}`}
               >
                 {isActive && (
@@ -236,19 +240,19 @@ export default function Navbar() {
                   />
                 )}
                 <span className="relative z-10 font-mono">{item.label}</span>
-              </button>
+              </a>
             );
           })}
         </nav>
 
         {/* ── Desktop "Collaborate" CTA ──────────────────────────────── */}
         <div className="relative z-10 hidden sm:flex items-center pl-4 border-l border-white/12">
-          <button
-            onClick={() => navigate("/collaborate")}
+          <a
+            href="/collaborate"
             className="liquid-cta px-4 py-1.5 rounded-full text-ivory/95 font-mono text-xs uppercase tracking-wider hover:text-ivory transition-all cursor-pointer"
           >
             Collaborate
-          </button>
+          </a>
         </div>
 
         {/* ── Mobile Toggle ───────────────────────────────────────────── */}
@@ -284,12 +288,16 @@ export default function Navbar() {
             {NAV_ITEMS.map((item, idx) => {
               const isActive = activeSection === item.id;
               return (
-                <motion.button
+                <motion.a
                   key={item.id}
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.04, duration: 0.2 }}
-                  onClick={() => handleNavClick(item)}
+                  href={item.path ?? `/#${item.id}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleNavClick(item);
+                  }}
                   className={`mobile-nav-item ${isActive ? "mobile-nav-item-active" : ""}`}
                 >
                   <span
@@ -297,7 +305,7 @@ export default function Navbar() {
                       }`}
                   />
                   <span className="font-mono text-sm tracking-widest uppercase">{item.label}</span>
-                </motion.button>
+                </motion.a>
               );
             })}
 
@@ -308,15 +316,17 @@ export default function Navbar() {
               transition={{ delay: NAV_ITEMS.length * 0.04, duration: 0.2 }}
               className="pt-2 mt-1 border-t border-white/10"
             >
-              <button
-                onClick={() => {
+              <a
+                href="/collaborate"
+                onClick={(event) => {
+                  event.preventDefault();
                   setIsMobileMenuOpen(false);
                   navigate("/collaborate");
                 }}
                 className="liquid-cta w-full py-3 rounded-xl text-ivory font-mono text-xs uppercase tracking-widest transition-all cursor-pointer"
               >
                 Collaborate
-              </button>
+              </a>
             </motion.div>
           </motion.div>
         )}
