@@ -323,7 +323,7 @@ export default function Navbar() {
                   setIsMobileMenuOpen(false);
                   navigate("/collaborate");
                 }}
-                className="liquid-cta w-full py-3 rounded-xl text-ivory font-mono text-xs uppercase tracking-widest transition-all cursor-pointer"
+                className="liquid-cta flex w-full items-center justify-center py-3 rounded-xl text-center text-ivory font-mono text-xs uppercase tracking-widest transition-all cursor-pointer"
               >
                 Collaborate
               </a>

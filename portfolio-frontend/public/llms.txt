@@ -1,0 +1,15 @@
+# Keval Parmar
+
+> Keval Parmar is an AI application engineer building AI applications, RAG systems, agents, and workflow automation. This site presents his selected projects, services, and contact options.
+
+## Pages
+
+- [Portfolio](https://kevalparmar75.vercel.app/): Background, skills, experience, and selected projects.
+- [AI application services](https://kevalparmar75.vercel.app/freelance): Freelance services and remote availability.
+- [Contact](https://kevalparmar75.vercel.app/collaborate): Discuss a project or collaboration.
+- [Adiyogi Wellness](https://kevalparmar75.vercel.app/projects/adiyogi-wellness): Project overview.
+- [Optimus Assistant](https://kevalparmar75.vercel.app/projects/optimus-ai-assistant): Project overview.
+- [Talent Tuner](https://kevalparmar75.vercel.app/projects/talent-tuner): Project overview.
+- [Financial Assistant Bot](https://kevalparmar75.vercel.app/projects/financial-assistant-bot): Project overview.
+- [Flower Image Generator using DCGAN](https://kevalparmar75.vercel.app/projects/flower-image-generator-using-dcgan): Project overview.
+- [Museum Ticket Booking Assistant](https://kevalparmar75.vercel.app/projects/museum-ticket-booking-assistant): Project overview.

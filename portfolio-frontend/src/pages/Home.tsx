@@ -413,6 +413,7 @@ const SkillBento = ({ groupedSkills }: { groupedSkills: [string, Skill[]][] }) =
                       className={`skill-chip group ${featured ? "skill-chip-lg" : ""}`}
                     >
                       <Icon
+                        aria-hidden="true"
                         className={`text-vermilion group-hover:text-ivory transition-colors duration-300 ${
                           featured ? "text-base" : "text-sm"
                         }`}
