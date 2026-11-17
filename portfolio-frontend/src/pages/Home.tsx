@@ -597,7 +597,7 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
       >
         {/* Name */}
         <h1
-          className="hero-name mt-12 md:mt-16 drop-shadow-[0_6px_28px_rgba(0,0,0,0.75)]"
+          className="hero-name mt-12 md:mt-16 drop-shadow-[0_6px_28px_rgba(0,0,0,0.75)] select-none"
           aria-label="Keval Parmar"
         >
           <span className="block overflow-hidden pb-[0.06em]">
