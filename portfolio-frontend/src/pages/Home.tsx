@@ -1144,7 +1144,7 @@ export default function Home() {
         .liquid-glass-card {
           --mx: 50%;
           --my: 50%;
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass over whatever is behind it */
           backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%) brightness(0.75);
           -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.75);
           border: 1px solid rgba(255, 255, 255, 0.09);
@@ -1211,7 +1211,7 @@ export default function Home() {
             0 1px 4px rgba(0, 0, 0, 0.6);
         }
         .liquid-divider-pill {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#home-liquid-glass) blur(3px) saturate(150%);
           -webkit-backdrop-filter: blur(3px) saturate(150%);
           border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1248,7 +1248,7 @@ export default function Home() {
         }
 
         .liquid-pill-primary {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%);
           -webkit-backdrop-filter: blur(3px) saturate(145%);
           border: 1px solid rgba(255, 255, 255, 0.14);
@@ -1269,7 +1269,7 @@ export default function Home() {
         }
 
         .liquid-pill-secondary {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%);
           -webkit-backdrop-filter: blur(3px) saturate(145%);
           border: 1px solid rgba(255, 255, 255, 0.11);
@@ -1289,7 +1289,7 @@ export default function Home() {
         }
 
         .liquid-icon-box {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow:
             inset 0 1px 0.5px rgba(255, 255, 255, 0.24),
@@ -1302,7 +1302,7 @@ export default function Home() {
           gap: 0.6rem;
           padding: 0.55rem 1.05rem;
           border-radius: 9999px;
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           border: 1px solid rgba(255, 255, 255, 0.1);
           text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
           box-shadow:
@@ -1320,7 +1320,7 @@ export default function Home() {
 
         /* ── Spherical Liquid Glass Chat Orb ───────────────────────── */
         .liquid-chat-orb {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#cursor-liquid-lens) blur(2px) saturate(145%) brightness(0.78);
           -webkit-backdrop-filter: blur(2.5px) saturate(145%) brightness(0.78);
           border: 1px solid rgba(255, 255, 255, 0.1);

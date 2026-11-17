@@ -574,7 +574,7 @@ export default function Collaborate() {
         .liquid-glass-card {
           --mx: 50%;
           --my: 50%;
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#collab-liquid-glass) blur(2.5px) saturate(145%) brightness(0.75);
           -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.75);
           border: 1px solid rgba(255, 255, 255, 0.09);
@@ -625,7 +625,7 @@ export default function Collaborate() {
 
         /* ── Liquid Glass Form Inputs & Dropdown ──────────────────── */
         .liquid-input {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           border: 1px solid rgba(255, 255, 255, 0.09);
           box-shadow:
             inset 0 1px 2px rgba(0, 0, 0, 0.45),
@@ -642,7 +642,7 @@ export default function Collaborate() {
         }
 
         .liquid-dropdown {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#collab-liquid-glass) blur(6px) saturate(150%);
           -webkit-backdrop-filter: blur(8px) saturate(150%);
           border: 1px solid rgba(255, 255, 255, 0.14);
@@ -653,7 +653,7 @@ export default function Collaborate() {
 
         /* ── Liquid Icon Box & Action Buttons ─────────────────────── */
         .liquid-icon-box {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           border: 1px solid rgba(255, 255, 255, 0.11);
           box-shadow:
             inset 0 1px 0.5px rgba(255, 255, 255, 0.24),
@@ -661,7 +661,7 @@ export default function Collaborate() {
         }
 
         .liquid-pill-btn {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: blur(4px) saturate(145%);
           -webkit-backdrop-filter: blur(4px) saturate(145%);
           border: 1px solid rgba(255, 255, 255, 0.14);
@@ -682,7 +682,7 @@ export default function Collaborate() {
 
         /* ── Spherical Liquid Glass Chat Orb ───────────────────────── */
         .liquid-chat-orb {
-          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
+          /* No base background: pure glass */
           backdrop-filter: url(#cursor-liquid-lens) blur(2px) saturate(145%) brightness(0.78);
           -webkit-backdrop-filter: blur(2.5px) saturate(145%) brightness(0.78);
           border: 1px solid rgba(255, 255, 255, 0.1);
