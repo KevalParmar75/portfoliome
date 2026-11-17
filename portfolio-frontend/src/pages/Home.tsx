@@ -601,41 +601,27 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
           aria-label="Keval Parmar"
         >
           <span className="block overflow-hidden pb-[0.06em]">
-            <motion.span
-              className="inline-block"
-              initial={false}
-              animate={{ y: 0 }}
-            >
+            <span className="inline-block">
               Keval
-            </motion.span>
+            </span>
           </span>
           <span className="block overflow-hidden pb-[0.12em] -mt-[0.18em]">
-            <motion.span
-              className="inline-block font-serif italic font-medium text-vermilion"
-              initial={false}
-              animate={{ y: 0 }}
-            >
+            <span className="inline-block font-serif italic font-medium text-vermilion">
               Parmar
-            </motion.span>
+            </span>
           </span>
         </h1>
 
         {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 0.8 }}
+        <p
           className="mt-7 md:mt-9 max-w-xl text-sm md:text-lg leading-relaxed text-ivory-soft font-light drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
         >
           I help founders and businesses integrate scalable AI, automate complex workflows, and
           build intelligent agents that deliver real-world ROI.
-        </motion.p>
+        </p>
 
         {/* Liquid Glass CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: EASE, delay: 1.3 }}
+        <div
           className="mt-9 md:mt-11 flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full max-w-xs sm:max-w-none sm:w-auto"
         >
           <LiquidGlassPill
@@ -655,7 +641,7 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
             <FaBrain className="text-sm text-vermilion" />
             <span>Chat with Portfolio</span>
           </LiquidGlassPill>
-        </motion.div>
+        </div>
       </motion.div>
     </section>
   );
@@ -692,7 +678,7 @@ export default function Home() {
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
 
-    const timer = window.setTimeout(() => setShowKoi(true), 300);
+    const frame = window.requestAnimationFrame(() => setShowKoi(true));
     setShowCursor(window.matchMedia("(pointer: fine)").matches);
 
     api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
@@ -707,7 +693,7 @@ export default function Home() {
         if (res.data?.data?.length) setBackendRecommendation(res.data.data[0].section);
       })
       .catch(() => { });
-    return () => window.clearTimeout(timer);
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
