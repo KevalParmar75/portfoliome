@@ -692,7 +692,7 @@ export default function Home() {
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
 
-    const timer = window.setTimeout(() => setShowKoi(true), 1200);
+    const timer = window.setTimeout(() => setShowKoi(true), 300);
     setShowCursor(window.matchMedia("(pointer: fine)").matches);
 
     api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});

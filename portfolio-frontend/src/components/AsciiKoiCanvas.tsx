@@ -293,7 +293,7 @@ export default function AsciiKoiCanvas({
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const coarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
     const motion = reduceMotion ? 0.35 : 1;
-    const frameInterval = coarsePointer ? 50 : 0;
+    const frameInterval = coarsePointer ? 33 : 0;
     let lastDraw = 0;
 
     let width = window.innerWidth;
@@ -325,7 +325,7 @@ export default function AsciiKoiCanvas({
       const prevH = Math.max(height, 1);
       width = window.innerWidth;
       height = window.innerHeight;
-      pixelRatio = coarsePointer ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
 
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
@@ -337,9 +337,7 @@ export default function AsciiKoiCanvas({
       texCanvas.width = Math.max(1, Math.round(width * k));
       texCanvas.height = Math.max(1, Math.round(height * k));
 
-      cell = coarsePointer
-        ? Math.min(12, Math.max(10, Math.round(width / 185)))
-        : Math.min(9, Math.max(7, Math.round(width / 185)));
+      cell = Math.min(9, Math.max(7, Math.round(width / 185)));
       cols = Math.ceil(width / cell);
       rows = Math.ceil(height / cell);
       const totalCells = cols * rows;
@@ -696,7 +694,7 @@ export default function AsciiKoiCanvas({
         return;
       }
       lastDraw = time;
-      const dt = Math.min((time - lastTime) / 1000, 0.05);
+      const dt = Math.min((time - lastTime) / 1000, coarsePointer ? 0.1 : 0.05);
       lastTime = time;
       const t = time / 1000;
       const mdt = dt * motion;
