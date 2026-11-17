@@ -619,14 +619,21 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
           I help founders and businesses integrate scalable AI, automate complex workflows, and
           build intelligent agents that deliver real-world ROI.
         </p>
+      </motion.div>
 
-        {/* Liquid Glass CTAs */}
+      {/* Liquid Glass CTAs — kept outside the parallax motion.div so
+          backdrop-filter can sample the koi canvas behind the hero.
+          A transformed/will-change-transform ancestor breaks backdrop-filter. */}
+      <motion.div
+        style={{ opacity: contentOpacity }}
+        className="relative z-10 flex flex-col items-center mt-9 md:mt-11"
+      >
         <div
-          className="mt-9 md:mt-11 flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full max-w-xs sm:max-w-none sm:w-auto"
+          className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full max-w-xs sm:max-w-none sm:w-auto"
         >
           <LiquidGlassPill
             onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-            variant="secondary"
+            variant="primary"
             className="group px-7 py-3.5 text-sm font-medium text-ivory"
           >
             <span>View Projects{projectCount > 0 ? ` (${projectCount})` : ""}</span>
@@ -635,7 +642,7 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
 
           <LiquidGlassPill
             onClick={onChat}
-            variant="primary"
+            variant="secondary"
             className="px-7 py-3.5 text-sm font-medium text-ivory"
           >
             <FaBrain className="text-sm text-vermilion" />
