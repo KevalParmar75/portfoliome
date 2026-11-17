@@ -214,7 +214,7 @@ export default function Freelance() {
           >
             I'm Keval, a freelance AI application engineer. I build RAG systems, tool-calling
             assistants, and the web apps around them. Based in India, open to remote projects with
-            teams in Europe and the US.
+            teams all around the world.
           </motion.p>
 
           {/* Quick CTA Actions */}
