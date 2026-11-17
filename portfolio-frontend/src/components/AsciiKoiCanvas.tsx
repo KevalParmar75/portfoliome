@@ -375,15 +375,13 @@ export default function AsciiKoiCanvas({
         });
       });
 
-      const koiWanted = coarsePointer
-        ? Math.max(4, Math.min(5, Math.round(width / 250)))
-        : Math.max(8, Math.min(12, Math.round(width / 150)));
+      const koiWanted = Math.max(8, Math.min(12, Math.round(width / 150)));
       while (koi.length < koiWanted) {
         koi.push(createKoi(width, height, lenScale(), cell, koi.length, koiWanted));
       }
       if (koi.length > koiWanted) koi = koi.slice(0, koiWanted);
 
-      const schoolsWanted = coarsePointer ? 1 : Math.max(3, Math.min(6, Math.round(width / 350)));
+      const schoolsWanted = Math.max(3, Math.min(6, Math.round(width / 350)));
       while (schools.length < schoolsWanted) {
         schools.push(createSchool(width, height));
       }
