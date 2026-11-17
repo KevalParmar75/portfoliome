@@ -315,6 +315,7 @@ export default function AsciiKoiCanvas({
     let koi: Koi[] = [];
     let schools: School[] = [];
     let animationFrame = 0;
+    let hasDrawn = false;
     let lastTime = performance.now();
     const pointer = { x: -9999, y: -9999, active: false };
 
@@ -834,6 +835,12 @@ export default function AsciiKoiCanvas({
         koiManager.broadcast(texCanvas);
       }
 
+      if (!hasDrawn) {
+        hasDrawn = true;
+        canvas.style.transition = "opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)";
+        canvas.style.opacity = "1";
+      }
+
       animationFrame = requestAnimationFrame(animate);
     };
 
@@ -864,7 +871,7 @@ export default function AsciiKoiCanvas({
     <canvas
       ref={canvasRef}
       className={`fixed inset-0 w-full h-full pointer-events-none z-0 ${className || ""}`}
-      style={style}
+      style={{ opacity: 0, ...style }}
       aria-hidden="true"
     />
   );

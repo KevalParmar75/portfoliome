@@ -589,7 +589,7 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
     <section
       ref={ref}
       id="hero"
-      className="relative min-h-[100svh] flex flex-col items-center justify-center text-center px-6 overflow-hidden"
+      className="hero-first-load relative min-h-[100svh] flex flex-col items-center justify-center text-center px-6 overflow-hidden"
     >
       <motion.div
         style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
@@ -1102,6 +1102,16 @@ export default function Home() {
       <style>{`
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; }
+
+        @keyframes hero-first-load {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .hero-first-load { animation: hero-first-load 650ms ease-out both; }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-first-load { animation: none; }
+        }
+
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .font-serif { font-family: 'Playfair Display', serif; }
         .custom-cursor-wrapper * { cursor: none !important; }
