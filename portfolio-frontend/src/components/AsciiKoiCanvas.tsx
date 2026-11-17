@@ -291,7 +291,10 @@ export default function AsciiKoiCanvas({
     const texCtx = texCanvas.getContext("2d");
 
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const coarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
     const motion = reduceMotion ? 0.35 : 1;
+    const frameInterval = coarsePointer ? 50 : 0;
+    let lastDraw = 0;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -322,7 +325,7 @@ export default function AsciiKoiCanvas({
       const prevH = Math.max(height, 1);
       width = window.innerWidth;
       height = window.innerHeight;
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+      pixelRatio = coarsePointer ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
@@ -334,7 +337,9 @@ export default function AsciiKoiCanvas({
       texCanvas.width = Math.max(1, Math.round(width * k));
       texCanvas.height = Math.max(1, Math.round(height * k));
 
-      cell = Math.min(9, Math.max(7, Math.round(width / 185)));
+      cell = coarsePointer
+        ? Math.min(12, Math.max(10, Math.round(width / 185)))
+        : Math.min(9, Math.max(7, Math.round(width / 185)));
       cols = Math.ceil(width / cell);
       rows = Math.ceil(height / cell);
       const totalCells = cols * rows;
@@ -370,13 +375,15 @@ export default function AsciiKoiCanvas({
         });
       });
 
-      const koiWanted = Math.max(8, Math.min(12, Math.round(width / 150)));
+      const koiWanted = coarsePointer
+        ? Math.max(4, Math.min(5, Math.round(width / 250)))
+        : Math.max(8, Math.min(12, Math.round(width / 150)));
       while (koi.length < koiWanted) {
         koi.push(createKoi(width, height, lenScale(), cell, koi.length, koiWanted));
       }
       if (koi.length > koiWanted) koi = koi.slice(0, koiWanted);
 
-      const schoolsWanted = Math.max(3, Math.min(6, Math.round(width / 350)));
+      const schoolsWanted = coarsePointer ? 1 : Math.max(3, Math.min(6, Math.round(width / 350)));
       while (schools.length < schoolsWanted) {
         schools.push(createSchool(width, height));
       }
@@ -686,6 +693,11 @@ export default function AsciiKoiCanvas({
     };
 
     const animate = (time: number) => {
+      if (time - lastDraw < frameInterval) {
+        animationFrame = requestAnimationFrame(animate);
+        return;
+      }
+      lastDraw = time;
       const dt = Math.min((time - lastTime) / 1000, 0.05);
       lastTime = time;
       const t = time / 1000;

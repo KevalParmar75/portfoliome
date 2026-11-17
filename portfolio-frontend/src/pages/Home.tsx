@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   motion,
   AnimatePresence,
@@ -12,11 +12,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import type { IconType } from "react-icons";
 import Navbar from "../components/Navbar";
-import ChatModal from "../components/ChatModal";
 import api from "../api/axios";
 import { HOME_SCHEMA, PAGE_SEO, setPageMetadata } from "../seo";
-import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
-import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import {
   LiquidChatOrb,
   LiquidGlassCard,
@@ -58,6 +55,10 @@ import {
   FaHandshake,
 } from "react-icons/fa";
 import { FiArrowUpRight, FiArrowRight } from "react-icons/fi";
+
+const ChatModal = lazy(() => import("../components/ChatModal"));
+const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
+const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 
 const skillIconMap: Record<string, IconType> = {
   python: SiPython,
@@ -602,9 +603,8 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
           <span className="block overflow-hidden pb-[0.06em]">
             <motion.span
               className="inline-block"
-              initial={{ y: "105%" }}
+              initial={false}
               animate={{ y: 0 }}
-              transition={{ duration: 1.1, ease: EASE, delay: 0.3 }}
             >
               Keval
             </motion.span>
@@ -612,9 +612,8 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
           <span className="block overflow-hidden pb-[0.12em] -mt-[0.18em]">
             <motion.span
               className="inline-block font-serif italic font-medium text-vermilion"
-              initial={{ y: "105%" }}
+              initial={false}
               animate={{ y: 0 }}
-              transition={{ duration: 1.1, ease: EASE, delay: 0.45 }}
             >
               Parmar
             </motion.span>
@@ -673,11 +672,13 @@ export default function Home() {
   const [about, setAbout] = useState<About | null>(null);
   const [socials, setSocials] = useState<Social[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showKoi, setShowKoi] = useState(false);
+  const [showCursor, setShowCursor] = useState(false);
   const [backendRecommendation, setBackendRecommendation] = useState<string | null>(null);
   const [dismissSuggestion, setDismissSuggestion] = useState(
     () => localStorage.getItem("dismissedAI") !== null
   );
-  const [timeSpent, setTimeSpent] = useState<Record<string, number>>({
+  const timeSpent = useRef<Record<string, number>>({
     about: 0,
     skills: 0,
     experience: 0,
@@ -685,10 +686,14 @@ export default function Home() {
     contact: 0,
   });
   const [currentView, setCurrentView] = useState("hero");
+  const [hasSpentEnoughTime, setHasSpentEnoughTime] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
+
+    const timer = window.setTimeout(() => setShowKoi(true), 1200);
+    setShowCursor(window.matchMedia("(pointer: fine)").matches);
 
     api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
     api.get<Skill[]>("skills/").then((res) => setSkills(res.data)).catch(() => {});
@@ -702,10 +707,12 @@ export default function Home() {
         if (res.data?.data?.length) setBackendRecommendation(res.data.data[0].section);
       })
       .catch(() => { });
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     const sections = ["about", "skills", "experience", "projects", "contact"];
+    let thresholdReached = false;
     const tick = () => {
       if (document.hidden) return;
       const scrollMid = window.scrollY + window.innerHeight / 2;
@@ -718,17 +725,22 @@ export default function Home() {
           if (scrollMid >= top && scrollMid <= top + el.offsetHeight) active = id;
         }
       });
+      const nextView = active || "hero";
+      setCurrentView((previous) => previous === nextView ? previous : nextView);
       if (active) {
-        setCurrentView(active);
-        setTimeSpent((prev) => ({ ...prev, [active]: prev[active] + 1 }));
-      } else setCurrentView("hero");
+        timeSpent.current[active]++;
+        if (!thresholdReached && timeSpent.current[active] > 5) {
+          thresholdReached = true;
+          setHasSpentEnoughTime(true);
+        }
+      }
     };
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
-  const mostViewed = Object.keys(timeSpent).reduce((a, b) =>
-    timeSpent[a] > timeSpent[b] ? a : b
+  const mostViewed = Object.keys(timeSpent.current).reduce((a, b) =>
+    timeSpent.current[a] > timeSpent.current[b] ? a : b
   );
   const finalRecommendation =
     backendRecommendation && backendRecommendation !== currentView
@@ -737,7 +749,7 @@ export default function Home() {
   const showRecommendation =
     !dismissSuggestion &&
     finalRecommendation &&
-    timeSpent[mostViewed] > 5 &&
+    hasSpentEnoughTime &&
     currentView !== finalRecommendation;
 
   const handleDismiss = () => {
@@ -762,7 +774,7 @@ export default function Home() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
@@ -772,12 +784,20 @@ export default function Home() {
       <LiquidLensFilter id="home-liquid-glass" mapUrl={lensMapUrl} />
 
       {/* ── Background: Full-Page Live ASCII Koi Fish Pond ── */}
-      <AsciiKoiCanvas />
+      {showKoi && (
+        <Suspense fallback={null}>
+          <AsciiKoiCanvas />
+        </Suspense>
+      )}
 
       {/* Ambient gradient glow in center water */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
 
-      <LiquidGlassCursor />
+      {showCursor && (
+        <Suspense fallback={null}>
+          <LiquidGlassCursor />
+        </Suspense>
+      )}
       <Navbar />
       <ScrollProgress />
       <Grain />
@@ -1087,11 +1107,13 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      {isChatOpen && (
+        <Suspense fallback={null}>
+          <ChatModal isOpen onClose={() => setIsChatOpen(false)} />
+        </Suspense>
+      )}
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Dancing+Script:wght@600&display=swap');
-
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }

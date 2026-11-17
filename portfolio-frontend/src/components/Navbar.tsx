@@ -333,8 +333,6 @@ export default function Navbar() {
       </AnimatePresence>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@1,700&display=swap');
-
         /* ── Smoked Apple Liquid Glass Pill ───────────────────────── */
         .nav-pill {
           --mx: 50%;

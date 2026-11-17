@@ -1,12 +1,13 @@
+import { lazy, Suspense, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
-import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import Navbar from "../components/Navbar";
 import { LiquidGlassCard, LiquidGlassPill, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
 import { PAGE_SEO, setPageMetadata } from "../seo";
+
+const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
+const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -25,8 +26,10 @@ export default function NotFound() {
       className="relative flex min-h-screen flex-col overflow-hidden bg-[#000000] font-sans text-ivory custom-cursor-wrapper"
     >
       <LiquidLensFilter id="not-found-liquid-glass" mapUrl={lensMapUrl} />
-      <LiquidGlassCursor />
-      <AsciiKoiCanvas />
+      <Suspense fallback={null}>
+        <LiquidGlassCursor />
+        <AsciiKoiCanvas />
+      </Suspense>
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
       <Navbar />
 
@@ -83,8 +86,6 @@ export default function NotFound() {
       </footer>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Dancing+Script:wght@600&display=swap');
-
         body { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .font-serif { font-family: 'Playfair Display', serif; }

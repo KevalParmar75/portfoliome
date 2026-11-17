@@ -104,16 +104,16 @@ export const LiquidGlassCard = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let isVisible = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+    }, { rootMargin: "50px" });
+    observer.observe(el);
+
     const unsubscribe = koiManager.subscribe((sourceCanvas: HTMLCanvasElement) => {
+      if (!isVisible) return;
       const rect = el.getBoundingClientRect();
-      if (
-        rect.width === 0 ||
-        rect.height === 0 ||
-        rect.bottom < -50 ||
-        rect.top > window.innerHeight + 50
-      ) {
-        return;
-      }
+      if (rect.width === 0 || rect.height === 0) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const cw = Math.max(1, Math.round(rect.width * dpr * 0.6));
@@ -160,6 +160,7 @@ export const LiquidGlassCard = ({
     });
 
     return () => {
+      observer.disconnect();
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, [zoom]);
