@@ -568,11 +568,11 @@ const SocialLink = ({ link, idx }: { link: Social; idx: number }) => {
       whileHover={{ y: -4, scale: 1.03 }}
       className="liquid-pill-secondary group flex items-center gap-3 px-6 py-3.5 rounded-full transition-all duration-300"
     >
-      <Icon className="text-base text-vermilion group-hover:text-ivory transition-colors duration-300" />
+      <Icon aria-hidden="true" className="text-base text-vermilion group-hover:text-ivory transition-colors duration-300" />
       <span className="font-mono text-xs tracking-[0.2em] uppercase text-ivory-soft group-hover:text-ivory transition-colors duration-300">
         {link.name}
       </span>
-      <FiArrowUpRight className="text-xs text-vermilion group-hover:text-vermilion group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+      <FiArrowUpRight aria-hidden="true" className="text-xs text-vermilion group-hover:text-vermilion group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
     </motion.a>
   );
 };
