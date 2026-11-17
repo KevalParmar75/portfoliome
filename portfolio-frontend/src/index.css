@@ -33,6 +33,24 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Keep mobile glass surfaces visible when a device compositor skips backdrop filters. */
+@media (pointer: coarse) {
+  .liquid-glass-card,
+  .liquid-input,
+  .liquid-dropdown,
+  .liquid-divider-pill,
+  .nav-pill,
+  .mobile-menu,
+  .liquid-pill-btn,
+  .liquid-chat-orb,
+  .liquid-cta,
+  .nav-active-bg,
+  .liquid-icon-box,
+  .liquid-chip {
+    background-color: rgba(242, 239, 230, 0.08);
+  }
+}
+
 /* ── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;

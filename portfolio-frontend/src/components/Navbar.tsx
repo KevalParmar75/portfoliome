@@ -338,7 +338,7 @@ export default function Navbar() {
           --mx: 50%;
           --my: 50%;
           border-radius: 9999px;
-          /* No base background: pure glass over whatever is behind it */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           backdrop-filter: url(#apple-liquid-glass) blur(2.5px) saturate(140%) brightness(0.72);
           -webkit-backdrop-filter: blur(3px) saturate(140%) brightness(0.72);
           border: 1px solid rgba(255, 255, 255, 0.09);
@@ -479,7 +479,7 @@ export default function Navbar() {
         /* ── Mobile Dropdown Menu ─────────────────────────────────── */
         .mobile-menu {
           border-radius: 1.35rem;
-          /* No base background: pure glass over whatever is behind it */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           backdrop-filter: url(#apple-liquid-glass) blur(4px) saturate(140%) brightness(0.7);
           -webkit-backdrop-filter: blur(4px) saturate(140%) brightness(0.7);
           border: 1px solid rgba(255, 255, 255, 0.1);

@@ -536,7 +536,7 @@ export default function Freelance() {
         .liquid-glass-card {
           --mx: 50%;
           --my: 50%;
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           backdrop-filter: url(#panel-liquid-glass) blur(2.5px) saturate(145%) brightness(0.75);
           -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.75);
           border: 1px solid rgba(255, 255, 255, 0.09);
@@ -591,14 +591,14 @@ export default function Freelance() {
 
         /* ── Inner Glass Elements (Icon Boxes & Stack Chips) ─────── */
         .liquid-icon-box {
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow:
             inset 0 1px 0.5px rgba(255, 255, 255, 0.25),
             0 4px 12px rgba(0, 0, 0, 0.35);
         }
         .liquid-chip {
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           border: 1px solid rgba(255, 255, 255, 0.09);
           box-shadow: inset 0 1px 0.5px rgba(255, 255, 255, 0.16);
           text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
@@ -612,7 +612,7 @@ export default function Freelance() {
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .liquid-pill-primary {
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           border: 1px solid rgba(255, 255, 255, 0.14);
           box-shadow:
             inset 0 1px 0.5px rgba(255, 255, 255, 0.28),
@@ -627,7 +627,7 @@ export default function Freelance() {
             0 14px 34px -4px rgba(0, 0, 0, 0.7);
         }
         .liquid-pill-secondary {
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           border: 1px solid rgba(255, 255, 255, 0.11);
           box-shadow:
             inset 0 1px 0.5px rgba(255, 255, 255, 0.22),
@@ -657,7 +657,7 @@ export default function Freelance() {
 
         /* ── Spherical Liquid Glass Chat Orb ───────────────────────── */
         .liquid-chat-orb {
-          /* No base background: pure glass */
+          /* Global glass tint keeps the surface visible if backdrop filtering is skipped. */
           backdrop-filter: url(#cursor-liquid-lens) blur(2px) saturate(145%) brightness(0.78);
           -webkit-backdrop-filter: blur(2.5px) saturate(145%) brightness(0.78);
           border: 1px solid rgba(255, 255, 255, 0.1);
