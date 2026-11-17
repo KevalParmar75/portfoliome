@@ -1224,8 +1224,8 @@ export default function Home() {
         /* ── Liquid Pill Buttons & Skill Chips ────────────────────── */
         /* ── Liquid Glass Pill CTA (Matches Freelance) ────────────── */
         .liquid-pill-btn {
-          backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%);
-          -webkit-backdrop-filter: blur(3px) saturate(145%);
+          backdrop-filter: url(#apple-liquid-glass) blur(2.5px) saturate(145%) brightness(0.76);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.76);
           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -1249,8 +1249,8 @@ export default function Home() {
 
         .liquid-pill-primary {
           /* No base background: pure glass */
-          backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%);
-          -webkit-backdrop-filter: blur(3px) saturate(145%);
+          backdrop-filter: url(#apple-liquid-glass) blur(2.5px) saturate(145%) brightness(0.76);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.76);
           border: 1px solid rgba(255, 255, 255, 0.14);
           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
           box-shadow:
@@ -1270,8 +1270,8 @@ export default function Home() {
 
         .liquid-pill-secondary {
           /* No base background: pure glass */
-          backdrop-filter: url(#home-liquid-glass) blur(2.5px) saturate(145%);
-          -webkit-backdrop-filter: blur(3px) saturate(145%);
+          backdrop-filter: url(#apple-liquid-glass) blur(2.5px) saturate(145%) brightness(0.76);
+          -webkit-backdrop-filter: blur(3px) saturate(145%) brightness(0.76);
           border: 1px solid rgba(255, 255, 255, 0.11);
           text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
           box-shadow:
