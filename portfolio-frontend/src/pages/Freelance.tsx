@@ -242,7 +242,7 @@ export default function Freelance() {
             className="text-4xl sm:text-6xl md:text-7xl font-serif italic tracking-tight text-ivory leading-[1.08] mb-6 drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
           >
             AI features for{" "}
-            <span className="not-italic font-sans font-medium text-ivory">real products,</span>
+            <span className="not-italic font-sans font-medium text-vermilion">real products,</span>
             <br />
             built end to end.
           </motion.h1>
