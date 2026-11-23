@@ -22,6 +22,7 @@ import {
 } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
 import type { About, Experience, Project, Skill, Social } from "../types";
+import freelanceChatContext from "../data/freelanceChatContext";
 import {
   SiPython,
   SiDjango,
@@ -1102,7 +1103,7 @@ export default function Home() {
 
       {isChatOpen && (
         <Suspense fallback={null}>
-          <ChatModal isOpen onClose={() => setIsChatOpen(false)} />
+          <ChatModal isOpen onClose={() => setIsChatOpen(false)} context={freelanceChatContext} />
         </Suspense>
       )}
 

@@ -18,6 +18,7 @@ interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode?: "normal" | "sales";
+  context?: string;
 }
 
 const LENS_ID = "chat-liquid-glass";
@@ -72,6 +73,7 @@ export default function ChatModal({
   isOpen,
   onClose,
   mode = "normal",
+  context,
 }: ChatModalProps) {
   const config = MODES[mode];
   const lensMapUrl = useCardLensMap();
@@ -211,6 +213,7 @@ export default function ChatModal({
         is_suggested: isSuggested,
         history: chatHistory,
         mode: mode,
+        context,
       });
       setMessages((prev) => [...prev, { role: "ai", content: res.data.content }]);
     } catch {
