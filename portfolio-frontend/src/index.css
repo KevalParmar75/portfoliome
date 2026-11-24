@@ -22,6 +22,11 @@
   --color-ivory-faint: #908B77;
   --color-ivory-ghost: #6E6A57;
   --color-vermilion: #E98259;
+
+  --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
@@ -29,9 +34,15 @@ body {
   color: var(--fog);
   margin: 0;
   overflow-x: hidden;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Ensure font utility classes consistently map to design tokens */
+.font-sans { font-family: var(--font-sans); }
+.font-serif { font-family: var(--font-serif); }
+.font-mono { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }
 
 /* ── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
