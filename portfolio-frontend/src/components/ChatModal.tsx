@@ -542,7 +542,7 @@ export default function ChatModal({
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-sans);
           font-size: 0.68rem;
           padding: 0.4rem 0.8rem;
           border-radius: 9999px;
