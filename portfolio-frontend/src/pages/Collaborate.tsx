@@ -554,14 +554,14 @@ export default function Collaborate() {
 
       <style>{`
         * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-serif { font-family: 'Playfair Display', serif; }
+        body { font-family: var(--font-sans); }
+        .font-mono { font-family: var(--font-mono); }
+        .font-serif { font-family: var(--font-serif); }
         .custom-cursor-wrapper * { cursor: none !important; }
 
         /* ── Display titles ────────────────────────────────────────── */
         .display-title {
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-serif);
           font-weight: 500;
           font-style: italic;
           font-size: clamp(2.2rem, 6vw, 4.2rem);
