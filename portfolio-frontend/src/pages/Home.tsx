@@ -1109,7 +1109,7 @@ export default function Home() {
 
       <style>{`
         * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: var(--font-sans); }
 
         @keyframes hero-first-load {
           from { opacity: 0; }
@@ -1120,16 +1120,16 @@ export default function Home() {
           .hero-first-load { animation: none; }
         }
 
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-mono { font-family: var(--font-mono); }
+        .font-serif { font-family: var(--font-serif); }
         .custom-cursor-wrapper * { cursor: none !important; }
 
 
 
         /* ── Hero name ─────────────────────────────────────────────── */
         .hero-name {
-          font-family: 'Inter', sans-serif;
-          font-weight: 500;
+          font-family: var(--font-display);
+          font-weight: 600;
           font-size: clamp(3.4rem, 12vw, 9rem);
           line-height: 1.02;
           letter-spacing: -0.035em;
@@ -1139,7 +1139,7 @@ export default function Home() {
 
         /* ── Display titles ────────────────────────────────────────── */
         .display-title {
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-serif);
           font-weight: 500;
           font-style: italic;
           font-size: clamp(2.2rem, 6vw, 4.2rem);
