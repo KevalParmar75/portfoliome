@@ -86,9 +86,9 @@ export default function NotFound() {
       </footer>
 
       <style>{`
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-serif { font-family: 'Playfair Display', serif; }
+        body { font-family: var(--font-sans); }
+        .font-mono { font-family: var(--font-mono); }
+        .font-serif { font-family: var(--font-serif); }
         .custom-cursor-wrapper * { cursor: none !important; }
 
         .liquid-glass-card {
