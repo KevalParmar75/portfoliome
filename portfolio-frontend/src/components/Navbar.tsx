@@ -391,7 +391,7 @@ export default function Navbar() {
 
         /* ── Brand (signature mark) ────────────────────────────────── */
         .brand-font {
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-serif);
           font-style: italic;
           font-weight: 700;
           line-height: 1.2;
@@ -431,7 +431,7 @@ export default function Navbar() {
           position: relative;
           padding: 0.375rem 0.8rem;
           border-radius: 9999px;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-sans);
           font-size: 0.72rem;
           font-weight: 500;
           letter-spacing: 0.09em;
