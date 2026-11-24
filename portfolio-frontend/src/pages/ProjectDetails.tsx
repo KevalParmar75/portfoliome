@@ -1077,14 +1077,14 @@ export default function ProjectDetails() {
 
       <style>{`
         * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-serif { font-family: 'Playfair Display', serif; }
+        body { font-family: var(--font-sans); }
+        .font-mono { font-family: var(--font-mono); }
+        .font-serif { font-family: var(--font-serif); }
         .custom-cursor-wrapper * { cursor: none !important; }
 
         /* ── Display titles ────────────────────────────────────────── */
         .display-title {
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-serif);
           font-weight: 500;
           font-style: italic;
           font-size: clamp(2.2rem, 6vw, 4.2rem);
@@ -1259,7 +1259,7 @@ export default function ProjectDetails() {
         .selector-tab {
           padding: 0.5rem 1.05rem;
           border-radius: 9999px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: var(--font-mono);
           font-size: 0.68rem;
           text-transform: uppercase;
           white-space: nowrap;
