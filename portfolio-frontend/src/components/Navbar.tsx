@@ -34,12 +34,16 @@ export default function Navbar() {
   const secondTarget = "armar";
 
   // Routes that are not part of the one-page scroll flow highlight a fixed item.
+  // On "/collaborate" (or other non-home pages without an item in NAV_ITEMS), no one-page scroll item should be highlighted.
   const routeSection = location.pathname === "/freelance"
     ? "freelance"
     : location.pathname.startsWith("/projects/")
       ? "projects"
-      : null;
-  const activeSection = routeSection ?? scrollSection;
+      : location.pathname === "/"
+        ? scrollSection
+        : "";
+  const activeSection = routeSection;
+  const isCollaborateActive = location.pathname === "/collaborate";
 
   // Typewriter engine
   useEffect(() => {
@@ -249,7 +253,13 @@ export default function Navbar() {
         <div className="relative z-10 hidden sm:flex items-center pl-4 border-l border-white/12">
           <a
             href="/collaborate"
-            className="liquid-cta px-4 py-1.5 rounded-full text-ivory/95 font-mono text-xs uppercase tracking-wider hover:text-ivory transition-all cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/collaborate");
+            }}
+            className={`liquid-cta px-4 py-1.5 rounded-full text-ivory/95 font-mono text-xs uppercase tracking-wider hover:text-ivory transition-all cursor-pointer ${
+              isCollaborateActive ? "border-[#E98259]/60 shadow-[0_0_12px_rgba(233,130,89,0.35)] text-vermilion" : ""
+            }`}
           >
             Collaborate
           </a>
