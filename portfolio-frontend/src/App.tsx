@@ -14,11 +14,12 @@ const Collaborate = lazy(loadCollaborate);
 const Freelance = lazy(loadFreelance);
 
 export async function preloadRoute(pathname: string): Promise<void> {
-  if (pathname.startsWith("/projects/")) {
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  if (cleanPath.startsWith("/projects/")) {
     await loadProjectDetails();
-  } else if (pathname === "/collaborate") {
+  } else if (cleanPath === "/collaborate") {
     await loadCollaborate();
-  } else if (pathname === "/freelance") {
+  } else if (cleanPath === "/freelance") {
     await loadFreelance();
   }
 }

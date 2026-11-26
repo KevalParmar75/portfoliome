@@ -35,15 +35,16 @@ export default function Navbar() {
 
   // Routes that are not part of the one-page scroll flow highlight a fixed item.
   // On "/collaborate" (or other non-home pages without an item in NAV_ITEMS), no one-page scroll item should be highlighted.
-  const routeSection = location.pathname === "/freelance"
+  const pathname = location.pathname.replace(/\/+$/, "") || "/";
+  const routeSection = pathname === "/freelance"
     ? "freelance"
-    : location.pathname.startsWith("/projects/")
+    : pathname.startsWith("/projects/")
       ? "projects"
-      : location.pathname === "/"
+      : pathname === "/"
         ? scrollSection
         : "";
   const activeSection = routeSection;
-  const isCollaborateActive = location.pathname === "/collaborate";
+  const isCollaborateActive = pathname === "/collaborate";
 
   // Typewriter engine
   useEffect(() => {

@@ -1,6 +1,7 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { renderToString } from "react-dom/server";
 import { StaticRouter, Routes, Route } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Home from "./pages/Home";
 import ProjectDetails from "./pages/ProjectDetails";
 import Collaborate from "./pages/Collaborate";
@@ -25,13 +26,17 @@ export function renderRoute(url: string): { appHtml: string; headHtml: string } 
     <StrictMode>
       <div id="app-content">
         <StaticRouter location={url}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/projects/:slug" element={<ProjectDetails />} />
-            <Route path="/collaborate" element={<Collaborate />} />
-            <Route path="/freelance" element={<Freelance />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen bg-[#000000]" />}>
+            <AnimatePresence mode="wait">
+              <Routes location={url} key={url}>
+                <Route path="/" element={<Home />} />
+                <Route path="/projects/:slug" element={<ProjectDetails />} />
+                <Route path="/collaborate" element={<Collaborate />} />
+                <Route path="/freelance" element={<Freelance />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
         </StaticRouter>
       </div>
     </StrictMode>

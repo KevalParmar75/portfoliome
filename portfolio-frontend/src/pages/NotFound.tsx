@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -12,9 +12,11 @@ const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 export default function NotFound() {
   const navigate = useNavigate();
   const lensMapUrl = useCardLensMap();
+  const [showEffects, setShowEffects] = useState(false);
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.notFound, path: undefined });
+    setShowEffects(true);
   }, []);
 
   return (
@@ -26,10 +28,12 @@ export default function NotFound() {
       className="relative flex min-h-screen flex-col overflow-hidden bg-[#000000] font-sans text-ivory custom-cursor-wrapper"
     >
       <LiquidLensFilter id="not-found-liquid-glass" mapUrl={lensMapUrl} />
-      <Suspense fallback={null}>
-        <LiquidGlassCursor />
-        <AsciiKoiCanvas />
-      </Suspense>
+      {showEffects && (
+        <Suspense fallback={null}>
+          <LiquidGlassCursor />
+          <AsciiKoiCanvas />
+        </Suspense>
+      )}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
       <Navbar />
 
