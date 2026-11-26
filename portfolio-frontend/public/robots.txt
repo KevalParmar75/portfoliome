@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kevalparmar75.vercel.app/sitemap.xml
+Sitemap: https://kevalparmar.me/sitemap.xml

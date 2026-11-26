@@ -1,4 +1,4 @@
-export const SITE_ORIGIN = "https://kevalparmar75.vercel.app";
+export const SITE_ORIGIN = "https://kevalparmar.me";
 export const SOCIAL_IMAGE = `${SITE_ORIGIN}/og-image.png`;
 
 export const PAGE_SEO = {

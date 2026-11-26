@@ -11,7 +11,7 @@
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com/)
 
-[**View Live Website**](https://kevalparmar75.vercel.app/)
+[**View Live Website**](https://kevalparmar.me/)
 
 ---
 
