@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Pre-computed SVG displacement maps for the liquid-glass filters.
@@ -51,9 +51,15 @@ const make = (key: string, build: () => string) => {
   return url;
 };
 
-// Lazy state, not an effect: the map is a pure function of the key, and caching
-// keeps the pixel loop to one run per shape for the whole session.
-const useLensUrl = (key: string, build: () => string) => useState(() => make(key, build))[0];
+// Initial empty string keeps SSR and first client render identical; the canvas
+// runs once after mount and is cached for the rest of the session.
+const useLensUrl = (key: string, build: () => string) => {
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    setUrl(make(key, build));
+  }, [key]);
+  return url;
+};
 
 export const useCardLensMap = () => useLensUrl("card", () => bevel(160, 160, 3.2, 3.2, 112));
 

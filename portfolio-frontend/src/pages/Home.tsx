@@ -22,6 +22,7 @@ import {
 } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
 import type { About, Experience, Project, Skill, Social } from "../types";
+import { portfolioSnapshot } from "../data/portfolioSnapshot";
 import freelanceChatContext from "../data/freelanceChatContext";
 import {
   SiPython,
@@ -660,18 +661,16 @@ export default function Home() {
   const navigate = useNavigate();
   const lensMapUrl = useCardLensMap();
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [experience, setExperience] = useState<Experience[]>([]);
-  const [about, setAbout] = useState<About | null>(null);
-  const [socials, setSocials] = useState<Social[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => portfolioSnapshot.projects);
+  const [skills, setSkills] = useState<Skill[]>(() => portfolioSnapshot.skills);
+  const [experience, setExperience] = useState<Experience[]>(() => portfolioSnapshot.experience);
+  const [about, setAbout] = useState<About | null>(() => portfolioSnapshot.about);
+  const [socials, setSocials] = useState<Social[]>(() => portfolioSnapshot.socials);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showKoi, setShowKoi] = useState(false);
   const [showCursor, setShowCursor] = useState(false);
   const [backendRecommendation, setBackendRecommendation] = useState<string | null>(null);
-  const [dismissSuggestion, setDismissSuggestion] = useState(
-    () => localStorage.getItem("dismissedAI") !== null
-  );
+  const [dismissSuggestion, setDismissSuggestion] = useState(false);
   const timeSpent = useRef<Record<string, number>>({
     about: 0,
     skills: 0,
@@ -685,6 +684,9 @@ export default function Home() {
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
+    if (localStorage.getItem("dismissedAI") !== null) {
+      setDismissSuggestion(true);
+    }
 
     const frame = window.requestAnimationFrame(() => setShowKoi(true));
     setShowCursor(window.matchMedia("(pointer: fine)").matches);

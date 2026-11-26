@@ -1,0 +1,444 @@
+{
+  "projects": [
+    {
+      "id": 8,
+      "images": [],
+      "title": "Optimus AI Assistant",
+      "slug": "optimus-ai-assistant",
+      "short_description": "A modular voice- and text-controlled AI desktop assistant featuring six specialized agents, local intent routing with ModernBERT (Laya), cloud-based LLM generation, persistent vector memory, browser automation, and automatic model failover.",
+      "detailed_description": "Optimus is a modular AI desktop assistant designed to combine intelligent task orchestration with fast, practical system automation. Built with LangGraph, it coordinates six specialized agents for conversational AI, browser automation, code assistance, reminders, memory retrieval, and visual understanding.\r\nIts hybrid architecture uses Laya, a locally running ModernBERT-based intent-routing model, to handle intent classification and route tasks to the appropriate agent, while Groq-hosted LLMs handle open-ended generation. Automatic model failover helps the system recover when the primary LLM is unavailable.\r\nOptimus also integrates persistent semantic memory using ChromaDB, LlamaIndex, and sentence-transformers, with asynchronous memory commits to avoid blocking response execution. Browser automation and desktop integrations enable it to perform tasks beyond ordinary conversational interactions.\r\nThe project includes benchmark tests covering five end-to-end workflows, with measured execution times of approximately 0.7–1.2 seconds per command in a single Windows test run. It also passed five tested failure-recovery scenarios without a process crash, including a simulated LLM outage.\r\nOptimus explores a practical approach to agentic AI by combining local decision-making, cloud-based intelligence, persistent memory, and specialized tool execution in one extensible desktop assistant.",
+      "tech_stack": "Python\r\nLarge Language Models (LLMs)\r\nGroq API\r\nModernBERT\r\nSpeech Recognition\r\nText-to-Speech (TTS)\r\nTkinter / CustomTkinter\r\nLanggraph\r\nPyTorch\r\nChromaDB\r\nLlamaIndex\r\nsentence-transformers\r\nPlaywright\r\nHugging Face",
+      "github_url": "https://github.com/KevalParmar75/Optimus-Assistant",
+      "live_url": null,
+      "created_at": "2026-07-12T12:22:07.063031Z",
+      "views": 36
+    },
+    {
+      "id": 7,
+      "images": [
+        {
+          "id": 20,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_247_puhsxc",
+          "caption": null
+        },
+        {
+          "id": 21,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_248_fxnzbk",
+          "caption": null
+        },
+        {
+          "id": 22,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_249_brkhso",
+          "caption": null
+        },
+        {
+          "id": 23,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_250_xn9nwm",
+          "caption": null
+        },
+        {
+          "id": 24,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_257_xkinkf",
+          "caption": null
+        },
+        {
+          "id": 25,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_258_mbwlj1",
+          "caption": null
+        },
+        {
+          "id": 26,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_259_upbgjx",
+          "caption": null
+        },
+        {
+          "id": 27,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_260_higiwz",
+          "caption": null
+        },
+        {
+          "id": 28,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_263_p2pn2m",
+          "caption": null
+        },
+        {
+          "id": 29,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_253_xioprf",
+          "caption": null
+        },
+        {
+          "id": 30,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_273_qojpbf",
+          "caption": null
+        },
+        {
+          "id": 31,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/Screenshot_238_omnl2h",
+          "caption": null
+        }
+      ],
+      "title": "Adiyogi Wellness",
+      "slug": "adiyogi-wellness",
+      "short_description": "An AI-powered full-stack wellness platform featuring multilingual conversational chat, avatar/audio interaction, weekly AI-generated insights, and hybrid database integration using React and Django.",
+      "detailed_description": "AdiYogi Wellness is an AI-integrated full-stack wellness application designed to provide an intelligent and interactive user experience. Beyond traditional wellness tracking, the platform includes a multilingual AI chat assistant, avatar-based audio interaction, and AI-generated weekly insights to enhance user engagement.\r\n\r\nThe system implements secure authentication (signup/login), user profile management, and persistent conversational storage. It features a hybrid database architecture using SQLite for authentication and MongoDB for storing chat logs, insights, and application data.\r\n\r\nThe frontend is built using React with TypeScript and communicates with a Django REST backend through structured API endpoints. The platform demonstrates real-world full-stack development, AI integration, multilingual processing, voice interaction handling, and modular backend architecture.\r\n\r\nThe repository includes complete setup instructions for running both frontend and backend locally, along with environment-based configuration support.",
+      "tech_stack": "Frontend: React (TypeScript)\r\n\r\nBackend: Python, Django\r\n\r\nDatabase: MongoDB / SQL \r\n\r\nDev Tools: Node.js, Docker (optional)\r\n\r\nAI: Langgraph",
+      "github_url": "https://github.com/KevalParmar75/mp2_major",
+      "live_url": null,
+      "created_at": "2026-02-24T02:58:21.419676Z",
+      "views": 57
+    },
+    {
+      "id": 5,
+      "images": [
+        {
+          "id": 48,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t1_rsaqxj",
+          "caption": null
+        },
+        {
+          "id": 49,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t2_hgpuhc",
+          "caption": null
+        },
+        {
+          "id": 50,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t3_lzvotk",
+          "caption": null
+        },
+        {
+          "id": 51,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t4_tgoaw2",
+          "caption": null
+        },
+        {
+          "id": 52,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t5_yodel6",
+          "caption": null
+        },
+        {
+          "id": 53,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/t6_rmgck2",
+          "caption": null
+        }
+      ],
+      "title": "Talent Tuner",
+      "slug": "talent-tuner",
+      "short_description": "A professional profile enhancement platform that leverages AI (Google’s generative AI / Gemini API) to review and improve resumes, code, and LinkedIn profiles.",
+      "detailed_description": "This repository implements Talent Tuner, a web-based AI tool designed to assist users with professional profile optimization. Using Flask for the backend and integrating generative AI (Gemini API), the platform provides:\r\n\r\nResume Review: Analyzes structure, clarity, and industry best practices\r\n\r\nCode Review: Evaluates code quality, efficiency, and suggestions",
+      "tech_stack": "Python (backend logic)\r\n\r\nFlask (web framework)\r\n\r\nHTML & CSS (frontend templates)\r\n\r\nJavaScript (frontend interaction)\r\n\r\nGenerative AI (Google Gemini API) integration",
+      "github_url": "https://github.com/KevalParmar75/summit-slayer",
+      "live_url": null,
+      "created_at": "2026-02-23T16:08:51.232869Z",
+      "views": 16
+    },
+    {
+      "id": 4,
+      "images": [
+        {
+          "id": 45,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/f1_okzso9",
+          "caption": null
+        },
+        {
+          "id": 46,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/f2_penrmz",
+          "caption": null
+        },
+        {
+          "id": 47,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/f3_rpcgzz",
+          "caption": null
+        }
+      ],
+      "title": "Financial Assistant Bot",
+      "slug": "financial-assistant-bot",
+      "short_description": "A Streamlit-powered financial chatbot that uses LLMs and real-time data tools to answer stock market and finance questions, providing stock prices, company information, trends, and business news.",
+      "detailed_description": "This project builds an interactive financial assistant chatbot application using Streamlit as the frontend interface and large language models (LLMs) for reasoning. It leverages tools like Yahoo Finance for live market data and DuckDuckGoSearchAPIWrapper for web search capabilities. LangGraph and LangChain integrations are used to intelligently decide when to invoke specific tools such as fetching stock prices or searching the web. Users can interact with the bot to get real-time stock quotes (e.g., NASDAQ, S&P 500, NIFTY, SENSEX), business news, market trends, and company details.",
+      "tech_stack": "Python\r\n\r\nStreamlit\r\n\r\nLangChain (langchain-openai, langchain-core, langchain-community)\r\n\r\nLangGraph\r\n\r\nYahoo Finance (yfinance)\r\n\r\nDuckDuckGo Search API (duckduckgo-search)",
+      "github_url": "https://github.com/KevalParmar75/aiagents",
+      "live_url": null,
+      "created_at": "2026-02-23T16:08:07.536780Z",
+      "views": 23
+    },
+    {
+      "id": 3,
+      "images": [],
+      "title": "Flower Image Generator using DCGAN",
+      "slug": "flower-image-generator-using-dcgan",
+      "short_description": "A deep learning project that uses a Deep Convolutional Generative Adversarial Network (DCGAN) to generate synthetic flower images.",
+      "detailed_description": "This project implements a DCGAN using PyTorch to generate realistic flower images. It trains a generative model on the Oxford 102 Flower Dataset (over 8,000 images) to learn floral patterns and produce synthetic images. The model includes a Generator and Discriminator trained iteratively, with added features like CPU-optimization and intermediate image saving.",
+      "tech_stack": "Python\r\n\r\nPyTorch\r\n\r\nNumPy\r\n\r\nPandas\r\n\r\nMatplotlib",
+      "github_url": "https://github.com/KevalParmar75/MLPRO",
+      "live_url": null,
+      "created_at": "2026-02-23T16:07:30.753389Z",
+      "views": 12
+    },
+    {
+      "id": 2,
+      "images": [
+        {
+          "id": 32,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s1_u7u5hn",
+          "caption": null
+        },
+        {
+          "id": 33,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s2_qeyo1d",
+          "caption": null
+        },
+        {
+          "id": 34,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s3_u92csn",
+          "caption": null
+        },
+        {
+          "id": 35,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s4_nl8o0n",
+          "caption": null
+        },
+        {
+          "id": 36,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s5_fpm5pb",
+          "caption": null
+        },
+        {
+          "id": 37,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s6_zysgnt",
+          "caption": null
+        },
+        {
+          "id": 38,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s7_dl5upa",
+          "caption": null
+        },
+        {
+          "id": 39,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s8_ptikgn",
+          "caption": null
+        },
+        {
+          "id": 40,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s9_pmudnn",
+          "caption": null
+        },
+        {
+          "id": 41,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s10_przlko",
+          "caption": null
+        },
+        {
+          "id": 42,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s11_ej7kfm",
+          "caption": null
+        },
+        {
+          "id": 43,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s12_gooppn",
+          "caption": null
+        },
+        {
+          "id": 44,
+          "image": "https://res.cloudinary.com/diqfhcesq/image/upload/v1/media/project_screenshots/s13_p8fsdi",
+          "caption": null
+        }
+      ],
+      "title": "Museum Ticket Booking Assistant",
+      "slug": "museum-ticket-booking-assistant",
+      "short_description": "An AI-powered museum ticket booking system with a multilingual chatbot assistant, built using Django, MongoDB, Streamlit, and LangGraph.",
+      "detailed_description": "This project implements a full-stack ticket booking assistant for museums and events. Users can register/login, browse museums and events stored in a MongoDB database, and book tickets. Bookings generate unique QR-code e-tickets, and a Streamlit-embedded chatbot powered by LangGraph and Azure OpenAI supports English, Hindi, and Gujarati interactions to help users explore events, book tickets, or fetch their bookings. Admins can manage users, events, and availability using Django’s admin panel.",
+      "tech_stack": "Python (backend logic)\r\n\r\nDjango (web framework)\r\n\r\nMongoDB (data for museums & events)\r\n\r\nSQLite (authentication db)\r\n\r\nStreamlit (chatbot interface)\r\n\r\nLangGraph + Azure OpenAI GPT-4o (AI chatbot)\r\n\r\nHTML, CSS, JavaScript (frontend templates)\r\n\r\nQR-code generation (qrcode, Pillow)",
+      "github_url": "https://github.com/KevalParmar75/mp1",
+      "live_url": null,
+      "created_at": "2026-02-23T16:06:57.254457Z",
+      "views": 18
+    }
+  ],
+  "skills": [
+    {
+      "id": 1,
+      "name": "Python",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 2,
+      "name": "Langchain",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 3,
+      "name": "Langgraph",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 4,
+      "name": "Python",
+      "category": "backend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 5,
+      "name": "Django",
+      "category": "backend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 6,
+      "name": "RAG (Retrieval-Augmented Generation)",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 7,
+      "name": "HTML",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 8,
+      "name": "Css",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 9,
+      "name": "React",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 10,
+      "name": "Streamlit",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 11,
+      "name": "Git / GitHub",
+      "category": "tools",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 12,
+      "name": "MongoDB",
+      "category": "backend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 13,
+      "name": "Hugging Face",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 14,
+      "name": "TypeScript",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 15,
+      "name": "TailwindCSS",
+      "category": "frontend",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 16,
+      "name": "Ollama",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    },
+    {
+      "id": 17,
+      "name": "Transformers",
+      "category": "ai",
+      "proficiency": 80,
+      "icon": null
+    }
+  ],
+  "experience": [
+    {
+      "id": 2,
+      "role": "Campus Ambassador",
+      "company": "ITVoice Media",
+      "description": "IT VOICE media platform, where I successfully organized and attended events related to tech...",
+      "start_date": null,
+      "end_date": null,
+      "currently_working": false
+    },
+    {
+      "id": 1,
+      "role": "Python Developer (Summer Intern)",
+      "company": "ELEVATE",
+      "description": "During my internship, I successfully completed three key tasks:\r\n\r\n1. Weather App: Developed a weather application using the OpenWeather API. Users can check real-time weather conditions for any location.\r\n\r\n2. Tic Tac Toe Game: Created an interactive Tic Tac Toe game in Python. It was a fun project that honed my problem-solving skills.\r\n\r\n3. Expense Tracker: Designed an expense tracker application that calculates total expenses. Users can input their spending and get an overview of their financial habits.\r\n\r\nI thoroughly enjoyed contributing to these projects and gained valuable insights into Python development.",
+      "start_date": "2024-07-01",
+      "end_date": "2025-08-01",
+      "currently_working": false
+    },
+    {
+      "id": 3,
+      "role": "Independent AI Developer & Open Source Contributor",
+      "company": "GitHub (Open Source)",
+      "description": "Architect and maintain a portfolio of public repositories focused on the intersection of Artificial Intelligence and modern web development. Engineered end-to-end solutions—ranging from PyTorch-based deep learning models to full-stack Django/React applications powered by LLMs. Focused on demonstrating best practices in system architecture, seamless API integration, and writing clean, production-ready code for the developer community.",
+      "start_date": "2022-11-26",
+      "end_date": null,
+      "currently_working": false
+    }
+  ],
+  "about": {
+    "id": 1,
+    "headline": "Architecting the intersection of Artificial Intelligence and the Modern Web.",
+    "bio": "I don’t just write scripts; I engineer complete, full-stack solutions. By weaving complex agentic workflows and large language models into scalable web applications, I turn heavy backend logic into sleek, intuitive, and highly functional user experiences.\r\n\r\nI don't just build AI products; I build with AI. By deeply integrating autonomous coding agents (like Claude Code, Antigravity, and OpenCode) and advanced models directly into my daily workflow, I dramatically accelerate development cycles. This allows me to architect, iterate, and ship high-quality products much faster than traditional engineering teams.\r\n\r\nAs an independent consultant, I partner with innovative companies to transform ambitious ideas into deployable, high-impact intelligent software.",
+    "years_experience": 1
+  },
+  "socials": [
+    {
+      "id": 1,
+      "name": "Linkedin",
+      "url": "https://www.linkedin.com/in/keval-parmar234/",
+      "icon": null
+    },
+    {
+      "id": 2,
+      "name": "Instagram",
+      "url": "https://www.instagram.com/k.e.v.a.l_/?igsh=cHh1ZzhjdDg2Y2E4",
+      "icon": null
+    },
+    {
+      "id": 3,
+      "name": "Github",
+      "url": "https://github.com/KevalParmar75",
+      "icon": null
+    },
+    {
+      "id": 4,
+      "name": "Twitter/X",
+      "url": "https://x.com/KevalParmar75?t=AvvWpJAM4Ek1sNCp8IRQ0A&s=09",
+      "icon": null
+    },
+    {
+      "id": 5,
+      "name": "Collaborate",
+      "url": "https://kevalparmar75.vercel.app/collaborate",
+      "icon": null
+    }
+  ]
+}

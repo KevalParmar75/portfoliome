@@ -1,11 +1,22 @@
 /** Shapes returned by the portfolio API. */
 
+export interface ProjectImage {
+  id: number;
+  image: string;
+  caption?: string | null;
+}
+
 export interface Project {
   id: number;
   title: string;
   slug: string;
   short_description: string;
+  detailed_description?: string;
+  tech_stack?: string;
+  github_url?: string | null;
+  live_url?: string | null;
   views?: number;
+  images?: ProjectImage[];
 }
 
 export interface Skill {

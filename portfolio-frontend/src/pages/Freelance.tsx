@@ -14,7 +14,12 @@ import {
 } from "../components/LiquidGlass";
 import { TINT_ACCENTS, type GlassTint } from "../components/LiquidGlass.shared";
 import { useCardLensMap } from "../hooks/useLensMap";
-import { PAGE_SEO, PERSON_SCHEMA, setPageMetadata, SITE_ORIGIN } from "../seo";
+import {
+  FREELANCE_FAQS,
+  FREELANCE_SCHEMA,
+  PAGE_SEO,
+  setPageMetadata,
+} from "../seo";
 import {
   FaBrain,
   FaServer,
@@ -148,63 +153,12 @@ export default function Freelance() {
     },
   ];
 
-  const faqs = [
-    {
-      question: "How do you price projects—fixed scope or hourly?",
-      answer:
-        "Most projects are priced per milestone with a fixed scope defined upfront, so you know the exact cost before work begins. For ongoing engineering support, architecture audits, or iterative MVP sprints, I also offer weekly or monthly retainers.",
-    },
-    {
-      question: "Can you build AI features without locking us into expensive OpenAI/Azure bills?",
-      answer:
-        "Yes. Depending on your latency and privacy requirements, I can deploy open-weight models like Qwen 2.5 or Gemma via cost-effective inference providers (Groq, NVIDIA NIM) or self-host quantized models on your own VPS using Ollama and Docker—with automatic cloud fallback if needed.",
-    },
-    {
-      question: "How fast can we go from idea to a working prototype?",
-      answer:
-        "Focused RAG pipelines, custom agents, or automation workflows typically reach a testable prototype within 5 to 10 days. Full-stack AI web applications and MVPs generally take 2 to 4 weeks depending on integrations and UI complexity.",
-    },
-    {
-      question: "Who owns the code, prompts, and infrastructure once it's built?",
-      answer:
-        "You own 100% of the codebase, system prompts, database schemas, and deployment configurations upon completion. Everything is delivered in your Git repository under your own cloud accounts with zero vendor lock-in.",
-    },
-    {
-      question: "We already have a backend/frontend—can you integrate just the AI layer?",
-      answer:
-        "Absolutely. I can build the AI service as an isolated FastAPI or Django microservice with clean REST/streaming endpoints that plug directly into your existing Next.js, React, or mobile frontend.",
-    },
-  ];
+  const faqs = FREELANCE_FAQS;
 
   useEffect(() => {
     setPageMetadata({
       ...PAGE_SEO.freelance,
-      structuredData: {
-        "@context": "https://schema.org",
-        "@graph": [
-          PERSON_SCHEMA,
-          {
-            "@type": "Service",
-            name: "AI Application & Full-Stack Engineering",
-            description:
-              "RAG systems, multi-agent LangGraph workflows, cost-optimized LLM hosting, and full-stack AI web applications.",
-            provider: { "@id": `${SITE_ORIGIN}/#person` },
-            url: `${SITE_ORIGIN}${PAGE_SEO.freelance.path}`,
-            areaServed: ["India", "Europe", "United States", "Worldwide"],
-          },
-          {
-            "@type": "FAQPage",
-            mainEntity: faqs.map((faq) => ({
-              "@type": "Question",
-              name: faq.question,
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: faq.answer,
-              },
-            })),
-          },
-        ],
-      },
+      structuredData: FREELANCE_SCHEMA,
     });
   }, []);
 

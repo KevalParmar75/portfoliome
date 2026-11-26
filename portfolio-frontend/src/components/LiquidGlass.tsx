@@ -41,7 +41,7 @@ export const LiquidLensFilter = ({
           colorInterpolationFilters="sRGB"
         >
           <feImage
-            href={mapUrl}
+            href={mapUrl || undefined}
             result="lensMap"
             preserveAspectRatio="none"
             x="0%"

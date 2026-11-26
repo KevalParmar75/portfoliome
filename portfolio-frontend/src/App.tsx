@@ -5,9 +5,23 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 
 // Home stays eager (it is the landing page); the rest load on navigation.
-const ProjectDetails = lazy(() => import("./pages/ProjectDetails"));
-const Collaborate = lazy(() => import("./pages/Collaborate"));
-const Freelance = lazy(() => import("./pages/Freelance"));
+const loadProjectDetails = () => import("./pages/ProjectDetails");
+const loadCollaborate = () => import("./pages/Collaborate");
+const loadFreelance = () => import("./pages/Freelance");
+
+const ProjectDetails = lazy(loadProjectDetails);
+const Collaborate = lazy(loadCollaborate);
+const Freelance = lazy(loadFreelance);
+
+export async function preloadRoute(pathname: string): Promise<void> {
+  if (pathname.startsWith("/projects/")) {
+    await loadProjectDetails();
+  } else if (pathname === "/collaborate") {
+    await loadCollaborate();
+  } else if (pathname === "/freelance") {
+    await loadFreelance();
+  }
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
