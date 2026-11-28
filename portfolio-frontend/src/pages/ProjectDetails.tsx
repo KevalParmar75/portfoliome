@@ -26,8 +26,6 @@ import {
   portfolioSnapshot,
 } from "../data/portfolioSnapshot";
 import type { Project as BaseProject } from "../types";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { FaBrain, FaTimes, FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import {
   FiRefreshCw,
@@ -43,6 +41,7 @@ import { useCardLensMap } from "../hooks/useLensMap";
 
 const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
+const ProjectExplainModal = lazy(() => import("../components/ProjectExplainModal"));
 
 type Project = BaseProject & {
   detailed_description: string;
@@ -125,9 +124,9 @@ const DescriptionText = ({ text }: { text: string }) => {
       {paragraphs.map((para, pi) => (
         <motion.p
           key={pi}
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 1, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE, delay: 0.15 + pi * 0.08 }}
+          transition={{ duration: 0.55, ease: EASE, delay: pi * 0.06 }}
           className="text-ivory font-light text-base md:text-lg leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]"
         >
           {para}
@@ -148,13 +147,13 @@ const AnimatedTitle = ({ text }: { text: string }) => {
       {words.map((word, wi) => (
         <span
           key={wi}
-          className="inline-block overflow-hidden mr-[0.25em] align-bottom pb-[0.08em] -mb-[0.08em]"
+          className="inline-block mr-[0.25em] align-bottom pb-[0.08em] -mb-[0.08em]"
         >
           <motion.span
             className="inline-block will-change-transform"
-            initial={{ y: "110%", rotate: 4, opacity: 0 }}
+            initial={{ y: 10, rotate: 1.2, opacity: 1 }}
             animate={{ y: 0, rotate: 0, opacity: 1 }}
-            transition={{ duration: 0.9, ease: EASE, delay: 0.1 + wi * 0.08 }}
+            transition={{ duration: 0.65, ease: EASE, delay: wi * 0.055 }}
           >
             {word}
           </motion.span>
@@ -277,7 +276,9 @@ const ImageCarousel = ({
 
           {images.length > 1 && (
             <motion.button
+              type="button"
               onClick={prev}
+              aria-label="Previous screenshot"
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
               className="liquid-icon-box absolute left-3 z-20 p-2.5 rounded-xl text-ivory-soft hover:text-ivory transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -324,7 +325,9 @@ const ImageCarousel = ({
 
           {images.length > 1 && (
             <motion.button
+              type="button"
               onClick={next}
+              aria-label="Next screenshot"
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
               className="liquid-icon-box absolute right-3 z-20 p-2.5 rounded-xl text-ivory-soft hover:text-ivory transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
@@ -338,7 +341,10 @@ const ImageCarousel = ({
               {images.map((_, i) => (
                 <motion.button
                   key={i}
+                  type="button"
                   onClick={() => setIdx(i)}
+                  aria-label={`Show screenshot ${i + 1} of ${images.length}`}
+                  aria-current={i === idx ? "true" : undefined}
                   animate={{
                     width: i === idx ? 20 : 6,
                     backgroundColor:
@@ -501,9 +507,9 @@ const ProjectHero = ({
         <AnimatedTitle text={project.title} />
 
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 1, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+          transition={{ delay: 0.08, duration: 0.5 }}
           className="mt-6 md:mt-8 text-ivory-soft text-sm md:text-lg max-w-2xl font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
         >
           {project.short_description}
@@ -678,6 +684,7 @@ export default function ProjectDetails() {
   const [allProjects, setAllProjects] = useState<BaseProject[]>(() => portfolioSnapshot.projects);
   const [notFound, setNotFound] = useState(false);
   const [showEffects, setShowEffects] = useState(false);
+  const [showCursor, setShowCursor] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [explanationType, setExplanationType] = useState("technical");
   const [complexity, setComplexity] = useState("normal");
@@ -689,6 +696,10 @@ export default function ProjectDetails() {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    setShowCursor(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
@@ -796,7 +807,7 @@ export default function ProjectDetails() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
@@ -807,7 +818,7 @@ export default function ProjectDetails() {
 
       {showEffects && (
         <Suspense fallback={null}>
-          <LiquidGlassCursor />
+          {showCursor && <LiquidGlassCursor />}
           <AsciiKoiCanvas />
         </Suspense>
       )}
@@ -819,22 +830,24 @@ export default function ProjectDetails() {
       <ScrollProgress />
       <Grain />
 
-      {/* ── Parallax hero ──────────────────────────────────────────── */}
-      <ProjectHero project={project} techCount={techLines.length} />
+      {/* ── Main Content (Hero + Architecture + Related) ──────────── */}
+      <main className="relative z-10">
+        {/* ── Parallax hero ──────────────────────────────────────────── */}
+        <ProjectHero project={project} techCount={techLines.length} />
 
-      <LiquidSectionDivider label="01 · ARCHITECTURE & OVERVIEW" />
+        <LiquidSectionDivider label="01 · ARCHITECTURE & OVERVIEW" />
 
-      <main className="relative z-10 pb-12">
-        <div className="px-6 md:px-10 max-w-6xl mx-auto">
-          {/* ── Two-column layout ──────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 md:gap-12 mb-12 items-start">
-            {/* Left: Description Card + Carousel */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="space-y-10"
-            >
+        <div className="pb-12">
+          <div className="px-6 md:px-10 max-w-6xl mx-auto">
+            {/* ── Two-column layout ──────────────────────────────────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 md:gap-12 mb-12 items-start">
+              {/* Left: Description Card + Carousel */}
+              <motion.div
+                initial={{ opacity: 1, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                className="space-y-10"
+              >
               <LiquidGlassCard borderRadius={28} className="p-7 sm:p-10 md:p-12">
                 <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/[0.08]">
                   <span className="w-2 h-2 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
@@ -950,16 +963,17 @@ export default function ProjectDetails() {
               </div>
             </LiquidGlassCard>
           </motion.div>
+          </div>
         </div>
-      </main>
 
-      {/* ── Related Projects ─────────────────────────────────────────────── */}
-      {relatedProjects.length > 0 && (
-        <>
-          <LiquidSectionDivider label="03 · CONTINUE EXPLORING" />
-          <RelatedProjects projects={relatedProjects} />
-        </>
-      )}
+        {/* ── Related Projects ─────────────────────────────────────────────── */}
+        {relatedProjects.length > 0 && (
+          <>
+            <LiquidSectionDivider label="03 · CONTINUE EXPLORING" />
+            <RelatedProjects projects={relatedProjects} />
+          </>
+        )}
+      </main>
 
       {/* ── Recommendation Widget (Liquid Glass Toast) ─────────────────── */}
       <AnimatePresence>
@@ -973,7 +987,9 @@ export default function ProjectDetails() {
           >
             <LiquidGlassCard borderRadius={20} className="p-4 md:p-5">
               <button
+                type="button"
                 onClick={() => setDismissRecommendation(true)}
+                aria-label="Dismiss recommendation"
                 className="absolute top-3 right-3 text-ivory-faint hover:text-ivory transition p-1 z-20 cursor-pointer"
               >
                 <FaTimes size={10} />
@@ -1006,112 +1022,20 @@ export default function ProjectDetails() {
         )}
       </AnimatePresence>
 
-      {/* ── AI Explanation Modal (Refractive Liquid Glass) ─────────────── */}
-      <AnimatePresence>
-        {showExplanation && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-[#000000]/75 backdrop-blur-xl">
-            <motion.div
-              initial={{ opacity: 0, y: 60, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 60, scale: 0.96 }}
-              transition={{ duration: 0.35, ease: EASE }}
-              className="modal-container w-full sm:max-w-4xl sm:max-h-[82vh] max-h-[90vh] flex flex-col"
-            >
-              {/* Modal header */}
-              <div className="flex items-center justify-between px-5 md:px-8 py-4 border-b border-white/[0.09] shrink-0 bg-white/[0.03]">
-                <div className="flex items-center gap-3.5">
-                  <div className="liquid-icon-box w-8 h-8 rounded-lg flex items-center justify-center">
-                    <FaBrain className="text-vermilion text-xs" />
-                  </div>
-                  <div>
-                    <p className="font-mono text-[9px] text-vermilion tracking-[0.3em] uppercase mb-0.5">
-                      ai.explanation
-                    </p>
-                    <p className="text-sm font-medium text-ivory font-serif italic">
-                      {project.title}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    onClick={handleExplain}
-                    disabled={loading}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="liquid-pill-secondary flex items-center gap-2 font-mono text-[10px] px-3.5 py-1.5 rounded-full text-ivory-soft hover:text-ivory transition disabled:opacity-40 tracking-widest uppercase cursor-pointer"
-                  >
-                    <FiRefreshCw className={`text-[10px] text-vermilion ${loading ? "animate-spin" : ""}`} />
-                    <span className="hidden sm:inline">regenerate</span>
-                  </motion.button>
-
-                  <motion.button
-                    onClick={() => setShowExplanation(false)}
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="text-ivory-dim hover:text-ivory transition p-1 cursor-pointer"
-                  >
-                    <FiX size={18} />
-                  </motion.button>
-                </div>
-              </div>
-
-              {/* Modal body */}
-              <div className="p-6 md:p-10 overflow-y-auto flex-1 ai-scroll">
-                <AnimatePresence mode="wait">
-                  {loading ? (
-                    <motion.div
-                      key="skel"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col gap-4 animate-pulse max-w-3xl"
-                    >
-                      <div className="h-5 bg-white/[0.06] rounded w-3/4" />
-                      <div className="h-4 bg-white/[0.06] rounded w-full" />
-                      <div className="h-4 bg-white/[0.06] rounded w-5/6" />
-                      <div className="h-4 bg-white/[0.06] rounded w-4/5" />
-                      <div className="h-4 bg-white/[0.06] rounded w-full" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="content"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.35 }}
-                      className="markdown-body text-ivory leading-relaxed text-sm md:text-base max-w-3xl space-y-4"
-                    >
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          a: ({ node: _node, ...props }) => (
-                            <a
-                              {...props}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-vermilion hover:text-ivory underline font-semibold transition-colors"
-                            />
-                          ),
-                        }}
-                      >
-                        {typedText}
-                      </ReactMarkdown>
-                      {typedText.length < explanation.length && (
-                        <motion.span
-                          animate={{ opacity: [1, 0] }}
-                          transition={{ duration: 0.5, repeat: Infinity }}
-                          className="inline-block w-[2px] h-[1em] ml-1 bg-vermilion align-middle"
-                        />
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ── AI Explanation Modal (Lazy-loaded on open) ─────────────────── */}
+      {showExplanation && (
+        <Suspense fallback={null}>
+          <ProjectExplainModal
+            isOpen={showExplanation}
+            projectTitle={project.title}
+            loading={loading}
+            explanation={explanation}
+            typedText={typedText}
+            onRegenerate={handleExplain}
+            onClose={() => setShowExplanation(false)}
+          />
+        </Suspense>
+      )}
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="relative z-10 py-8 text-center bg-[#000000]/60 backdrop-blur-md border-t border-white/[0.06]">
@@ -1356,7 +1280,7 @@ export default function ProjectDetails() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(242, 239, 230, 0.45);
+          color: rgba(242, 239, 230, 0.56);
           text-shadow: 0 0 10px rgba(242, 239, 230, 0.15);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;

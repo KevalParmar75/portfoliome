@@ -86,13 +86,13 @@ const CollabHero = () => {
           {TITLE_WORDS.map(({ word, accent }, i) => (
             <span
               key={i}
-              className="inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em] mr-[0.28em] last:mr-0"
+              className="inline-block align-bottom pb-[0.08em] -mb-[0.08em] mr-[0.28em] last:mr-0"
             >
               <motion.span
                 className={`inline-block will-change-transform ${accent ? "text-vermilion" : ""}`}
-                initial={{ y: "110%", rotate: 4, opacity: 0 }}
+                initial={{ y: 10, rotate: 1.2, opacity: 1 }}
                 animate={{ y: 0, rotate: 0, opacity: 1 }}
-                transition={{ duration: 0.9, ease: EASE, delay: 0.25 + i * 0.09 }}
+                transition={{ duration: 0.65, ease: EASE, delay: i * 0.055 }}
               >
                 {word}
               </motion.span>
@@ -101,9 +101,9 @@ const CollabHero = () => {
         </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 1, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: EASE, delay: 0.7 }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.08 }}
           className="text-ivory-muted text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]"
         >
           Share your timeline, goals, or technical stack for freelance projects, consulting, or
@@ -118,11 +118,16 @@ export default function Collaborate() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle, submitting, success
   const [showEffects, setShowEffects] = useState(false);
+  const [showCursor, setShowCursor] = useState(false);
   const lensMapUrl = useCardLensMap();
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.collaborate, structuredData: COLLABORATE_SCHEMA });
     const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    setShowCursor(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
@@ -208,7 +213,7 @@ export default function Collaborate() {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
@@ -221,7 +226,7 @@ export default function Collaborate() {
       {showEffects && (
         <Suspense fallback={null}>
           <AsciiKoiCanvas />
-          <LiquidGlassCursor />
+          {showCursor && <LiquidGlassCursor />}
         </Suspense>
       )}
 
@@ -232,12 +237,12 @@ export default function Collaborate() {
       <ScrollProgress />
       <Grain />
 
-      {/* ── Parallax hero ──────────────────────────────────────────── */}
-      <CollabHero />
+      {/* ── Main Content (Hero + Inquiry Grid) ── */}
+      <main className="relative z-10">
+        <CollabHero />
 
-      {/* ── Main Content (Transparent so Koi refract through cards) ── */}
-      <main className="relative z-10 pb-24 pt-4 md:pt-8">
-        <section className="relative flex flex-col items-center justify-start px-6 md:px-10 max-w-6xl mx-auto">
+        <div className="pb-24 pt-4 md:pt-8">
+          <section className="relative flex flex-col items-center justify-start px-6 md:px-10 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 w-full">
             {/* Left Column: Inquiry Notes & AI Closer */}
             <div className="lg:col-span-6 xl:col-span-7 space-y-12">
@@ -550,7 +555,8 @@ export default function Collaborate() {
               </LiquidGlassCard>
             </motion.div>
           </div>
-        </section>
+          </section>
+        </div>
       </main>
 
       {/* ── Floating Spherical Liquid Glass Chat Orb ── */}
@@ -756,7 +762,7 @@ export default function Collaborate() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.45);
+          color: rgba(242, 239, 230, 0.56);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }

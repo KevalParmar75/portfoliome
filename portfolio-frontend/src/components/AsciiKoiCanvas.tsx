@@ -292,9 +292,13 @@ export default function AsciiKoiCanvas({
 
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const coarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
-    const motion = reduceMotion ? 0.35 : 1;
+    const motion = reduceMotion ? 0 : 1;
     const frameInterval = coarsePointer ? 33 : 0;
     let lastDraw = 0;
+    const minnowAlpha = clamp01(0.65 * brightness);
+    const minnowStyles = PALETTE_DEFS.map(
+      ({ rgb }) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${minnowAlpha})`
+    );
 
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -412,21 +416,20 @@ export default function AsciiKoiCanvas({
         if (idx === j) continue;
         const other = koi[j];
 
-        // Check against other fish's head and mid-body
+        // Check against other fish's head and mid-body (avoid per-frame array/object allocations)
         const midIdx = Math.min(TRAIL_LEN - 1, 25);
-        const targets = [
-          { x: other.x, y: other.y, weight: 1.0 },
-          { x: other.trailX[midIdx], y: other.trailY[midIdx], weight: 0.8 },
-        ];
+        const safeDist = bodyPx * 0.95;
 
-        for (const pt of targets) {
-          const dx = fish.x - pt.x;
-          const dy = fish.y - pt.y;
+        for (let k = 0; k < 2; k++) {
+          const px = k === 0 ? other.x : other.trailX[midIdx];
+          const py = k === 0 ? other.y : other.trailY[midIdx];
+          const weight = k === 0 ? 1.0 : 0.8;
+          const dx = fish.x - px;
+          const dy = fish.y - py;
           const dist = Math.hypot(dx, dy);
-          const safeDist = bodyPx * 0.95;
 
           if (dist < safeDist && dist > 0.001) {
-            const urgency = Math.pow(1 - dist / safeDist, 1.4) * pt.weight;
+            const urgency = Math.pow(1 - dist / safeDist, 1.4) * weight;
             // Steer smoothly perpendicular/away from the obstacle
             const awayAngle = Math.atan2(dy, dx);
             const diff = wrapAngle(awayAngle - fish.heading);
@@ -586,7 +589,7 @@ export default function AsciiKoiCanvas({
           const s1 = Math.min(SAMPLES - 1, bestS + 1);
           const tx = fish.sx[s1] - fish.sx[s0];
           const ty = fish.sy[s1] - fish.sy[s0];
-          const tLen = Math.hypot(tx, ty) || 1;
+          const tLen = Math.sqrt(tx * tx + ty * ty) || 1;
           const ux = tx / tLen;
           const uy = ty / tLen;
 
@@ -816,8 +819,7 @@ export default function AsciiKoiCanvas({
           m.x += m.vx * mdt;
           m.y += m.vy * mdt;
 
-          const rgb = PALETTE_DEFS[m.colorIdx].rgb;
-          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${clamp01(0.65 * brightness)})`;
+          ctx.fillStyle = minnowStyles[m.colorIdx];
 
           const a = (((Math.atan2(m.vy, m.vx) % Math.PI) + Math.PI) % Math.PI) / Math.PI;
           const glyph = a < 0.125 || a > 0.875 ? "-" : a < 0.375 ? "\\" : a < 0.625 ? "|" : "/";
@@ -829,7 +831,7 @@ export default function AsciiKoiCanvas({
         }
       }
 
-      if (texCtx) {
+      if (texCtx && koiManager.hasListeners()) {
         texCtx.clearRect(0, 0, texCanvas.width, texCanvas.height);
         texCtx.drawImage(canvas, 0, 0, texCanvas.width, texCanvas.height);
         koiManager.broadcast(texCanvas);
@@ -841,7 +843,21 @@ export default function AsciiKoiCanvas({
         canvas.style.opacity = "1";
       }
 
-      animationFrame = requestAnimationFrame(animate);
+      if (!reduceMotion && !document.hidden) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+        }
+      } else if (!reduceMotion && !animationFrame) {
+        lastTime = performance.now();
+        animationFrame = requestAnimationFrame(animate);
+      }
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -857,13 +873,17 @@ export default function AsciiKoiCanvas({
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onPointerLeave);
-    animationFrame = requestAnimationFrame(animate);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    if (!document.hidden) {
+      animationFrame = requestAnimationFrame(animate);
+    }
 
     return () => {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [brightness]);
 

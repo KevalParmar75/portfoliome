@@ -11,15 +11,21 @@ const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 export default function NotFound() {
   const lensMapUrl = useCardLensMap();
   const [showEffects, setShowEffects] = useState(false);
+  const [showCursor, setShowCursor] = useState(false);
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.notFound, path: undefined });
-    setShowEffects(true);
+    const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    setShowCursor(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
@@ -28,7 +34,7 @@ export default function NotFound() {
       <LiquidLensFilter id="not-found-liquid-glass" mapUrl={lensMapUrl} />
       {showEffects && (
         <Suspense fallback={null}>
-          <LiquidGlassCursor />
+          {showCursor && <LiquidGlassCursor />}
           <AsciiKoiCanvas />
         </Suspense>
       )}
@@ -37,9 +43,9 @@ export default function NotFound() {
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-5 pb-12 pt-32 sm:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 1, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-2xl"
         >
           <LiquidGlassCard
@@ -147,7 +153,7 @@ export default function NotFound() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.45);
+          color: rgba(242, 239, 230, 0.56);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }

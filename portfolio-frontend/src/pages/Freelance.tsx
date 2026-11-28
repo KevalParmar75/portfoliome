@@ -41,6 +41,7 @@ export default function Freelance() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [showEffects, setShowEffects] = useState(false);
+  const [showCursor, setShowCursor] = useState(false);
   const lensMapUrl = useCardLensMap();
 
   const services = [
@@ -178,6 +179,10 @@ export default function Freelance() {
       structuredData: FREELANCE_SCHEMA,
     });
     const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    setShowCursor(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
@@ -195,7 +200,7 @@ export default function Freelance() {
       {/* ── Custom Liquid Glass Cursor & Live ASCII Koi Pond ── */}
       {showEffects && (
         <Suspense fallback={null}>
-          <LiquidGlassCursor />
+          {showCursor && <LiquidGlassCursor />}
           <AsciiKoiCanvas />
         </Suspense>
       )}
@@ -211,9 +216,9 @@ export default function Freelance() {
         {/* ── Hero Section ── */}
         <section className="text-center max-w-4xl mx-auto mb-20 md:mb-28">
           <motion.h1
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 1, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+            transition={{ duration: 0.6, ease: EASE }}
             className="text-4xl sm:text-6xl md:text-7xl font-serif italic tracking-tight text-ivory leading-[1.08] mb-6 drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
           >
             Freelance{" "}
@@ -225,9 +230,9 @@ export default function Freelance() {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.08 }}
             className="text-base sm:text-lg md:text-xl text-ivory-muted max-w-2xl mx-auto font-light leading-relaxed mb-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]"
           >
             I'm Keval, an AI application engineer and full-stack developer. I build grounded RAG
@@ -756,7 +761,7 @@ export default function Freelance() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.45);
+          color: rgba(242, 239, 230, 0.56);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }

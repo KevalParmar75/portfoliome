@@ -720,7 +720,10 @@ export default function Home() {
     }
 
     const frame = window.requestAnimationFrame(() => setShowKoi(true));
-    setShowCursor(window.matchMedia("(pointer: fine)").matches);
+    setShowCursor(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
 
     const hydrateLiveBackend = () => {
       api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
@@ -871,7 +874,9 @@ export default function Home() {
           >
             <LiquidGlassCard borderRadius={20} className="p-4 md:p-5">
               <button
+                type="button"
                 onClick={handleDismiss}
+                aria-label="Dismiss recommendation"
                 className="absolute top-3 right-3 text-ivory-faint hover:text-ivory transition p-1 z-20 cursor-pointer"
               >
                 <FaTimes size={10} />
@@ -911,11 +916,13 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* ── HERO ──────────────────────────────────────────────────────── */}
-      <Hero onChat={() => setIsChatOpen(true)} projectCount={projects.length} />
+      {/* ── MAIN CONTENT: Hero + Sections (Footer stays outside <main>) ── */}
+      <main className="relative z-10">
+        {/* ── HERO ──────────────────────────────────────────────────────── */}
+        <Hero onChat={() => setIsChatOpen(true)} projectCount={projects.length} />
 
-      {/* ── MAIN FLOW: Transparent Container so Koi Swim Everywhere ───── */}
-      <div className="relative z-10">
+        {/* ── MAIN FLOW: Transparent Container so Koi Swim Everywhere ───── */}
+        <div>
         {/* Stats Strip inside a Refractive Liquid Glass Bar */}
         <div className="max-w-6xl mx-auto px-6 md:px-10 mb-12 md:mb-20">
           <LiquidGlassCard borderRadius={28} zoom={0.9}>
@@ -1068,8 +1075,11 @@ export default function Home() {
           </LiquidGlassCard>
         </section>
 
-        {/* ── FOOTER ────────────────────────────────────────────────── */}
-        <footer className="relative z-10 py-8 text-center border-t border-white/[0.06] bg-[#000000]/60 backdrop-blur-md">
+        </div>
+      </main>
+
+      {/* ── FOOTER ────────────────────────────────────────────────── */}
+      <footer className="relative z-10 py-8 text-center border-t border-white/[0.06] bg-[#000000]/60 backdrop-blur-md">
           <p className="font-mono text-ivory-faint text-xs tracking-[0.2em] flex items-center justify-center gap-3">
             <span>© 2026 KEVAL_PARMAR</span>
             <span className="w-1 h-1 rounded-full bg-white/10" />
@@ -1079,7 +1089,6 @@ export default function Home() {
             "to automate and overwrite..."
           </span>
         </footer>
-      </div>
 
       {/* ── Floating Spherical Liquid Glass Chat Orb ───────────────────── */}
       <AnimatePresence>
@@ -1108,10 +1117,10 @@ export default function Home() {
         body { font-family: var(--font-sans); }
 
         @keyframes hero-first-load {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from { transform: translateY(8px); }
+          to { transform: translateY(0); }
         }
-        .hero-first-load { animation: hero-first-load 650ms ease-out both; }
+        .hero-first-load { animation: hero-first-load 650ms cubic-bezier(0.22, 1, 0.36, 1) both; }
         @media (prefers-reduced-motion: reduce) {
           .hero-first-load { animation: none; }
         }
@@ -1364,7 +1373,7 @@ export default function Home() {
           font-family: 'Dancing Script', cursive;
           letter-spacing: 0.08em;
           font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.45);
+          color: rgba(242, 239, 230, 0.56);
           cursor: crosshair;
           transition: all 0.4s ease-in-out;
         }

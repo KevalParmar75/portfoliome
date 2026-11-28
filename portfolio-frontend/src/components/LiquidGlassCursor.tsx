@@ -2,14 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
 import { koiManager } from "./KoiCanvasContext";
 import { LiquidLensFilter } from "./LiquidGlass";
-import { useSphereLensMap } from "../hooks/useLensMap";
+import sphereLensUrl from "../assets/lens-sphere.png";
 
 /* ─────────────────────────────────────────────────────────────────
  * Pre-computed Spherical Droplet Lens Map (Radial Snell's Law Curve)
  * ───────────────────────────────────────────────────────────────── */
 
 export default function LiquidGlassCursor() {
-  const lensMapUrl = useSphereLensMap();
+  const lensMapUrl = sphereLensUrl;
   const refractCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const mouseX = useMotionValue(-200);
@@ -26,8 +26,13 @@ export default function LiquidGlassCursor() {
   const currentSize = isPressed ? 42 : isHovered ? 64 : BASE_SIZE;
 
   useEffect(() => {
-    // Disable on touch-only devices so it doesn't float stuck on mobile taps
-    if (window.matchMedia?.("(pointer: coarse)").matches) return;
+    // Disable on touch devices and when user prefers reduced motion
+    if (
+      window.matchMedia?.("(pointer: coarse)").matches ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
 
     const move = (e: MouseEvent) => {
       mouseX.set(e.clientX);
@@ -61,6 +66,7 @@ export default function LiquidGlassCursor() {
 
   // Live Koi Pond Spherical Lens Magnification inside the Cursor Droplet
   useEffect(() => {
+    if (!visible) return;
     const canvas = refractCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -115,7 +121,7 @@ export default function LiquidGlassCursor() {
     return () => {
       if (typeof unsubscribe === "function") unsubscribe();
     };
-  }, [smoothX, smoothY, currentSize]);
+  }, [visible, smoothX, smoothY, currentSize]);
 
   return (
     <>

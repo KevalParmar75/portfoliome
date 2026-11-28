@@ -68,8 +68,22 @@ export default function Navbar() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const startTime = performance.now();
+    let cachedRect: DOMRect | null = null;
+    let rectDirty = true;
+    const markDirty = () => {
+      rectDirty = true;
+    };
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(markDirty) : null;
+    ro?.observe(pill);
+    window.addEventListener("resize", markDirty, { passive: true });
+
     const unsubscribe = koiManager.subscribe((sourceCanvas: HTMLCanvasElement) => {
-      const rect = pill.getBoundingClientRect();
+      if (rectDirty || !cachedRect || performance.now() - startTime < 750) {
+        cachedRect = pill.getBoundingClientRect();
+        rectDirty = false;
+      }
+      const rect = cachedRect;
       if (rect.width === 0 || rect.height === 0) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -111,6 +125,8 @@ export default function Navbar() {
     });
 
     return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", markDirty);
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, []);

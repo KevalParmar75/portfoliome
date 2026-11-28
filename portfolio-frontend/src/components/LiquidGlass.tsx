@@ -20,6 +20,42 @@ const PRESETS = {
   cursor: { region: 15, scale: 18, blur: 1.4, saturation: 1.35, slope: 0.82 },
 } as const;
 
+function trackElementRect(el: HTMLElement, trackScroll = true, alwaysLiveMs = 1000) {
+  const startTime = performance.now();
+  let cachedRect: DOMRect | null = null;
+  let dirty = true;
+  const markDirty = () => {
+    dirty = true;
+  };
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(markDirty) : null;
+  ro?.observe(el);
+  if (trackScroll) {
+    window.addEventListener("scroll", markDirty, { passive: true });
+  }
+  window.addEventListener("resize", markDirty, { passive: true });
+  el.addEventListener("mouseenter", markDirty, { passive: true });
+  el.addEventListener("transitionend", markDirty, { passive: true });
+
+  return {
+    getRect(): DOMRect {
+      if (dirty || !cachedRect || performance.now() - startTime < alwaysLiveMs) {
+        cachedRect = el.getBoundingClientRect();
+        dirty = false;
+      }
+      return cachedRect;
+    },
+    cleanup() {
+      ro?.disconnect();
+      if (trackScroll) {
+        window.removeEventListener("scroll", markDirty);
+      }
+      window.removeEventListener("resize", markDirty);
+      el.removeEventListener("mouseenter", markDirty);
+      el.removeEventListener("transitionend", markDirty);
+    },
+  };
+}
+
 export const LiquidLensFilter = ({
   id,
   mapUrl,
@@ -106,14 +142,18 @@ export const LiquidGlassCard = ({
     if (!ctx) return;
 
     let isVisible = false;
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
-    }, { rootMargin: "50px" });
+    const rectTracker = trackElementRect(el, true, 1000);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { rootMargin: "50px" }
+    );
     observer.observe(el);
 
     const unsubscribe = koiManager.subscribe((sourceCanvas: HTMLCanvasElement) => {
       if (!isVisible) return;
-      const rect = el.getBoundingClientRect();
+      const rect = rectTracker.getRect();
       if (rect.width === 0 || rect.height === 0) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -162,6 +202,7 @@ export const LiquidGlassCard = ({
 
     return () => {
       observer.disconnect();
+      rectTracker.cleanup();
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, [zoom]);
@@ -245,8 +286,19 @@ export const LiquidGlassPill = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    let isVisible = false;
+    const rectTracker = trackElementRect(btn, true, 1000);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { rootMargin: "50px" }
+    );
+    observer.observe(btn);
+
     const unsubscribe = koiManager.subscribe((sourceCanvas: HTMLCanvasElement) => {
-      const rect = btn.getBoundingClientRect();
+      if (!isVisible) return;
+      const rect = rectTracker.getRect();
       if (rect.width === 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -273,6 +325,8 @@ export const LiquidGlassPill = ({
     });
 
     return () => {
+      observer.disconnect();
+      rectTracker.cleanup();
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, []);
@@ -342,8 +396,9 @@ export const LiquidChatOrb = ({ onClick }: { onClick: () => void }) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const rectTracker = trackElementRect(btn, false, 700);
     const unsubscribe = koiManager.subscribe((sourceCanvas: HTMLCanvasElement) => {
-      const rect = btn.getBoundingClientRect();
+      const rect = rectTracker.getRect();
       if (rect.width === 0) return;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -387,6 +442,7 @@ export const LiquidChatOrb = ({ onClick }: { onClick: () => void }) => {
     });
 
     return () => {
+      rectTracker.cleanup();
       if (typeof unsubscribe === "function") unsubscribe();
     };
   }, []);

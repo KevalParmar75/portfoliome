@@ -17,8 +17,15 @@ class KoiCanvasManager {
     return this.canvas;
   }
 
+  hasListeners(): boolean {
+    return this.listeners.size > 0;
+  }
+
   subscribe(listener: FrameListener): () => void {
     this.listeners.add(listener);
+    if (this.canvas) {
+      listener(this.canvas);
+    }
     return () => {
       this.listeners.delete(listener);
     };
@@ -33,4 +40,3 @@ class KoiCanvasManager {
 }
 
 export const koiManager = new KoiCanvasManager();
-
