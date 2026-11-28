@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { IconType } from "react-icons";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
-import { HOME_SCHEMA, PAGE_SEO, setPageMetadata } from "../seo";
+import { getProjectHomeTeaser, HOME_SCHEMA, PAGE_SEO, setPageMetadata } from "../seo";
 import {
   LiquidChatOrb,
   LiquidGlassCard,
@@ -503,6 +503,7 @@ const ExperienceTimeline = ({ experience }: { experience: Experience[] }) => {
 
 /* ── Editorial project row inside Liquid Glass Card ─────────────────────────── */
 const ProjectRow = ({ project, idx }: { project: Project; idx: number }) => {
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.25 });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -515,11 +516,11 @@ const ProjectRow = ({ project, idx }: { project: Project; idx: number }) => {
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.75, ease: EASE, delay: (idx % 2) * 0.08 }}
     >
-      <Link to={`/projects/${project.slug}`} className="block">
       <LiquidGlassCard
         borderRadius={26}
         zoom={0.88}
-        className="group transition-transform duration-500 hover:-translate-y-1"
+        onClick={() => navigate(`/projects/${project.slug}`)}
+        className="group cursor-pointer transition-transform duration-500 hover:-translate-y-1"
       >
         {/* Parallax ghost number */}
         <motion.span
@@ -536,10 +537,16 @@ const ProjectRow = ({ project, idx }: { project: Project; idx: number }) => {
 
           <div className="min-w-0">
             <h3 className="font-serif italic text-2xl md:text-4xl lg:text-5xl text-ivory leading-tight mb-2 md:mb-3 transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]">
-              {project.title}
+              <Link
+                to={`/projects/${project.slug}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:text-ivory focus:outline-none"
+              >
+                {project.title}
+              </Link>
             </h3>
             <p className="text-sm md:text-base text-ivory-soft leading-relaxed max-w-xl font-light transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-              {project.short_description}
+              {getProjectHomeTeaser(project)}
             </p>
           </div>
 
@@ -548,7 +555,6 @@ const ProjectRow = ({ project, idx }: { project: Project; idx: number }) => {
           </div>
         </div>
       </LiquidGlassCard>
-      </Link>
     </motion.div>
   );
 };
@@ -558,6 +564,32 @@ const SocialLink = ({ link, idx }: { link: Social; idx: number }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.4 });
   const Icon = socialIconMap[link.name.toLowerCase()] || FaGlobe;
+  const isCollaborateInternal =
+    link.name.toLowerCase() === "collaborate" || link.url.includes("/collaborate");
+
+  if (isCollaborateInternal) {
+    return (
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, y: 24 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.55, ease: EASE, delay: idx * 0.07 }}
+        whileHover={{ y: -4, scale: 1.03 }}
+      >
+        <Link
+          to="/collaborate"
+          className="liquid-pill-secondary group flex items-center gap-3 px-6 py-3.5 rounded-full transition-all duration-300"
+        >
+          <Icon aria-hidden="true" className="text-base text-vermilion group-hover:text-ivory transition-colors duration-300" />
+          <span className="font-mono text-xs tracking-[0.2em] uppercase text-ivory-soft group-hover:text-ivory transition-colors duration-300">
+            Start a project inquiry
+          </span>
+          <FiArrowUpRight aria-hidden="true" className="text-xs text-vermilion group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+        </Link>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.a
       ref={ref}
@@ -618,8 +650,8 @@ const Hero = ({ onChat, projectCount }: { onChat: () => void; projectCount: numb
         <p
           className="mt-7 md:mt-9 max-w-xl text-sm md:text-lg leading-relaxed text-ivory-soft font-light drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
         >
-          I help founders and businesses integrate scalable AI, automate complex workflows, and
-          build intelligent agents that deliver real-world ROI.
+          AI application engineer building full-stack software with Python, LangGraph, Django,
+          and React.
         </p>
       </motion.div>
 
@@ -680,7 +712,6 @@ export default function Home() {
   });
   const [currentView, setCurrentView] = useState("hero");
   const [hasSpentEnoughTime, setHasSpentEnoughTime] = useState(false);
-  const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   useEffect(() => {
     setPageMetadata({ ...PAGE_SEO.home, structuredData: HOME_SCHEMA });
@@ -691,19 +722,49 @@ export default function Home() {
     const frame = window.requestAnimationFrame(() => setShowKoi(true));
     setShowCursor(window.matchMedia("(pointer: fine)").matches);
 
-    api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
-    api.get<Skill[]>("skills/").then((res) => setSkills(res.data)).catch(() => {});
-    api.get<Experience[]>("experience/").then((res) => setExperience(res.data)).catch(() => {});
-    api.get<About>("about/").then((res) => setAbout(res.data)).catch(() => {});
-    api.get<Social[]>("socials/").then((res) => setSocials(res.data)).catch(() => {});
+    const hydrateLiveBackend = () => {
+      api.get<Project[]>("projects/").then((res) => setProjects(res.data)).catch(() => {});
+      api.get<Skill[]>("skills/").then((res) => setSkills(res.data)).catch(() => {});
+      api.get<Experience[]>("experience/").then((res) => setExperience(res.data)).catch(() => {});
+      api.get<About>("about/").then((res) => setAbout(res.data)).catch(() => {});
+      api
+        .get<Social[]>("socials/")
+        .then((res) =>
+          setSocials(
+            res.data.map((item) =>
+              item.url.includes("kevalparmar75.vercel.app")
+                ? { ...item, url: item.url.replace("https://kevalparmar75.vercel.app", "https://kevalparmar.me") }
+                : item
+            )
+          )
+        )
+        .catch(() => {});
 
-    api
-      .get<{ data?: { section: string }[] }>("ranking/")
-      .then((res) => {
-        if (res.data?.data?.length) setBackendRecommendation(res.data.data[0].section);
-      })
-      .catch(() => { });
-    return () => window.cancelAnimationFrame(frame);
+      api
+        .get<{ data?: { section: string }[] }>("ranking/")
+        .then((res) => {
+          if (res.data?.data?.length) setBackendRecommendation(res.data.data[0].section);
+        })
+        .catch(() => {});
+    };
+
+    const idleWin = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let idleId: number | undefined;
+    let timerId: number | undefined;
+    if (idleWin.requestIdleCallback) {
+      idleId = idleWin.requestIdleCallback(hydrateLiveBackend, { timeout: 1500 });
+    } else {
+      timerId = window.setTimeout(hydrateLiveBackend, 150);
+    }
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      if (idleId !== undefined && idleWin.cancelIdleCallback) idleWin.cancelIdleCallback(idleId);
+      if (timerId !== undefined) window.clearTimeout(timerId);
+    };
   }, []);
 
   useEffect(() => {
@@ -938,109 +999,42 @@ export default function Home() {
           quote="Code is a creative medium — the terminal is just where it starts."
         />
 
-        <LiquidSectionDivider label="05 // ADVISORY FAQ" />
+        <LiquidSectionDivider label="05 · SERVICES & COLLABORATION" />
 
-        {/* ── AI SEARCH CONTEXT / FAQ ───────────────────────────────── */}
+        {/* ── SERVICES HUB TEASER ───────────────────────────────────── */}
         <section id="ai-context" className="relative py-16 md:py-28 max-w-4xl mx-auto px-6 md:px-10">
           <SectionHeader
             index="05"
-            eyebrow="client.faq"
-            title="Freelance AI Architect"
+            eyebrow="services.overview"
+            title="Engineering Beyond the Portfolio"
             className="mb-8"
           />
 
-          <LiquidGlassCard borderRadius={26} className="p-7 md:p-10 mb-6">
-            <p className="text-sm md:text-base text-ivory-soft font-light leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-              Welcome to the digital nervous system of{" "}
-              <strong className="text-ivory font-medium">Keval Parmar</strong>, an independent{" "}
-              <strong className="text-vermilion font-medium">AI Architect and Engineer</strong>. This
-              platform isn't just a static display; it serves as a live demonstration of the
-              scalable infrastructure and intelligent design I bring to client engagements. Whether
-              you need custom LLM integrations, agentic workflows, or end-to-end full-stack
-              development, this portfolio highlights how complex technical problems are solved with
-              robust architectures.
+          <LiquidGlassCard borderRadius={26} className="p-7 md:p-10">
+            <p className="text-sm md:text-base text-ivory-soft font-light leading-relaxed mb-7 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+              This site brings together my background, engineering stack, and six shipped systems.
+              If you want the full breakdown of services, delivery process, and technical FAQs—or
+              want to send details for a new build—continue to the dedicated pages below.
             </p>
+            <div className="flex flex-wrap gap-3.5">
+              <LiquidGlassPill
+                to="/freelance"
+                variant="primary"
+                className="px-6 py-3 text-xs font-mono tracking-wider uppercase text-ivory"
+              >
+                <span>Explore freelance AI services</span>
+                <FiArrowUpRight className="text-sm text-vermilion" />
+              </LiquidGlassPill>
+              <LiquidGlassPill
+                to="/collaborate"
+                variant="secondary"
+                className="px-6 py-3 text-xs font-mono tracking-wider uppercase text-ivory"
+              >
+                <span>Send a project inquiry</span>
+                <FiArrowUpRight className="text-sm text-vermilion" />
+              </LiquidGlassPill>
+            </div>
           </LiquidGlassCard>
-
-          <div className="space-y-4">
-            {[
-              {
-                q: "What is your typical engagement model?",
-                a: (
-                  <>
-                    I partner directly with founders and product teams. Depending on the scale of
-                    the challenge, engagements range from{" "}
-                    <strong className="text-ivory">architecture scoping</strong> and technical
-                    consulting, to hands-on{" "}
-                    <strong className="text-ivory">freelance development</strong> where I build and
-                    deploy scalable AI products (like custom RAG pipelines or intelligent agents)
-                    directly into your existing infrastructure.
-                  </>
-                ),
-              },
-              {
-                q: "Do you handle full-stack or just AI?",
-                a: (
-                  <>
-                    Both. Delivering a successful AI product requires a seamless connection between
-                    the model and the user interface. My expertise spans modern frontends (React,
-                    Tailwind) and robust backends (Django, FastAPI), ensuring that the machine
-                    learning models I integrate are packaged in highly aesthetic and reliable
-                    applications.
-                  </>
-                ),
-              },
-              {
-                q: "How do we get started?",
-                a: (
-                  <>
-                    The best way is to reach out via the{" "}
-                    <strong className="text-vermilion">Collaborate</strong> page. We will begin with
-                    a brief scoping conversation to align on architecture, timelines, and business
-                    goals before any code is written.
-                  </>
-                ),
-              },
-            ].map((faq, idx) => {
-              const isOpen = openFAQ === idx;
-              return (
-                <LiquidGlassCard key={idx} borderRadius={22} zoom={0.86}>
-                  <button
-                    onClick={() => setOpenFAQ(isOpen ? null : idx)}
-                    className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 cursor-pointer"
-                  >
-                    <h3
-                      className={`font-serif italic text-lg md:text-xl transition-colors duration-300 m-0 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)] ${isOpen ? "text-vermilion" : "text-ivory"
-                        }`}
-                    >
-                      {faq.q}
-                    </h3>
-                    <motion.div
-                      initial={false}
-                      animate={{ rotate: isOpen ? 0 : 45 }}
-                      className="liquid-icon-box w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                    >
-                      <FaTimes className="text-xs text-vermilion" />
-                    </motion.div>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: EASE }}
-                      >
-                        <div className="px-6 pb-6 pt-3 text-ivory-soft text-sm leading-relaxed border-t border-white/[0.08] font-light drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </LiquidGlassCard>
-              );
-            })}
-          </div>
         </section>
 
         <LiquidSectionDivider label="06 · INITIALIZE" />
@@ -1062,8 +1056,8 @@ export default function Home() {
               transition={{ duration: 0.7, ease: EASE }}
               className="text-ivory-soft text-sm md:text-lg mb-10 md:mb-12 max-w-lg mx-auto font-light drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]"
             >
-              Currently accepting new freelance projects, technical consulting engagements, and
-              architecture design work.
+              Want to discuss an engineering role, technical collaboration, or software build?
+              Connect on any platform below or use the inquiry page.
             </motion.p>
 
             <div className="flex flex-wrap justify-center gap-3 md:gap-4">

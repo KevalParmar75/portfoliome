@@ -1,14 +1,17 @@
-import { useEffect, useState, useRef, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useState, useRef, type FormEvent } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
-import { FaBrain, FaServer, FaProjectDiagram, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
-import ChatModal from "../components/ChatModal";
+import { Link } from "react-router-dom";
+import { FaClipboardList, FaClock, FaCompass, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
+import { FiArrowUpRight } from "react-icons/fi";
 import Navbar from "../components/Navbar";
-import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
-import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import { LiquidChatOrb, LiquidGlassCard, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
 import api from "../api/axios";
-import { PAGE_SEO, setPageMetadata } from "../seo";
+import { COLLABORATE_SCHEMA, PAGE_SEO, setPageMetadata } from "../seo";
+
+const ChatModal = lazy(() => import("../components/ChatModal"));
+const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
+const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 
 // ─── Film Grain ───────────────────────────────────────────────────────────────
 const Grain = () => (
@@ -36,10 +39,13 @@ const ScrollProgress = () => {
 
 // ─── Parallax hero (Koi pond shows through) ───────────────────────────────────
 const TITLE_WORDS: { word: string; accent: boolean }[] = [
-  { word: "Let's", accent: false },
-  { word: "architect", accent: false },
-  { word: "intelligent", accent: true },
-  { word: "systems.", accent: false },
+  { word: "Start", accent: false },
+  { word: "a", accent: false },
+  { word: "project", accent: false },
+  { word: "inquiry", accent: true },
+  { word: "or", accent: false },
+  { word: "say", accent: false },
+  { word: "hello.", accent: false },
 ];
 
 const CollabHero = () => {
@@ -75,7 +81,7 @@ const CollabHero = () => {
 
         <h1
           className="display-title mb-6 md:mb-8 drop-shadow-[0_4px_24px_rgba(0,0,0,0.65)]"
-          aria-label="Let's architect intelligent systems."
+          aria-label="Start a project inquiry or say hello."
         >
           {TITLE_WORDS.map(({ word, accent }, i) => (
             <span
@@ -100,7 +106,8 @@ const CollabHero = () => {
           transition={{ duration: 0.7, ease: EASE, delay: 0.7 }}
           className="text-ivory-muted text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]"
         >
-          I help founders and teams build and integrate reliable AI systems into real products.
+          Share your timeline, goals, or technical stack for freelance projects, consulting, or
+          engineering opportunities.
         </motion.p>
       </motion.div>
     </section>
@@ -110,10 +117,13 @@ const CollabHero = () => {
 export default function Collaborate() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle, submitting, success
+  const [showEffects, setShowEffects] = useState(false);
   const lensMapUrl = useCardLensMap();
 
   useEffect(() => {
-    setPageMetadata(PAGE_SEO.collaborate);
+    setPageMetadata({ ...PAGE_SEO.collaborate, structuredData: COLLABORATE_SCHEMA });
+    const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   // Custom Dropdown State
@@ -178,21 +188,21 @@ export default function Collaborate() {
     }
   };
 
-  const services = [
+  const inquiryNotes = [
     {
-      icon: <FaBrain className="text-vermilion text-xl" />,
-      title: "LLM Integration",
-      desc: "Custom prompt architecture, context injection, and deployment of powerful open-source models (like Qwen) or running local models.",
+      icon: <FaCompass className="text-vermilion text-xl" />,
+      title: "Project Scoping",
+      desc: "Every inquiry begins with a brief scoping exchange to clarify your goals, constraints, and milestones before code is written.",
     },
     {
-      icon: <FaProjectDiagram className="text-vermilion text-xl" />,
-      title: "RAG & Workflows",
-      desc: "Designing intelligent agentic workflows and hybrid architectures combining LangGraph and n8n to connect private knowledge bases.",
+      icon: <FaClock className="text-vermilion text-xl" />,
+      title: "Engagement Options",
+      desc: "Open to freelance projects, technical consulting, and full-time or internship roles. Replies typically arrive within 24 hours.",
     },
     {
-      icon: <FaServer className="text-ivory-faint text-xl" />,
-      title: "Backend Architecture",
-      desc: "Building clean, cost-optimized, and highly scalable REST APIs using Django to securely bridge frontend applications with AI systems.",
+      icon: <FaClipboardList className="text-ivory-faint text-xl" />,
+      title: "What to Include",
+      desc: "Mention your target timeline, current stack, and whether you need a prototype, API integration, or full-stack web application.",
     },
   ];
 
@@ -207,13 +217,17 @@ export default function Collaborate() {
       {/* ── Shared SVG Optical Refraction Filter for Cards & Inputs ── */}
       <LiquidLensFilter id="collab-liquid-glass" mapUrl={lensMapUrl} />
 
-      {/* ── Background: Live ASCII Koi Fish Pond ── */}
-      <AsciiKoiCanvas />
+      {/* ── Background: Live ASCII Koi Fish Pond & Cursor ── */}
+      {showEffects && (
+        <Suspense fallback={null}>
+          <AsciiKoiCanvas />
+          <LiquidGlassCursor />
+        </Suspense>
+      )}
 
       {/* Ambient gradient glow in center water */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
 
-      <LiquidGlassCursor />
       <Navbar />
       <ScrollProgress />
       <Grain />
@@ -225,21 +239,21 @@ export default function Collaborate() {
       <main className="relative z-10 pb-24 pt-4 md:pt-8">
         <section className="relative flex flex-col items-center justify-start px-6 md:px-10 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 w-full">
-            {/* Left Column: Services & AI Closer */}
+            {/* Left Column: Inquiry Notes & AI Closer */}
             <div className="lg:col-span-6 xl:col-span-7 space-y-12">
               <div>
-                <motion.h3
+                <motion.h2
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2, ease: EASE }}
                   className="font-mono text-[10px] md:text-[11px] text-vermilion tracking-[0.35em] uppercase mb-6 flex items-center gap-4"
                 >
                   <span className="h-px bg-white/[0.08] flex-grow max-w-[40px]" />
-                  Core Capabilities
-                </motion.h3>
+                  Before You Reach Out
+                </motion.h2>
 
                 <div className="space-y-4">
-                  {services.map((service, idx) => (
+                  {inquiryNotes.map((note, idx) => (
                     <motion.div
                       key={idx}
                       initial={{ opacity: 0, y: 24 }}
@@ -252,20 +266,37 @@ export default function Collaborate() {
                             0{idx + 1}
                           </span>
                           <div className="liquid-icon-box w-11 h-11 rounded-2xl flex items-center justify-center shrink-0">
-                            {service.icon}
+                            {note.icon}
                           </div>
                           <div>
-                            <h4 className="text-lg md:text-xl font-serif italic text-ivory mb-1.5 transition-transform duration-500 group-hover:translate-x-1 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
-                              {service.title}
-                            </h4>
+                            <h3 className="text-lg md:text-xl font-serif italic text-ivory mb-1.5 transition-transform duration-500 group-hover:translate-x-1 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
+                              {note.title}
+                            </h3>
                             <p className="text-sm font-light text-ivory-soft leading-relaxed transition-transform duration-500 group-hover:translate-x-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-                              {service.desc}
+                              {note.desc}
                             </p>
                           </div>
                         </div>
                       </LiquidGlassCard>
                     </motion.div>
                   ))}
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-4 text-xs font-mono text-ivory-dim">
+                  <Link
+                    to="/freelance"
+                    className="inline-flex items-center gap-1.5 text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
+                  >
+                    <span>Review freelance AI &amp; RAG services</span>
+                    <FiArrowUpRight className="text-vermilion" />
+                  </Link>
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-1.5 text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
+                  >
+                    <span>Explore Keval Parmar's portfolio</span>
+                    <FiArrowUpRight className="text-vermilion" />
+                  </Link>
                 </div>
               </div>
 
@@ -278,9 +309,9 @@ export default function Collaborate() {
                 <LiquidGlassCard borderRadius={22} contentClassName="flex flex-col" className="p-7 md:p-8">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div>
-                      <h4 className="text-ivory font-medium mb-1 font-serif italic text-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
+                      <h3 className="text-ivory font-medium mb-1 font-serif italic text-xl drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
                         Not sure where to start?
-                      </h4>
+                      </h3>
                       <p className="text-xs text-vermilion font-mono tracking-widest uppercase">
                         Ask my AI assistant to scope your stack.
                       </p>
@@ -313,9 +344,9 @@ export default function Collaborate() {
                 className="p-8 md:p-10 min-h-[480px]"
               >
                 <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-8">
-                  <h3 className="text-xl font-serif italic text-ivory drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
+                  <h2 className="text-xl font-serif italic text-ivory drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
                     Project Inquiry
-                  </h3>
+                  </h2>
                   <span className="w-2 h-2 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
                 </div>
 
@@ -336,9 +367,9 @@ export default function Collaborate() {
                         </div>
                       </div>
 
-                      <h4 className="text-2xl font-serif italic mb-3 text-ivory">
+                      <h3 className="text-2xl font-serif italic mb-3 text-ivory">
                         Transmission Received
-                      </h4>
+                      </h3>
                       <p className="text-sm text-ivory-soft font-light leading-relaxed max-w-[260px] mx-auto">
                         I will review your architecture parameters and initialize contact shortly.
                       </p>
@@ -538,7 +569,11 @@ export default function Collaborate() {
         )}
       </AnimatePresence>
 
-      <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} mode="sales" />
+      {isChatOpen && (
+        <Suspense fallback={null}>
+          <ChatModal isOpen onClose={() => setIsChatOpen(false)} mode="sales" />
+        </Suspense>
+      )}
 
       <footer className="relative z-10 py-8 text-center bg-[#000000]/60 backdrop-blur-md border-t border-white/[0.06]">
         <p className="font-mono text-ivory-faint text-xs tracking-[0.2em] flex items-center justify-center gap-3">

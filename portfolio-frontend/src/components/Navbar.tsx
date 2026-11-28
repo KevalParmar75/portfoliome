@@ -7,7 +7,7 @@ import { LiquidLensFilter } from "./LiquidGlass";
 import { useCapsuleLensMap } from "../hooks/useLensMap";
 
 const NAV_ITEMS = [
-  { label: "Home", id: "hero" },
+  { label: "Home", id: "hero", path: "/" },
   { label: "About", id: "about" },
   { label: "Skills", id: "skills" },
   { label: "Experience", id: "experience" },
@@ -151,6 +151,14 @@ export default function Navbar() {
 
   const handleNavClick = (item: { label: string; id: string; path?: string }) => {
     setIsMobileMenuOpen(false);
+    if (item.path === "/") {
+      if (location.pathname !== "/") {
+        navigate("/");
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      return;
+    }
     if (item.path) {
       navigate(item.path);
       return;

@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { lazy, Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   motion,
   AnimatePresence,
@@ -12,10 +12,18 @@ import {
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import NotFound from "./NotFound";
-import { buildProjectMetadata, PAGE_SEO, setPageMetadata } from "../seo";
+import {
+  buildProjectMetadata,
+  getProjectHomeTeaser,
+  getProjectScreenshotAlt,
+  getRelatedProjects,
+  optimizeCloudinaryImage,
+  PAGE_SEO,
+  setPageMetadata,
+} from "../seo";
 import {
   getSnapshotProjectBySlug,
-  getSnapshotRecommendedProject,
+  portfolioSnapshot,
 } from "../data/portfolioSnapshot";
 import type { Project as BaseProject } from "../types";
 import ReactMarkdown from "react-markdown";
@@ -30,10 +38,11 @@ import {
   FiMaximize2,
   FiArrowUpRight,
 } from "react-icons/fi";
-import LiquidGlassCursor from "../components/LiquidGlassCursor";
-import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
 import { LiquidGlassCard, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
+
+const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
+const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
 
 type Project = BaseProject & {
   detailed_description: string;
@@ -203,7 +212,13 @@ const ActionButton = ({
 );
 
 // ─── Carousel inside Liquid Glass ─────────────────────────────────────────────
-const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) => {
+const ImageCarousel = ({
+  project,
+  images,
+}: {
+  project: Project;
+  images: NonNullable<Project["images"]>;
+}) => {
   const [idx, setIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -247,9 +262,9 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
       className="mb-8"
     >
       <div className="flex items-center gap-4 mb-5">
-        <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
-          visual.overview
-        </span>
+        <h2 className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+          Visual Overview
+        </h2>
         <span className="liquid-divider-line flex-1 max-w-[160px]" />
       </div>
 
@@ -287,10 +302,13 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
                 aria-label="View image full screen"
               >
                 <img
-                  src={images[idx].image}
-                  alt={images[idx].caption || `Screenshot ${idx + 1}`}
+                  src={optimizeCloudinaryImage(images[idx].image, 1280)}
+                  alt={getProjectScreenshotAlt(project, idx, images[idx].caption)}
+                  width={1280}
+                  height={720}
                   className="w-full h-full object-contain rounded-lg"
-                  loading="lazy"
+                  loading={idx === 0 ? "eager" : "lazy"}
+                  fetchPriority={idx === 0 ? "high" : "auto"}
                 />
                 <span className="liquid-icon-box absolute bottom-2 right-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg text-vermilion">
                   <FiMaximize2 size={14} />
@@ -384,8 +402,10 @@ const ImageCarousel = ({ images }: { images: NonNullable<Project["images"]> }) =
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.25 }}
-                src={images[idx].image}
-                alt={images[idx].caption || `Screenshot ${idx + 1}`}
+                src={optimizeCloudinaryImage(images[idx].image, 1600)}
+                alt={getProjectScreenshotAlt(project, idx, images[idx].caption)}
+                width={1600}
+                height={900}
                 onClick={(e) => e.stopPropagation()}
                 className="max-w-full max-h-full object-contain rounded-xl select-none shadow-[0_24px_80px_rgba(0,0,0,0.85)]"
               />
@@ -429,11 +449,9 @@ const MetaChip = ({ children }: { children: React.ReactNode }) => (
 const ProjectHero = ({
   project,
   techCount,
-  onBack,
 }: {
   project: Project;
   techCount: number;
-  onBack: () => void;
 }) => {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -446,16 +464,27 @@ const ProjectHero = ({
         style={{ y, opacity }}
         className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 will-change-transform"
       >
-        <motion.button
-          onClick={onBack}
+        <motion.div
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="liquid-pill-secondary inline-flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[11px] text-ivory-soft hover:text-ivory transition-all mb-10 md:mb-12 group cursor-pointer"
+          className="flex flex-wrap items-center gap-3 mb-10 md:mb-12"
         >
-          <FiChevronLeft className="text-vermilion group-hover:-translate-x-0.5 transition-transform duration-200" />
-          <span className="tracking-[0.2em] uppercase">back_to_projects</span>
-        </motion.button>
+          <Link
+            to="/"
+            className="liquid-pill-secondary inline-flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[11px] text-ivory-soft hover:text-ivory transition-all group"
+          >
+            <FiChevronLeft className="text-vermilion group-hover:-translate-x-0.5 transition-transform duration-200" />
+            <span className="tracking-[0.2em] uppercase">Keval Parmar Portfolio</span>
+          </Link>
+          <Link
+            to="/freelance"
+            className="liquid-pill-secondary inline-flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[11px] text-ivory-soft hover:text-ivory transition-all group"
+          >
+            <span className="tracking-[0.2em] uppercase">Freelance AI Services</span>
+            <FiArrowUpRight className="text-vermilion group-hover:translate-x-0.5 transition-transform duration-200" />
+          </Link>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -520,55 +549,74 @@ const ProjectHero = ({
   );
 };
 
-// ─── Up Next (Refractive Liquid Glass Card) ───────────────────────────────────
-const UpNext = ({ project, onOpen }: { project: Project; onOpen: () => void }) => {
+// ─── Related Projects (Refractive Liquid Glass Cards) ─────────────────────────
+const RelatedProjects = ({ projects }: { projects: BaseProject[] }) => {
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.35 });
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const ghostY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const inView = useInView(ref, { once: true, amount: 0.25 });
 
   return (
     <section className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pb-20 md:pb-28">
       <motion.div
         ref={ref}
-        initial={{ opacity: 0, y: 32 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: EASE }}
+        transition={{ duration: 0.7, ease: EASE }}
       >
-        <LiquidGlassCard
-          borderRadius={30}
-          zoom={0.88}
-          onClick={onOpen}
-          className="group p-8 sm:p-12 md:p-16 cursor-pointer transition-transform duration-500 hover:-translate-y-1"
-        >
-          <motion.span
-            style={{ y: ghostY }}
-            className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 font-serif italic text-[6rem] md:text-[9.5rem] leading-none text-ivory/[0.04] select-none pointer-events-none"
-          >
-            next
-          </motion.span>
-
-          <div className="flex items-center gap-3 mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
-            <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
-              up.next
-            </span>
+            <h2 className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+              Related Projects
+            </h2>
           </div>
+          <div className="flex flex-wrap gap-4 text-xs font-mono">
+            <Link
+              to="/"
+              className="text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
+            >
+              All portfolio projects
+            </Link>
+            <Link
+              to="/freelance"
+              className="text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
+            >
+              Hire for AI development
+            </Link>
+          </div>
+        </div>
 
-          <div className="relative flex items-center justify-between gap-6">
-            <div className="min-w-0">
-              <h2 className="font-serif italic text-3xl md:text-5xl lg:text-6xl text-ivory leading-tight transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-                {project.title}
-              </h2>
-              <p className="mt-3 md:mt-4 text-sm md:text-base text-ivory-soft font-light leading-relaxed max-w-xl transition-transform duration-500 group-hover:translate-x-2 md:group-hover:translate-x-3 drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-                {project.short_description}
-              </p>
-            </div>
-            <div className="liquid-icon-box w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 group-hover:border-vermilion/50 group-hover:bg-vermilion/15 group-hover:rotate-45">
-              <FiArrowUpRight className="text-lg md:text-2xl text-vermilion group-hover:text-ivory transition-colors duration-300" />
-            </div>
-          </div>
-        </LiquidGlassCard>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {projects.map((rel) => (
+            <LiquidGlassCard
+              key={rel.slug}
+              borderRadius={26}
+              zoom={0.88}
+              onClick={() => navigate(`/projects/${rel.slug}`)}
+              className="group p-7 sm:p-9 cursor-pointer transition-transform duration-500 hover:-translate-y-1"
+            >
+              <div className="relative flex items-start justify-between gap-5">
+                <div className="min-w-0">
+                  <h3 className="font-serif italic text-2xl md:text-3xl text-ivory leading-tight transition-transform duration-500 group-hover:translate-x-1.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]">
+                    <Link
+                      to={`/projects/${rel.slug}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="hover:text-ivory focus:outline-none"
+                    >
+                      {rel.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-3 text-sm text-ivory-soft font-light leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+                    {getProjectHomeTeaser(rel)}
+                  </p>
+                </div>
+                <div className="liquid-icon-box w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 group-hover:border-vermilion/50 group-hover:bg-vermilion/15 group-hover:rotate-45">
+                  <FiArrowUpRight className="text-base text-vermilion group-hover:text-ivory transition-colors duration-300" />
+                </div>
+              </div>
+            </LiquidGlassCard>
+          ))}
+        </div>
       </motion.div>
     </section>
   );
@@ -627,18 +675,22 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<Project | null>(
     () => getSnapshotProjectBySlug(slug) as Project | null
   );
+  const [allProjects, setAllProjects] = useState<BaseProject[]>(() => portfolioSnapshot.projects);
   const [notFound, setNotFound] = useState(false);
+  const [showEffects, setShowEffects] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [explanationType, setExplanationType] = useState("technical");
   const [complexity, setComplexity] = useState("normal");
   const [explanation, setExplanation] = useState("");
   const [typedText, setTypedText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [recommendedProject, setRecommendedProject] = useState<Project | null>(
-    () => getSnapshotRecommendedProject(slug) as Project | null
-  );
   const [showRecommendation, setShowRecommendation] = useState(false);
   const [dismissRecommendation, setDismissRecommendation] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -658,7 +710,7 @@ export default function ProjectDetails() {
     setShowRecommendation(false);
     setDismissRecommendation(false);
     setProject(snapshotMatch);
-    setRecommendedProject(getSnapshotRecommendedProject(slug) as Project | null);
+    setAllProjects(portfolioSnapshot.projects);
     setNotFound(false);
 
     api
@@ -667,11 +719,9 @@ export default function ProjectDetails() {
         if (cancelled) return;
         const all: Project[] = res.data;
         const found = all.find((p) => p.slug === slug) ?? null;
+        setAllProjects(all);
         setProject(found);
         setNotFound(!found);
-        const others = all.filter((p) => p.slug !== slug);
-        if (others.length > 0)
-          setRecommendedProject([...others].sort((a, b) => (b.views || 0) - (a.views || 0))[0]);
       })
       .catch(() => {
         if (!cancelled && !snapshotMatch) setNotFound(true);
@@ -736,6 +786,9 @@ export default function ProjectDetails() {
   if (notFound) return <NotFound />;
   if (!project) return <LoadingSkeleton />;
 
+  const relatedProjects = getRelatedProjects(project.slug, allProjects);
+  const recommendedProject = relatedProjects[0] ?? null;
+
   const techLines = project.tech_stack
     .split(/\n/)
     .map((l) => l.trim())
@@ -752,8 +805,12 @@ export default function ProjectDetails() {
       {/* ── Shared SVG Optical Refraction Filter ── */}
       <LiquidLensFilter id="project-liquid-glass" mapUrl={lensMapUrl} />
 
-      <LiquidGlassCursor />
-      <AsciiKoiCanvas />
+      {showEffects && (
+        <Suspense fallback={null}>
+          <LiquidGlassCursor />
+          <AsciiKoiCanvas />
+        </Suspense>
+      )}
 
       {/* Ambient gradient glow in center water */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
@@ -763,7 +820,7 @@ export default function ProjectDetails() {
       <Grain />
 
       {/* ── Parallax hero ──────────────────────────────────────────── */}
-      <ProjectHero project={project} techCount={techLines.length} onBack={() => navigate(-1)} />
+      <ProjectHero project={project} techCount={techLines.length} />
 
       <LiquidSectionDivider label="01 · ARCHITECTURE & OVERVIEW" />
 
@@ -781,15 +838,15 @@ export default function ProjectDetails() {
               <LiquidGlassCard borderRadius={28} className="p-7 sm:p-10 md:p-12">
                 <div className="flex items-center gap-4 mb-6 pb-4 border-b border-white/[0.08]">
                   <span className="w-2 h-2 rounded-full bg-vermilion shadow-[0_0_8px_#E98259]" />
-                  <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
-                    project.overview
-                  </span>
+                  <h2 className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+                    Project Overview
+                  </h2>
                 </div>
                 <DescriptionText text={project.detailed_description} />
               </LiquidGlassCard>
 
               {project.images && project.images.length > 0 && (
-                <ImageCarousel images={project.images} />
+                <ImageCarousel project={project} images={project.images} />
               )}
             </motion.div>
 
@@ -802,9 +859,9 @@ export default function ProjectDetails() {
             >
               <LiquidGlassCard borderRadius={26} zoom={0.86} className="p-7 sm:p-8">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
-                  <span className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
-                    tech.stack
-                  </span>
+                  <h2 className="font-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-vermilion">
+                    Tech Stack
+                  </h2>
                   <span className="font-mono text-[10px] text-ivory-faint">
                     [{techLines.length}]
                   </span>
@@ -833,9 +890,9 @@ export default function ProjectDetails() {
                     <FaBrain className="text-vermilion text-sm animate-pulse" />
                   </div>
                   <div>
-                    <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-vermilion block">
-                      ai.explainer
-                    </span>
+                    <h2 className="font-mono text-[10px] tracking-[0.3em] uppercase text-vermilion block">
+                      AI Architecture Explainer
+                    </h2>
                     <span className="text-xs text-ivory-muted font-light">
                       Generate a tailored architectural breakdown of this project in real time.
                     </span>
@@ -896,14 +953,11 @@ export default function ProjectDetails() {
         </div>
       </main>
 
-      {/* ── Up Next ────────────────────────────────────────────────────── */}
-      {recommendedProject && (
+      {/* ── Related Projects ─────────────────────────────────────────────── */}
+      {relatedProjects.length > 0 && (
         <>
           <LiquidSectionDivider label="03 · CONTINUE EXPLORING" />
-          <UpNext
-            project={recommendedProject}
-            onOpen={() => navigate(`/projects/${recommendedProject.slug}`)}
-          />
+          <RelatedProjects projects={relatedProjects} />
         </>
       )}
 

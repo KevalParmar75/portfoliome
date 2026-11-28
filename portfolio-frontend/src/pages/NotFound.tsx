@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { LiquidGlassCard, LiquidGlassPill, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
@@ -10,7 +9,6 @@ const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
 const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
 
 export default function NotFound() {
-  const navigate = useNavigate();
   const lensMapUrl = useCardLensMap();
   const [showEffects, setShowEffects] = useState(false);
 
@@ -67,11 +65,11 @@ export default function NotFound() {
 
             <div className="flex justify-center">
               <LiquidGlassPill
-                onClick={() => navigate("/")}
+                to="/"
                 variant="primary"
                 className="px-7 py-3.5 text-sm font-medium text-ivory"
               >
-                Return to home
+                Return to Keval Parmar portfolio
               </LiquidGlassPill>
             </div>
           </LiquidGlassCard>

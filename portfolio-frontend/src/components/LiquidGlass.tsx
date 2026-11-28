@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { FiMessageSquare } from "react-icons/fi";
 import { koiManager } from "./KoiCanvasContext";
 import { TINT_ACCENTS, type GlassTint } from "./LiquidGlass.shared";
@@ -219,7 +220,9 @@ export const LiquidGlassCard = ({
 
 interface LiquidGlassPillProps {
   children: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  to?: string;
+  state?: unknown;
   variant?: "primary" | "secondary";
   className?: string;
 }
@@ -227,14 +230,16 @@ interface LiquidGlassPillProps {
 export const LiquidGlassPill = ({
   children,
   onClick,
+  to,
+  state,
   variant = "primary",
   className = "",
 }: LiquidGlassPillProps) => {
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const pillRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const btn = btnRef.current;
+    const btn = pillRef.current;
     const canvas = canvasRef.current;
     if (!btn || !canvas) return;
     const ctx = canvas.getContext("2d");
@@ -272,23 +277,56 @@ export const LiquidGlassPill = ({
     };
   }, []);
 
-  return (
-    <motion.button
-      ref={btnRef}
-      onClick={onClick}
-      whileHover={{ y: -2, scale: 1.02 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 380, damping: 24 }}
-      className={`liquid-pill-btn ${
-        variant === "primary" ? "liquid-pill-primary" : "liquid-pill-secondary"
-      } relative rounded-full overflow-hidden flex items-center justify-center gap-2.5 cursor-pointer ${className}`}
-    >
+  const sharedClass = `liquid-pill-btn ${
+    variant === "primary" ? "liquid-pill-primary" : "liquid-pill-secondary"
+  } relative rounded-full overflow-hidden flex items-center justify-center gap-2.5 cursor-pointer ${className}`;
+
+  const inner = (
+    <>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none opacity-45 mix-blend-screen z-0"
       />
       <span className="liquid-pill-rim pointer-events-none" />
       <span className="relative z-10 flex items-center gap-2.5">{children}</span>
+    </>
+  );
+
+  if (to) {
+    return (
+      <motion.span
+        whileHover={{ y: -2, scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 380, damping: 24 }}
+        className="inline-flex"
+      >
+        <Link
+          ref={(el) => {
+            pillRef.current = el;
+          }}
+          to={to}
+          state={state}
+          onClick={onClick}
+          className={sharedClass}
+        >
+          {inner}
+        </Link>
+      </motion.span>
+    );
+  }
+
+  return (
+    <motion.button
+      ref={(el) => {
+        pillRef.current = el;
+      }}
+      onClick={onClick}
+      whileHover={{ y: -2, scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 380, damping: 24 }}
+      className={sharedClass}
+    >
+      {inner}
     </motion.button>
   );
 };

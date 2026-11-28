@@ -1,15 +1,15 @@
 # Keval Parmar
 
-> Keval Parmar is an AI application engineer building AI applications, RAG systems, agents, and workflow automation. This site presents his selected projects, services, and contact options.
+> Keval Parmar is an AI application engineer working with Python, LangGraph, Django, and React. This site presents his background, freelance services, six case studies, and contact options.
 
 ## Pages
 
-- [Portfolio](https://kevalparmar.me/): Background, skills, experience, and selected projects.
-- [AI application services](https://kevalparmar.me/freelance): Freelance services and remote availability.
-- [Contact](https://kevalparmar.me/collaborate): Discuss a project or collaboration.
-- [Adiyogi Wellness](https://kevalparmar.me/projects/adiyogi-wellness): Project overview.
-- [Optimus Assistant](https://kevalparmar.me/projects/optimus-ai-assistant): Project overview.
-- [Talent Tuner](https://kevalparmar.me/projects/talent-tuner): Project overview.
-- [Financial Assistant Bot](https://kevalparmar.me/projects/financial-assistant-bot): Project overview.
-- [Flower Image Generator using DCGAN](https://kevalparmar.me/projects/flower-image-generator-using-dcgan): Project overview.
-- [Museum Ticket Booking Assistant](https://kevalparmar.me/projects/museum-ticket-booking-assistant): Project overview.
+- [Keval Parmar Portfolio](https://kevalparmar.me/): Identity, background, architecture stack, experience, and project overview.
+- [Freelance AI Application & RAG Development](https://kevalparmar.me/freelance): Freelance AI services, process, and FAQs.
+- [Contact & Project Inquiries](https://kevalparmar.me/collaborate): Inquiry form for projects, consulting, and roles.
+- [Optimus AI Assistant](https://kevalparmar.me/projects/optimus-ai-assistant): Desktop assistant with ModernBERT intent routing, six LangGraph agents, and ChromaDB memory.
+- [Adiyogi Wellness](https://kevalparmar.me/projects/adiyogi-wellness): React, TypeScript, and Django REST wellness platform with multilingual AI chat.
+- [Talent Tuner](https://kevalparmar.me/projects/talent-tuner): Flask and Gemini API web app for resume, code, and LinkedIn profile review.
+- [Financial Assistant Bot](https://kevalparmar.me/projects/financial-assistant-bot): Streamlit financial chatbot with LangGraph, Yahoo Finance, and DuckDuckGo search.
+- [Flower Image Generator using DCGAN](https://kevalparmar.me/projects/flower-image-generator-using-dcgan): PyTorch DCGAN trained on the Oxford 102 Flower Dataset.
+- [Museum Ticket Booking Assistant](https://kevalparmar.me/projects/museum-ticket-booking-assistant): Django, MongoDB, and trilingual LangGraph museum ticketing system.

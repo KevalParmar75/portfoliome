@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import ChatModal from "../components/ChatModal";
 import freelanceChatContext from "../data/freelanceChatContext";
-import AsciiKoiCanvas from "../components/AsciiKoiCanvas";
-import LiquidGlassCursor from "../components/LiquidGlassCursor";
 import {
   LiquidChatOrb,
   LiquidGlassCard,
@@ -36,10 +33,14 @@ import { FiArrowUpRight } from "react-icons/fi";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+const ChatModal = lazy(() => import("../components/ChatModal"));
+const AsciiKoiCanvas = lazy(() => import("../components/AsciiKoiCanvas"));
+const LiquidGlassCursor = lazy(() => import("../components/LiquidGlassCursor"));
+
 export default function Freelance() {
-  const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [showEffects, setShowEffects] = useState(false);
   const lensMapUrl = useCardLensMap();
 
   const services = [
@@ -58,6 +59,9 @@ export default function Freelance() {
         "Evaluation suite built from your real user questions",
       ],
       stack: ["Python", "LangChain", "pgvector", "FAISS", "Qwen 2.5 / OpenAI"],
+      proof: [
+        { title: "Optimus AI Assistant (ChromaDB & LlamaIndex memory)", to: "/projects/optimus-ai-assistant" },
+      ],
       tint: "cyan" as GlassTint,
     },
     {
@@ -75,6 +79,10 @@ export default function Freelance() {
         "Response caching and automatic model failover",
       ],
       stack: ["Python", "LangGraph", "FastAPI", "Django / DRF", "Edge-TTS"],
+      proof: [
+        { title: "Financial Assistant Bot", to: "/projects/financial-assistant-bot" },
+        { title: "Museum Ticket Booking Assistant", to: "/projects/museum-ticket-booking-assistant" },
+      ],
       tint: "mint" as GlassTint,
     },
     {
@@ -92,6 +100,9 @@ export default function Freelance() {
         "Latency and token-cost benchmarking before handoff",
       ],
       stack: ["Docker", "Dokploy", "Ollama", "NVIDIA NIM", "Groq"],
+      proof: [
+        { title: "Optimus AI Assistant (ModernBERT + Groq failover)", to: "/projects/optimus-ai-assistant" },
+      ],
       tint: "cyan" as GlassTint,
     },
     {
@@ -109,6 +120,9 @@ export default function Freelance() {
         "Containerized deployment with clean documentation",
       ],
       stack: ["React", "Next.js", "TypeScript", "Django / Go", "PostgreSQL"],
+      proof: [
+        { title: "Adiyogi Wellness (React, TypeScript & Django REST)", to: "/projects/adiyogi-wellness" },
+      ],
       tint: "mint" as GlassTint,
     },
     {
@@ -126,6 +140,9 @@ export default function Freelance() {
         "Simple dashboard/handoff so your team controls content",
       ],
       stack: ["Python", "React", "Docker", "Messaging APIs", "LLMs"],
+      proof: [
+        { title: "Talent Tuner (Flask & Gemini review pipeline)", to: "/projects/talent-tuner" },
+      ],
       tint: "gold" as GlassTint,
     },
   ];
@@ -160,6 +177,8 @@ export default function Freelance() {
       ...PAGE_SEO.freelance,
       structuredData: FREELANCE_SCHEMA,
     });
+    const frame = window.requestAnimationFrame(() => setShowEffects(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const toggleFaq = (idx: number) => {
@@ -173,11 +192,13 @@ export default function Freelance() {
         <LiquidLensFilter id="panel-liquid-glass" mapUrl={lensMapUrl} preset="card" />
       )}
 
-      {/* ── Custom Liquid Glass Cursor ── */}
-      <LiquidGlassCursor />
-
-      {/* ── Background: Live ASCII Koi Fish Pond ── */}
-      <AsciiKoiCanvas />
+      {/* ── Custom Liquid Glass Cursor & Live ASCII Koi Pond ── */}
+      {showEffects && (
+        <Suspense fallback={null}>
+          <LiquidGlassCursor />
+          <AsciiKoiCanvas />
+        </Suspense>
+      )}
 
       {/* Ambient gradient glow in center water */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_30%,rgba(233,130,89,0.05)_0%,transparent_70%)]" />
@@ -195,10 +216,12 @@ export default function Freelance() {
             transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
             className="text-4xl sm:text-6xl md:text-7xl font-serif italic tracking-tight text-ivory leading-[1.08] mb-6 drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
           >
-            AI features for{" "}
-            <span className="not-italic font-sans font-medium text-vermilion">real products,</span>
+            Freelance{" "}
+            <span className="not-italic font-sans font-medium text-vermilion">
+              AI applications,
+            </span>
             <br />
-            built end to end.
+            RAG &amp; automation built end to end.
           </motion.h1>
 
           <motion.p
@@ -220,7 +243,7 @@ export default function Freelance() {
             className="flex flex-wrap items-center justify-center gap-4"
           >
             <LiquidGlassPill
-              onClick={() => navigate("/collaborate")}
+              to="/collaborate"
               variant="primary"
               className="px-7 py-3.5 text-sm font-medium text-ivory"
             >
@@ -316,6 +339,23 @@ export default function Freelance() {
                       </div>
                     </div>
 
+                    {/* Related Case Study Proof */}
+                    <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs font-mono text-ivory-dim">
+                      <span className="uppercase tracking-wider text-[10px] text-vermilion/90">
+                        Proof:
+                      </span>
+                      {service.proof.map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          className="inline-flex items-center gap-1 text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
+                        >
+                          <span>{item.title}</span>
+                          <FiArrowUpRight className="text-[11px] text-vermilion" />
+                        </Link>
+                      ))}
+                    </div>
+
                     {/* Tech Stack Chips & CTA */}
                     <div className="pt-6 border-t border-white/[0.09] flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-wrap gap-1.5">
@@ -329,17 +369,14 @@ export default function Freelance() {
                         ))}
                       </div>
 
-                      <button
-                        onClick={() =>
-                          navigate("/collaborate", {
-                            state: { selectedService: service.title },
-                          })
-                        }
+                      <Link
+                        to="/collaborate"
+                        state={{ selectedService: service.title }}
                         className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-vermilion hover:text-ivory transition-colors cursor-pointer group"
                       >
-                        <span>Discuss this</span>
+                        <span>Inquire about {service.label}</span>
                         <FaArrowRight className="text-[10px] group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      </Link>
                     </div>
                   </LiquidGlassCard>
                 </motion.div>
@@ -382,9 +419,9 @@ export default function Freelance() {
                       </span>
                       <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
                     </div>
-                    <h4 className="text-lg font-serif italic text-ivory mb-2 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
+                    <h3 className="text-lg font-serif italic text-ivory mb-2 drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
                       {step.name}
-                    </h4>
+                    </h3>
                     <p className="text-xs text-ivory-muted leading-relaxed font-light drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
                       {step.desc}
                     </p>
@@ -496,11 +533,11 @@ export default function Freelance() {
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   <LiquidGlassPill
-                    onClick={() => navigate("/collaborate")}
+                    to="/collaborate"
                     variant="primary"
                     className="px-8 py-4 font-mono text-xs tracking-widest uppercase text-ivory"
                   >
-                    <span>Start a project</span>
+                    <span>Start a project inquiry</span>
                     <FiArrowUpRight className="text-sm text-vermilion" />
                   </LiquidGlassPill>
 
@@ -535,7 +572,11 @@ export default function Freelance() {
         )}
       </AnimatePresence>
 
-      <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} mode="sales" context={freelanceChatContext} />
+      {isChatOpen && (
+        <Suspense fallback={null}>
+          <ChatModal isOpen onClose={() => setIsChatOpen(false)} mode="sales" context={freelanceChatContext} />
+        </Suspense>
+      )}
 
       {/* ── Footer ── */}
       <footer className="relative z-10 py-8 text-center bg-[#000000]/60 backdrop-blur-md border-t border-white/[0.06]">
