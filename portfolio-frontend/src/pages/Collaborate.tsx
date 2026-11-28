@@ -1,8 +1,6 @@
 import { lazy, Suspense, useEffect, useState, useRef, type FormEvent } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
-import { Link } from "react-router-dom";
 import { FaClipboardList, FaClock, FaCompass, FaPaperPlane, FaRobot, FaChevronDown } from "react-icons/fa";
-import { FiArrowUpRight } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import { LiquidChatOrb, LiquidGlassCard, LiquidLensFilter } from "../components/LiquidGlass";
 import { useCardLensMap } from "../hooks/useLensMap";
@@ -285,23 +283,6 @@ export default function Collaborate() {
                       </LiquidGlassCard>
                     </motion.div>
                   ))}
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-4 text-xs font-mono text-ivory-dim">
-                  <Link
-                    to="/freelance"
-                    className="inline-flex items-center gap-1.5 text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
-                  >
-                    <span>Review freelance AI &amp; RAG services</span>
-                    <FiArrowUpRight className="text-vermilion" />
-                  </Link>
-                  <Link
-                    to="/"
-                    className="inline-flex items-center gap-1.5 text-ivory-soft hover:text-vermilion underline decoration-white/20 underline-offset-4 transition-colors"
-                  >
-                    <span>Explore Keval Parmar's portfolio</span>
-                    <FiArrowUpRight className="text-vermilion" />
-                  </Link>
                 </div>
               </div>
 
